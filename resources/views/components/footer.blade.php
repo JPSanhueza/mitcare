@@ -14,13 +14,21 @@
                     transition cursor-pointer hover:scale-105 transition-transform duration-200';
                     @endphp
 
-                    <img src="{{ asset('img/logos/facebook.png') }}" alt="Facebook" class="{{ $socialBtn }}">
+                    <a href="https://facebook.com" target="_blank" aria-label="Facebook">
+                        <img src="{{ asset('img/logos/facebook.png') }}" alt="Facebook" class="{{ $socialBtn }}">
+                    </a>
 
-                    <img src="{{ asset('img/logos/instagram.png') }}" alt="Instagram" class="{{ $socialBtn }}">
+                    <a href="https://instagram.com" target="_blank" aria-label="Instagram">
+                        <img src="{{ asset('img/logos/instagram.png') }}" alt="Instagram" class="{{ $socialBtn }}">
+                    </a>
 
-                    <img src="{{ asset('img/logos/youtube.png') }}" alt="YouTube" class="{{ $socialBtn }}">
+                    <a href="https://youtube.com" target="_blank" aria-label="YouTube">
+                        <img src="{{ asset('img/logos/youtube.png') }}" alt="YouTube" class="{{ $socialBtn }}">
+                    </a>
 
-                    <img src="{{ asset('img/logos/whatsapp.png') }}" alt="WhatsApp" class="{{ $socialBtn }}">
+                    <a href="https://wa.me/56965901501" target="_blank" aria-label="WhatsApp">
+                        <img src="{{ asset('img/logos/whatsapp.png') }}" alt="WhatsApp" class="{{ $socialBtn }}">
+                    </a>
                 </div>
             </div>
 
@@ -28,17 +36,21 @@
             <div class="lg:border-r lg:border-white/30 lg:pr-10 justify-self-center lg:justify-self-auto">
                 <ul class="space-y-5 text-lg leading-7 w-fit mx-auto lg:w-auto lg:mx-0">
                     <li class="flex items-start gap-4 justify-center lg:justify-start">
-                        <i class="fa-solid fa-location-dot mt-1 text-2xl"></i>
+                        {{-- <i class="fa-solid fa-location-dot mt-1 text-2xl"></i> --}}
+                        <img src="{{ asset('img/icons/direccion.png') }}" alt="Ubicación" class="w-8 h-10">
                         <p>
                             Colo colo 222 Of 412,<br> Concepción.
                         </p>
                     </li>
                     <li class="flex items-center gap-4 justify-center lg:justify-start">
-                        <i class="fa-solid fa-phone text-2xl"></i>
+                        {{-- <i class="fa-solid fa-phone text-2xl"></i> --}}
+                        <img src="{{ asset('img/icons/celular.png') }}" alt="Celular" class="w-8 h-9">
+
                         <a href="tel:+56965901501" class="hover:underline">+56 9 6590 1501</a>
                     </li>
                     <li class="flex items-center gap-4 justify-center lg:justify-start">
-                        <i class="fa-regular fa-envelope text-2xl"></i>
+                        {{-- <i class="fa-regular fa-envelope text-2xl"></i> --}}
+                        <img src="{{ asset('img/icons/correo.png') }}" alt="Correo" class="w-8 h-4">
                         <a href="mailto:otecmitcare@gmail.com"
                             class="hover:underline break-all">otecmitcare@gmail.com</a>
                     </li>

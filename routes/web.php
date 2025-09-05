@@ -9,11 +9,10 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('/quienes-somos', 'about-us')->name('quienes');
-Route::view('/cursos', 'courses')->name('cursos');
-Route::view('/docentes', 'teachers')->name('docentes');
-Route::view('/certificaciones', 'certifications')->name('certificaciones');
-Route::view('/contacto', 'contact')->name('contacto');
+
+
+Route::post('/contacto', [\App\Http\Controllers\ContactController::class, 'send'])
+     ->name('contact.send');
 
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])

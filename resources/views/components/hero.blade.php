@@ -10,7 +10,7 @@
     </div>
 
     {{-- Contenido --}}
-    <div class="relative max-w-7xl mx-auto px-6">
+    <div class="relative max-w-7xl mx-auto px-3 sm:px-6">
         <div class="min-h-[520px] md:min-h-[640px] flex items-center">
             <div class="text-white max-w-3xl">
                 <h1 class="font-extrabold tracking-tight leading-tight
@@ -29,7 +29,7 @@
                     Contáctanos y descubre el poder de aprender con Otec Mitcare.
                 </p>
 
-                <div class="mt-8">
+                <div class="mt-8 mb-8 sm:mb-0">
                     <button type="button"
                             class="inline-flex items-center rounded-md px-8 py-3 text-lg font-bold
                                    text-white bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md

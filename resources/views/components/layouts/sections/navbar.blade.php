@@ -3,39 +3,33 @@
         <div class="h-22 flex items-center justify-between gap-2">
             <!-- Logo -->
             <a href="{{ route('home') }}" class="flex items-center gap-2 shrink-0">
-                <img src="{{ asset('img/logos/otec-logo-blanco.png') }}" alt="OTEC Mitcare"
-                    class="h-10 sm:h-16 w-auto">
+                <img src="{{ asset('img/logos/otec-logo-blanco.png') }}" alt="OTEC Mitcare" class="h-10 sm:h-16 w-auto">
             </a>
 
             <!-- Links (desktop) -->
             <ul class="hidden lg:flex items-center gap-12 text-lg md:text-xl">
                 <li>
-                    <a href="{{ route('home') }}"
-                        class="hover:opacity-75 {{ request()->routeIs('home') ? 'font-semibold' : '' }}">
+                    <a href="{{ route('home') }}" class="hover:opacity-75">
                         Inicio
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('quienes') }}"
-                        class="hover:opacity-75 {{ request()->routeIs('quienes') ? 'font-semibold' : '' }}">
+                    <a href="#quienes-somos" class="hover:opacity-75">
                         Quienes somos
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('cursos') }}"
-                        class="hover:opacity-75 {{ request()->routeIs('cursos.*') ? 'font-semibold' : '' }}">
+                    <a href="#cursos" class="hover:opacity-75">
                         Cursos
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('docentes') }}"
-                        class="hover:opacity-75 {{ request()->routeIs('docentes') ? 'font-semibold' : '' }}">
+                    <a href="#docentes" class="hover:opacity-75">
                         Docentes
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('certificaciones') }}"
-                        class="hover:opacity-75 {{ request()->routeIs('certificaciones') ? 'font-semibold' : '' }}">
+                    <a href="#certificaciones" class="hover:opacity-75">
                         Certificaciones
                     </a>
                 </li>
@@ -43,7 +37,7 @@
 
             <!-- Botón Contacto (desktop) -->
             <div class="hidden lg:block">
-                <a href="{{ route('contacto') }}" class="inline-flex items-center rounded-2xl px-5 py-2 text-lg
+                <a href="#contacto" class="inline-flex items-center rounded-2xl px-5 py-2 text-lg
                 font-semibold bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md">
                     Contacto
                 </a>
@@ -67,12 +61,12 @@
     <div x-show="open" x-transition.origin.top class="lg:hidden border-t border-white/10">
         <div class="px-4 py-3 space-y-2 text-base">
             <a href="{{ route('home') }}" class="block py-2 hover:opacity-80">Inicio</a>
-            <a href="{{ route('quienes') }}" class="block py-2 hover:opacity-80">Quienes somos</a>
-            <a href="{{ route('cursos') }}" class="block py-2 hover:opacity-80">Cursos</a>
-            <a href="{{ route('docentes') }}" class="block py-2 hover:opacity-80">Docentes</a>
-            <a href="{{ route('certificaciones') }}" class="block py-2 hover:opacity-80">Certificaciones</a>
+            <a href="#quienes-somos" class="block py-2 hover:opacity-80">Quienes somos</a>
+            <a href="#cursos" class="block py-2 hover:opacity-80">Cursos</a>
+            <a href="#docentes" class="block py-2 hover:opacity-80">Docentes</a>
+            <a href="#certificaciones" class="block py-2 hover:opacity-80">Certificaciones</a>
 
-            <a href="{{ route('contacto') }}" class="mt-2 inline-flex w-full justify-center
+            <a href="#contacto" class="mt-2 inline-flex w-full justify-center
             rounded-full px-5 py-2.5 font-semibold bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md">
                 Contacto
             </a>
