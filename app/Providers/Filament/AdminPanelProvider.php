@@ -28,8 +28,15 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandLogoHeight('4rem')
+            ->brandLogo(asset('img/logos/otec-logo-blanco.png'))
+            // ->homeUrl('/')
+            // ->favicon(asset('img/layout/favicon-32x32.png'))
+            ->brandName('OTEC MITCARE')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#19355C'),
+                'secondary' => Color::hex('#E71F6C'),
+                'success' => Color::hex('#47A8DF'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -39,7 +46,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
-                FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

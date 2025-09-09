@@ -29,6 +29,6 @@
     <x-certificaciones-strip />
     <x-support-strip />
     <x-testimonials />
-    <x-contact-form />
+    <livewire:contact-form />
 
 </x-layouts.app>

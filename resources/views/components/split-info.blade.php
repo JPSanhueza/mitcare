@@ -17,7 +17,7 @@
 @php
     $imgLeft = ($imagePosition === 'left');
     $btn = 'inline-flex items-center rounded-md px-6 py-3 font-bold text-white
-            bg-[#ff2d7a] hover:bg-[#e82670] transition shadow-md
+            bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md
             focus:outline-none focus:ring-2 focus:ring-white/60';
 
     // Orden en desktop (md+). En mobile: texto primero, imagen abajo.

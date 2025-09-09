@@ -9,11 +9,6 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-
-
-Route::post('/contacto', [\App\Http\Controllers\ContactController::class, 'send'])
-     ->name('contact.send');
-
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])
 //     ->name('dashboard');

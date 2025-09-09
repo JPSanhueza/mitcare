@@ -1,5 +1,4 @@
-{{-- Sección Certificaciones (hardcodeada) --}}
-<section class="w-full text-white">
+<section id="certificaciones" class="w-full text-white">
     <div class="grid md:grid-cols-2 sm:min-h-[520px] md:min-h-[650px]">
 
         {{-- Panel de texto (izquierda) --}}
@@ -21,7 +20,7 @@
                 <div class="mt-10">
                     <a href="#"
                        class="inline-flex items-center rounded-md px-6 py-3 font-bold text-white
-                              bg-[#ff2d7a] hover:bg-[#e82670] transition shadow-md
+                              bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md
                               focus:outline-none focus:ring-2 focus:ring-white/60">
                         Ver cursos
                     </a>
