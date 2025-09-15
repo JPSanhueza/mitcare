@@ -18,7 +18,7 @@
                 </div>
 
                 <div class="mt-10">
-                    <a href="#"
+                    <a href="#cursos"
                        class="inline-flex items-center rounded-md px-6 py-3 font-bold text-white
                               bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md
                               focus:outline-none focus:ring-2 focus:ring-white/60">
