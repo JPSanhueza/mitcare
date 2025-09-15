@@ -46,7 +46,7 @@ class FeaturedGrid extends Component
     private function resolveImageUrl(?string $path): string
     {
         if (blank($path)) {
-            return asset('img/fondos/placeholder-course.png'); // pon un placeholder si quieres
+            return asset('img/placeholder-img.png'); // pon un placeholder si quieres
         }
 
         if (filter_var($path, FILTER_VALIDATE_URL)) {

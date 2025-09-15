@@ -55,7 +55,7 @@ odontología, kinesiología y más.';
     private function resolveImageUrl(?string $path): string
     {
         if (blank($path)) {
-            return asset('img/placeholder-avatar.png'); // agrega un placeholder si quieres
+            return asset('img/placeholder-img.png'); // agrega un placeholder si quieres
         }
         if (filter_var($path, FILTER_VALIDATE_URL)) {
             return $path;

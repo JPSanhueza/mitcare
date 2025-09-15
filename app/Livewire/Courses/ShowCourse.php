@@ -39,7 +39,7 @@ class ShowCourse extends Component
 
     private function resolveImageUrl(?string $path): string
     {
-        if (blank($path)) return asset('img/placeholder-course.jpg');
+        if (blank($path)) return asset('img/placeholder-img.png');
         if (filter_var($path, FILTER_VALIDATE_URL)) return $path;
 
         // Asumimos disco 'public' (ajusta si usas S3)
