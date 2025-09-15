@@ -21,23 +21,24 @@ class TeacherForm
             FileUpload::make('foto')
                 ->label('Foto')
                 ->image()
-                ->directory('teachers') // usa ->disk('s3') si corresponde
+                ->disk('public')
+                ->directory('teachers')
                 ->imageEditor(),
 
             Toggle::make('is_active')
                 ->label('Activo')
                 ->default(true),
 
-            TextInput::make('email')
-                ->label('Correo')
-                ->email()
-                ->unique(ignoreRecord: true)
-                ->nullable(),
+            // TextInput::make('email')
+            //     ->label('Correo')
+            //     ->email()
+            //     ->unique(ignoreRecord: true)
+            //     ->nullable(),
 
-            TextInput::make('telefono')
-                ->label('Teléfono')
-                ->maxLength(50)
-                ->nullable(),
+            // TextInput::make('telefono')
+            //     ->label('Teléfono')
+            //     ->maxLength(50)
+            //     ->nullable(),
 
             Textarea::make('especialidad')
                 ->label('Especialidad')

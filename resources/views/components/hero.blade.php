@@ -2,11 +2,7 @@
 <section class="relative overflow-hidden">
     {{-- Fondo + overlay --}}
     <div aria-hidden="true" class="absolute inset-0">
-        <img
-            src="{{ asset('img/fondos/hero-otec.png') }}"
-            alt=""
-            class="w-full h-full object-cover object-[70%_50%]"
-        >
+        <img src="{{ asset('img/fondos/hero-otec.png') }}" alt="Banner" class="w-full h-full object-cover object-[70%_50%]">
     </div>
 
     {{-- Contenido --}}
@@ -14,7 +10,7 @@
         <div class="min-h-[520px] md:min-h-[640px] flex items-center">
             <div class="text-white max-w-3xl">
                 <h1 class="font-extrabold tracking-tight leading-tight
-                           text-2xl sm:text-3xl md:text-5xl">
+                           text-[22px] sm:text-3xl md:text-5xl">
                     Transforma tu<br class="hidden sm:block">
                     carrera con formación<br class="hidden sm:block">
                     especializada.
@@ -30,12 +26,11 @@
                 </p>
 
                 <div class="mt-8 mb-8 sm:mb-0">
-                    <button type="button"
-                            class="inline-flex items-center rounded-md px-8 py-3 text-lg font-bold
-                                   text-white bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md
-                                   focus:outline-none focus:ring-2 focus:ring-white/60 cursor-pointer">
+                    <a href="#cursos" class="inline-flex items-center rounded-md
+                    px-8 py-3 text-lg font-bold text-white bg-[#E71F6C] hover:bg-[#c41659]
+                    transition shadow-md focus:outline-none focus:ring-2 focus:ring-white/60">
                         Ver cursos
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>

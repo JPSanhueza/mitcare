@@ -4,10 +4,15 @@ use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Courses\ShowCourse;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+Route::get('/cursos/{course:slug}', ShowCourse::class)->name('courses.show');
+
+
 
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])

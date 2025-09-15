@@ -5,7 +5,6 @@ namespace App\Livewire;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
-use Livewire\Attributes\Validate;
 use Livewire\Component;
 use App\Mail\ContactMessage;
 
@@ -22,7 +21,7 @@ class ContactForm extends Component
     // Honeypot anti-spam (campo oculto)
     public string $website = '';
 
-    // Flag de éxito
+    // Flag (por si lo usas en la vista)
     public bool $sent = false;
 
     protected function rules(): array
@@ -38,6 +37,7 @@ class ContactForm extends Component
         ];
     }
 
+    // Traducción de nombres de atributos (para mensajes de error)
     protected array $validationAttributes = [
         'nombre'   => 'nombre',
         'empresa'  => 'empresa',
@@ -45,6 +45,19 @@ class ContactForm extends Component
         'telefono' => 'teléfono',
         'curso'    => 'curso de interés',
         'mensaje'  => 'mensaje',
+    ];
+
+    // Mensajes en español (Opción A rápida por componente)
+    protected array $messages = [
+        'required'        => 'El :attribute es obligatorio.',
+        'email.email'     => 'Ingresa un correo válido.',
+        'nombre.max'      => 'El nombre no puede superar :max caracteres.',
+        'empresa.max'     => 'La empresa no puede superar :max caracteres.',
+        'email.max'       => 'El email no puede superar :max caracteres.',
+        'telefono.digits_between' => 'El teléfono debe tener entre :min y :max dígitos.',
+        'curso.max'       => 'El curso no puede superar :max caracteres.',
+        'mensaje.max'     => 'El mensaje no puede superar :max caracteres.',
+        'website.size'    => 'Error de validación.', // honeypot
     ];
 
     // Validación en vivo por campo
@@ -55,6 +68,13 @@ class ContactForm extends Component
 
     public function send(): void
     {
+        // Rate limit (opcional, evita abuso: 5 envíos/5 min por IP)
+        $key = 'contact:'.request()->ip();
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $this->dispatch('toast', type: 'error', title: 'Demasiados intentos', message: 'Intenta nuevamente en unos minutos.');
+            return;
+        }
+
         $data = $this->validate();
 
         // Honeypot
@@ -66,21 +86,27 @@ class ContactForm extends Component
         }
 
         try {
-            Mail::raw(
-                "Nueva solicitud de contacto\n"
-                    . "Nombre: {$data['nombre']}\n"
-                    . "Empresa: " . ($data['empresa'] ?? '-') . "\n"
-                    . "Email: {$data['email']}\n"
-                    . "Teléfono: " . ($data['telefono'] ?? '-') . "\n"
-                    . "Curso: " . ($data['curso'] ?? '-') . "\n\n"
-                    . "Mensaje:\n{$data['mensaje']}",
-                function ($m) {
-                    $m->to(config('mail.from.address'))
-                        ->subject('Nueva solicitud de contacto');
-                }
-            );
+            // Opción simple con Mail::raw (no necesitas Mailable)
+            // Mail::raw(
+            //     "Nueva solicitud de contacto\n"
+            //     ."Nombre: {$data['nombre']}\n"
+            //     ."Empresa: ".($data['empresa'] ?? '-')."\n"
+            //     ."Email: {$data['email']}\n"
+            //     ."Teléfono: ".($data['telefono'] ?? '-')."\n"
+            //     ."Curso: ".($data['curso'] ?? '-')."\n\n"
+            //     ."Mensaje:\n{$data['mensaje']}",
+            //     function ($m) {
+            //         $m->to(config('mail.from.address'))
+            //           ->subject('Nueva solicitud de contacto');
+            //     }
+            // );
 
+            // Si prefieres un Mailable, descomenta y crea App\Mail\ContactMessage:
+            Mail::to(config('mail.from.address'))->send(new ContactMessage($data));
+
+            RateLimiter::hit($key, 300); // 5 min
             Log::info('Contact mail sent OK');
+            $this->sent = true;
 
             // Limpia campos y validaciones
             $this->resetForm();
@@ -95,7 +121,7 @@ class ContactForm extends Component
 
     private function resetForm(): void
     {
-        $this->reset(['nombre', 'empresa', 'email', 'telefono', 'curso', 'mensaje', 'website']);
+        $this->reset(['nombre','empresa','email','telefono','curso','mensaje','website']);
         $this->resetValidation();
     }
 

@@ -11,6 +11,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\ToggleColumn;
 
 class TeachersTable
 {
@@ -20,15 +21,15 @@ class TeachersTable
             ->columns([
                 ImageColumn::make('foto')->label('Foto')->circular(),
                 TextColumn::make('nombre')->label('Nombre')->searchable()->sortable(),
-                TextColumn::make('email')->label('Correo')->searchable()->toggleable(),
-                TextColumn::make('telefono')->label('Teléfono')->toggleable(),
-                IconColumn::make('is_active')->label('Activo')->boolean()->sortable(),
+                // TextColumn::make('email')->label('Correo')->searchable()->toggleable(),
+                // TextColumn::make('telefono')->label('Teléfono')->toggleable(),
+                // IconColumn::make('is_active')->label('Activo')->boolean()->sortable(),
+                ToggleColumn::make('is_active')->label('Cambiar estado'),
             ])
             ->filters([
                 TernaryFilter::make('is_active')->label('Activos')->boolean(),
             ])
             ->recordActions([
-                ViewAction::make(),
                 EditAction::make(),
             ])
             ->toolbarActions([

@@ -5,11 +5,11 @@
         class="absolute inset-0 w-full h-full object-cover" style="object-position: 50% 50%;">
 
     {{-- TESTIMONIO --}}
-    <div class="relative max-w-6xl mx-auto px-6 py-12 md:py-20">
+    <div class="relative max-w-6xl mx-auto px-3 py-12 md:py-20">
         <div class="flex flex-col items-center text-center gap-4">
             <img src="{{ asset('img/icons/estrellas.png') }}" alt="5 estrellas" class="h-8 md:h-10 w-auto" />
 
-            <p class="max-w-5xl text-[#1A3A50] md:text-[#274A64] text-lg md:text-xl font-medium leading-relaxed">
+            <p class="max-w-5xl text-[#1A3A50] md:text-[#274A64] text-lg md:text-xl font-medium leading-relaxed text-justify [hyphens:auto]">
                 "Me encantó la experiencia en OTEC Mitcare. El curso fue claro, actualizado y con un enfoque muy
                 práctico.
                 Los docentes tienen un nivel excelente y siempre estuvieron dispuestos a responder nuestras dudas.
@@ -30,16 +30,16 @@
     </div>
 
     {{-- CTA inferior --}}
-    <div class="relative max-w-6xl mx-auto px-6 py-10 md:py-16">
+    <div class="relative max-w-6xl mx-auto px-3 py-12 md:py-16">
         <div class="grid place-items-center text-center">
             <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
                 ¿Listo para potenciar tu desarrollo profesional?
             </h2>
 
-            <p class="mt-4 text-lg md:text-2xl">
+            <p class="mt-4 text-lg md:text-2xl leading-relaxed text-justify [hyphens:auto]">
                 Inscríbete hoy en nuestros cursos certificados y da el siguiente paso en tu especialidad.
             </p>
-            <p class="mt-1 text-lg md:text-2xl font-extrabold">
+            <p class="text-lg md:text-2xl font-bold leading-relaxed text-justify [hyphens:auto]">
                 Nuestro equipo docente está aquí para acompañarte.
             </p>
 
