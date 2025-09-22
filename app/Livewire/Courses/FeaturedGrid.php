@@ -9,8 +9,8 @@ use Livewire\Component;
 
 class FeaturedGrid extends Component
 {
-    /** Número de cursos a mostrar (3 por defecto). */
-    public int $limit = 3;
+    /** Número de cursos a mostrar (12 por defecto). */
+    public int $limit = 12;
 
     /** Título y subtítulo configurables. */
     public string $title = 'Cursos destacados';
@@ -31,9 +31,9 @@ class FeaturedGrid extends Component
     {
         $courses = Course::query()
             ->when(method_exists(Course::class, 'scopePublicado'), fn ($q) => $q->publicado(), fn ($q) => $q->where('is_active', true))
-            ->orderByDesc('published_at')
-            ->orderByDesc('created_at')
+            ->orderBy('order', 'asc')
             ->take($this->limit)
+
             ->get()
             ->map(function (Course $c) {
                 $c->image_url = $this->resolveImageUrl($c->image);

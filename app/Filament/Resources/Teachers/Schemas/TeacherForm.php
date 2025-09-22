@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\Teachers\Schemas;
 
-use Filament\Schemas\Schema;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Schema;
 
 class TeacherForm
 {
@@ -29,6 +29,12 @@ class TeacherForm
                 ->label('Activo')
                 ->default(true),
 
+            TextInput::make('order')
+                ->label('Orden')
+                ->required()
+                ->numeric()
+                ->default('0'),
+
             // TextInput::make('email')
             //     ->label('Correo')
             //     ->email()
@@ -40,15 +46,15 @@ class TeacherForm
             //     ->maxLength(50)
             //     ->nullable(),
 
-            Textarea::make('especialidad')
-                ->label('Especialidad')
-                ->rows(2)
-                ->nullable(),
+            // Textarea::make('especialidad')
+            //     ->label('Especialidad')
+            //     ->rows(2)
+            //     ->nullable(),
 
-            Textarea::make('descripcion')
-                ->label('Descripción')
-                ->rows(5)
-                ->nullable(),
+            // Textarea::make('descripcion')
+            //     ->label('Descripción')
+            //     ->rows(5)
+            //     ->nullable(),
         ]);
     }
 }

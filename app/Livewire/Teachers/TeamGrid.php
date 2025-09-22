@@ -9,7 +9,7 @@ use Livewire\Component;
 class TeamGrid extends Component
 {
     /** Cuántos docentes mostrar (9 por defecto). */
-    public int $limit = 9;
+    public int $limit = 27;
 
     /** Título y subtítulo configurables. */
     public string $title = 'Nuestros Docentes';
@@ -40,9 +40,11 @@ odontología, kinesiología y más.';
     public function render()
     {
         $teachers = Teacher::query()
+        ->orderBy('order', 'asc')
             ->where('is_active', true)
             ->latest('created_at')
             ->take($this->limit)
+
             ->get()
             ->map(function (Teacher $t) {
                 $t->foto_url = $this->resolveImageUrl($t->foto);

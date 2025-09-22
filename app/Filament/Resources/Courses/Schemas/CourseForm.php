@@ -2,17 +2,15 @@
 
 namespace App\Filament\Resources\Courses\Schemas;
 
-use Closure;
-use Filament\Schemas\Components\Utilities\Set;
-use Illuminate\Support\Str;
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class CourseForm
 {
@@ -26,7 +24,9 @@ class CourseForm
                 ->maxLength(255)
                 ->live(onBlur: true)
                 ->afterStateUpdated(function (Set $set, ?string $state) {
-                    if (blank($state)) return;
+                    if (blank($state)) {
+                        return;
+                    }
                     $set('slug', Str::slug($state));
                 }),
 
@@ -85,7 +85,7 @@ class CourseForm
             TextInput::make('location')
                 ->label('Ubicación')
                 ->maxLength(255)
-                ->visible(fn(callable $get) => in_array($get('modality'), ['presencial', 'mixto'])),
+                ->visible(fn (callable $get) => in_array($get('modality'), ['presencial', 'mixto'])),
 
             // Medios & externos
             FileUpload::make('image')
@@ -94,6 +94,12 @@ class CourseForm
                 ->disk('s3')
                 ->directory('courses')
                 ->imageEditor(),
+
+            TextInput::make('order')
+                ->label('Orden')
+                ->required()
+                ->numeric()
+                ->default('0'),
 
             // TextInput::make('external_url')
             //     ->label('URL externa')

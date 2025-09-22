@@ -9,8 +9,7 @@
     <div class="grid grid-cols-2 md:grid-cols-3 gap-y-12 place-items-center -mx-2 sm:mx-0">
         @forelse ($teachers as $t)
         <figure class="flex flex-col items-center">
-            <div class="w-22 h-26 sm:w-24 sm:h-32 md:w-40 md:h-46 overflow-hidden
-                hover:scale-95 transition-transform duration-300">
+            <div class="w-22 h-26 sm:w-24 sm:h-32 md:w-52 md:h-62 overflow-hidden">
                 <img src="{{ $t->foto_url }}" alt="{{ $t->nombre }}" class="w-full h-full object-cover" loading="lazy">
             </div>
             @if($showNames)

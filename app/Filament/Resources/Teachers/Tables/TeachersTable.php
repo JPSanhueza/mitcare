@@ -21,10 +21,14 @@ class TeachersTable
             ->columns([
                 ImageColumn::make('foto')->label('Foto')->circular(),
                 TextColumn::make('nombre')->label('Nombre')->searchable()->sortable(),
+                TextColumn::make('order')
+                    ->label('Orden')
+                    ->numeric()
+                    ->sortable(),
                 // TextColumn::make('email')->label('Correo')->searchable()->toggleable(),
                 // TextColumn::make('telefono')->label('Teléfono')->toggleable(),
                 // IconColumn::make('is_active')->label('Activo')->boolean()->sortable(),
-                ToggleColumn::make('is_active')->label('Cambiar estado'),
+                ToggleColumn::make('is_active')->label('estado'),
             ])
             ->filters([
                 TernaryFilter::make('is_active')->label('Activos')->boolean(),

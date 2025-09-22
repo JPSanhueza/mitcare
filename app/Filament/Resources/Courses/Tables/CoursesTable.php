@@ -3,13 +3,16 @@
 namespace App\Filament\Resources\Courses\Tables;
 
 use App\Models\Course;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
-use Filament\Actions\{Action, BulkActionGroup, DeleteBulkAction, EditAction, ViewAction};
+use Filament\Tables\Table;
 
 class CoursesTable
 {
@@ -23,11 +26,15 @@ class CoursesTable
                 TextColumn::make('modality')->label('Modalidad')->badge()->colors([
                     'success' => 'online',
                     'warning' => 'mixto',
-                    'info'    => 'presencial',
+                    'info' => 'presencial',
                 ])->sortable(),
                 IconColumn::make('is_active')->label('Activo')->boolean()->sortable(),
                 TextColumn::make('published_at')->label('Publicado')->dateTime('d-m-Y H:i')
                     ->sortable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('order')
+                    ->label('Orden')
+                    ->numeric()
+                    ->sortable(),
             ])
             ->filters([
                 TernaryFilter::make('is_active')->label('Activos')->boolean(),

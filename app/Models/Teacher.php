@@ -15,5 +15,6 @@ class Teacher extends Model
         'telefono',
         'especialidad',
         'is_active',
+        'order'
     ];
 }

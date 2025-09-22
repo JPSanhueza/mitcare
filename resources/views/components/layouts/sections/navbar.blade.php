@@ -37,9 +37,16 @@
 
             <!-- Botón Contacto (desktop) -->
             <div class="hidden lg:block">
-                <a href="#contacto" class="inline-flex items-center rounded-2xl px-5 py-2 text-lg
+                <a href="#contacto" class="inline-flex items-center rounded-2xl px-4 py-2 text-lg
                 font-semibold bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md">
                     Contacto
+                </a>
+            </div>
+
+            <div class="hidden lg:block">
+                <a href="https://aulavirtual.otecmitcare.cl/" target="_blank" class="inline-flex items-center rounded-2xl
+                px-3 py-2 text-lg font-semibold bg-[#47A8DF] hover:bg-[#269ade] transition shadow-md">
+                    Aula Virtual
                 </a>
             </div>
 

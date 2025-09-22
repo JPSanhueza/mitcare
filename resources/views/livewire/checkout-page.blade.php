@@ -201,18 +201,7 @@
                             <span wire:loading wire:target="confirmAndPay">Procesando…</span>
                         </button>
                     </form>
-
                     @endif
-                    @if ($errors->any())
-                    <div class="p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-700">
-                        <ul class="list-disc ml-5">
-                            @foreach ($errors->all() as $e)
-                            <li>{{ $e }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    @endif
-
             </div>
         </div>
     </div>

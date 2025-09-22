@@ -2,14 +2,14 @@
 
 namespace App\Livewire;
 
-use App\Models\OrderItemAttendee;
-use App\Models\OrderItem;
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\OrderItemAttendee;
 use App\Services\Cart\CartService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -367,6 +367,40 @@ class CheckoutPage extends Component
             $this->dispatch('toast', body: 'No se pudo redirigir a Webpay.');
         }
     }
+
+    // app/Livewire/CheckoutPage.php
+
+    protected array $messages = [
+        // Paso 1
+        'buyer_name.required' => 'El nombre es obligatorio.',
+        'buyer_name.string' => 'El nombre no es válido.',
+        'buyer_name.max' => 'El nombre no debe superar :max caracteres.',
+        'buyer_email.required' => 'El correo es obligatorio.',
+        'buyer_email.email' => 'Ingresa un correo válido.',
+        'buyer_email.max' => 'El correo no debe superar :max caracteres.',
+
+        // Paso 2 (repite para todos los ítems/índices)
+        'attendees.*.*.name.required' => 'El nombre del estudiante es obligatorio.',
+        'attendees.*.*.name.string' => 'El nombre del estudiante no es válido.',
+        'attendees.*.*.name.max' => 'El nombre del estudiante no debe superar :max caracteres.',
+        'attendees.*.*.email.required' => 'El correo del estudiante es obligatorio.',
+        'attendees.*.*.email.email' => 'El correo del estudiante no es válido.',
+        'attendees.*.*.email.max' => 'El correo del estudiante no debe superar :max caracteres.',
+
+        // Paso 3
+        'payment_method.required' => 'Debes seleccionar un método de pago.',
+        'payment_method.in' => 'El método de pago seleccionado no es válido.',
+        'terms_accepted.accepted' => 'Debes aceptar los Términos y Condiciones.',
+    ];
+
+    protected array $validationAttributes = [
+        'buyer_name' => 'nombre',
+        'buyer_email' => 'correo',
+        'attendees.*.*.name' => 'nombre del estudiante',
+        'attendees.*.*.email' => 'correo del estudiante',
+        'payment_method' => 'método de pago',
+        'terms_accepted' => 'términos y condiciones',
+    ];
 
     public function render()
     {
