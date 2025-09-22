@@ -18,8 +18,7 @@
                 </div>
 
                 <div class="mt-10">
-                    <a href="#cursos"
-                       class="inline-flex items-center rounded-md px-6 py-3 font-bold text-white
+                    <a href="#cursos" class="inline-flex items-center rounded-md px-6 py-3 font-bold text-white
                               bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md
                               focus:outline-none focus:ring-2 focus:ring-white/60">
                         Ver cursos
@@ -31,26 +30,38 @@
         {{-- Imagen desktop (a la derecha) --}}
         <div class="relative overflow-hidden hidden md:block">
             <img src="{{ asset('img/fondos/certificaciones.png') }}" alt="Persona mostrando diploma"
-                 class="absolute inset-0 w-full h-full object-cover"
-                 style="object-position: 20%;">
+                class="absolute inset-0 w-full h-full object-cover" style="object-position: 20%;">
+
             {{-- Logos en desktop --}}
-            <img src="{{ asset('img/logos/logos-inn-confidence.png') }}"
-                 alt="Confidence Certification e INN Chile"
-                 class="absolute left-1/5 -translate-x-1/2 w-28 lg:w-32 opacity-90 pointer-events-none select-none"
-                 style="bottom:3rem;">
+            <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-8 items-center">
+                <img src="{{ asset('img/logos/confidence-logo.png') }}" alt="Confidence Certification"
+                    class="w-24 lg:w-28 opacity-90 pointer-events-none select-none">
+
+                <img src="{{ asset('img/logos/inn-logo.png') }}" alt="INN Chile"
+                    class="w-24 lg:w-28 opacity-90 pointer-events-none select-none">
+
+                <img src="{{ asset('img/logos/sence-logo.png') }}" alt="SENCE"
+                    class="w-24 lg:w-28 opacity-90 pointer-events-none select-none">
+            </div>
         </div>
     </div>
 
     {{-- Imagen en mobile (debajo del panel) --}}
     <div class="block md:hidden relative overflow-hidden">
         <img src="{{ asset('img/fondos/certificaciones.png') }}" alt="Persona mostrando diploma"
-             class="w-full h-72 object-cover"
-             style="object-position: 20%;">
-        {{-- Logos en mobile --}}
-        <div class="absolute bottom-6 left-1/2 -translate-x-1/2">
-            <img src="{{ asset('img/logos/logos-inn-confidence.png') }}"
-                 alt="Confidence Certification e INN Chile"
-                 class="w-24 opacity-90 pointer-events-none select-none">
+            class="w-full h-72 object-cover" style="object-position: 20%;">
+
+        {{-- Logos en mobile (fila completa, centrada) --}}
+        <div class="absolute inset-x-0 bottom-4 flex items-center justify-center gap-4 px-4">
+            <img src="{{ asset('img/logos/confidence-logo.png') }}" alt="Confidence Certification"
+                class="h-10 w-auto opacity-90 pointer-events-none select-none">
+
+            <img src="{{ asset('img/logos/inn-logo.png') }}" alt="INN Chile"
+                class="h-10 w-auto opacity-90 pointer-events-none select-none">
+
+            <img src="{{ asset('img/logos/sence-logo.png') }}" alt="SENCE"
+                class="h-10 w-auto opacity-90 pointer-events-none select-none">
         </div>
     </div>
+
 </section>

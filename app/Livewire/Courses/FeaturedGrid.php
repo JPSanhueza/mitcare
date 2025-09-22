@@ -19,7 +19,7 @@ class FeaturedGrid extends Component
     /** Si quieres forzar disco para imágenes (ej: 's3' o 'public'). Null = default. */
     public ?string $disk = null;
 
-    public function mount(int $limit = 3, ?string $title = null, ?string $subtitle = null, ?string $disk = null): void
+    public function mount(int $limit = 24, ?string $title = null, ?string $subtitle = null, ?string $disk = null): void
     {
         $this->limit    = $limit;
         $this->title    = $title     ?? $this->title;

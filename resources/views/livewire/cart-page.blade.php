@@ -132,16 +132,16 @@
             <div class="p-4 rounded-xl border border-gray-200 bg-white space-y-3">
                 <h2 class="font-semibold">Resumen</h2>
                 <div class="flex items-center justify-between text-sm">
-                    <span class="text-gray-600">Artículos</span>
+                    <span class="text-gray-600">Cursos</span>
                     <span class="font-medium">{{ $count }}</span>
                 </div>
                 <div class="flex items-center justify-between text-sm">
-                    <span class="text-gray-600">Subtotal</span>
+                    <span class="text-gray-600">Total</span>
                     <span class="font-semibold">${{ number_format($subtotal,0,',','.') }}</span>
                 </div>
                 <button wire:click="checkout"
                     class="w-full mt-2 px-4 py-2 rounded-lg bg-[#19355C] text-white font-semibold hover:bg-[#47A8DF] transition">
-                    Ir a pagar
+                    Continuar
                 </button>
                 <a href="{{ route('home') }}" class="block text-center text-sm text-[#19355C] hover:underline">
                     Seguir comprando

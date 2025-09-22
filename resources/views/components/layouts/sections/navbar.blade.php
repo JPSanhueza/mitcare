@@ -14,22 +14,22 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#quienes-somos" class="hover:opacity-75">
+                    <a href="/#quienes-somos" class="hover:opacity-75">
                         Quienes somos
                     </a>
                 </li>
                 <li>
-                    <a href="#cursos" class="hover:opacity-75">
+                    <a href="/#cursos" class="hover:opacity-75">
                         Cursos
                     </a>
                 </li>
                 <li>
-                    <a href="#docentes" class="hover:opacity-75">
+                    <a href="/#docentes" class="hover:opacity-75">
                         Docentes
                     </a>
                 </li>
                 <li>
-                    <a href="#certificaciones" class="hover:opacity-75">
+                    <a href="/#certificaciones" class="hover:opacity-75">
                         Certificaciones
                     </a>
                 </li>
@@ -37,7 +37,7 @@
 
             <!-- Botón Contacto (desktop) -->
             <div class="hidden lg:block">
-                <a href="#contacto" class="inline-flex items-center rounded-2xl px-4 py-2 text-lg
+                <a href="/#contacto" class="inline-flex items-center rounded-2xl px-4 py-2 text-lg
                 font-semibold bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md">
                     Contacto
                 </a>
@@ -68,14 +68,18 @@
     <div x-show="open" x-transition.origin.top class="lg:hidden border-t border-white/10">
         <div class="px-4 py-3 space-y-2 text-base">
             <a href="{{ route('home') }}" class="block py-2 hover:opacity-80">Inicio</a>
-            <a href="#quienes-somos" class="block py-2 hover:opacity-80">Quienes somos</a>
-            <a href="#cursos" class="block py-2 hover:opacity-80">Cursos</a>
-            <a href="#docentes" class="block py-2 hover:opacity-80">Docentes</a>
-            <a href="#certificaciones" class="block py-2 hover:opacity-80">Certificaciones</a>
+            <a href="/#quienes-somos" class="block py-2 hover:opacity-80">Quienes somos</a>
+            <a href="/#cursos" class="block py-2 hover:opacity-80">Cursos</a>
+            <a href="/#docentes" class="block py-2 hover:opacity-80">Docentes</a>
+            <a href="/#certificaciones" class="block py-2 hover:opacity-80">Certificaciones</a>
 
-            <a href="#contacto" class="mt-2 inline-flex w-full justify-center
+            <a href="/#contacto" class="mt-2 inline-flex w-full justify-center
             rounded-full px-5 py-2.5 font-semibold bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md">
                 Contacto
+            </a>
+            <a href="https://aulavirtual.otecmitcare.cl/" class="mt-2 inline-flex w-full justify-center
+            rounded-full px-5 py-2.5 font-semibold bg-[#47A8DF] hover:bg-[#269ade] transition shadow-md">
+                Aula Virtual
             </a>
         </div>
     </div>

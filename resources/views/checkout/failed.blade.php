@@ -1,5 +1,5 @@
 <x-layouts.app>
-    <div class="max-w-3xl mx-auto px-4 py-10">
+    <div class="max-w-3xl mx-auto px-4 py-18">
         <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900">No pudimos completar el pago</h1>
         <p class="text-gray-600 mt-2">Tu transacción fue rechazada o cancelada. Puedes intentarlo nuevamente.</p>
 

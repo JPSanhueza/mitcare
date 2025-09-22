@@ -24,7 +24,7 @@ odontología, kinesiología y más.';
     public bool $showNames = false;
 
     public function mount(
-        int $limit = 9,
+        int $limit = 27,
         ?string $title = null,
         ?string $subtitle = null,
         ?string $disk = null,

@@ -122,7 +122,7 @@
                                 @enderror
                             </div>
                             <div class="col-span-12 sm:col-span-2">
-                                <button type="button" class="w-full px-3 py-2 text-xs rounded-md border hover:bg-white"
+                                <button type="button" class="w-full px-3 py-2 text-xs rounded-md border hover:bg-white cursor-pointer"
                                     wire:click="useBuyerFor('{{ $item['key'] }}', {{ $i }})"
                                     wire:loading.attr="disabled" wire:target="useBuyerFor">
                                     Usar datos del comprador
