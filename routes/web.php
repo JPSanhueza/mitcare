@@ -1,7 +1,8 @@
 <?php
 
-use App\Http\Controllers\WebpayController;
 use App\Http\Controllers\CartHttpController;
+use App\Http\Controllers\CheckoutResultController;
+use App\Http\Controllers\WebpayController;
 use App\Livewire\CartPage;
 use App\Livewire\CheckoutPage;
 use App\Livewire\Courses\ShowCourse;
@@ -29,8 +30,14 @@ Route::post('/carrito/clear', [CartHttpController::class, 'clear'])
 Route::get('/checkout/pagar/{order}', [WebpayController::class, 'start'])
     ->name('webpay.start');
 
-Route::post('/checkout/webpay/retorno', [WebpayController::class, 'callback'])
+Route::match(['GET','POST'], '/checkout/webpay/retorno', [WebpayController::class, 'callback'])
     ->name('webpay.callback');
+
+Route::get('/checkout/exito/{order}', [CheckoutResultController::class, 'success'])
+    ->name('checkout.success');
+
+Route::get('/checkout/error/{order?}', [CheckoutResultController::class, 'failed'])
+    ->name('checkout.failed');
 
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])

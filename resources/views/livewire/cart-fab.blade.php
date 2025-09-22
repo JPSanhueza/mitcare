@@ -4,11 +4,11 @@
      lg:bottom-auto lg:top-[145px] 2xl:top-[68px]">
 
     {{-- Botón FAB --}}
-    <button wire:click="toggle" class="relative flex items-center justify-center w-12 sm:w-14 h-12 sm:h-14 rounded-full shadow-lg
+    <button wire:click="toggle" class="relative flex items-center justify-center w-14 h-14 rounded-full shadow-lg
                    bg-[#47A8DF] text-white focus:outline-none focus:ring-4 focus:ring-[#47A8DF] transition duration-500
                    lg:opacity-100" aria-expanded="{{ $open ? 'true' : 'false' }}" aria-controls="cart-popover"
         data-fab-btn>
-        <img src="{{ asset('img/icons/cart-white.png') }}" alt="Carrito" class="w-9 sm:w-11 h-9 sm:h-11">
+        <img src="{{ asset('img/icons/cart-white.png') }}" alt="Carrito" class="w-11 h-11">
         @if ($count > 0)
         <span
             class="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 rounded-full bg-red-600 text-white text-[11px] font-semibold flex items-center justify-center shadow ring-2 ring-white">
@@ -19,7 +19,7 @@
 
     {{-- Overlay para cerrar al hacer click fuera (solo si está abierto) --}}
     @if ($open)
-    <button type="button" wire:click="close" class="fixed inset-0 z-[60] cursor-default bg-transparent"
+    <button type="button" wire:click="close" class="fixed inset-0 z-[60] cursor-default bg-black/30"
         aria-hidden="true" tabindex="-1"></button>
     @endif
 

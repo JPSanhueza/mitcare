@@ -2,14 +2,15 @@
 
 namespace App\Livewire;
 
-use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\OrderItemAttendee;
+use App\Models\OrderItem;
+use App\Models\Order;
 use App\Services\Cart\CartService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -270,32 +271,47 @@ class CheckoutPage extends Component
     /** Confirmar y redirigir a WebPay (snapshot en sesión) */
     public function confirmAndPay(): void
     {
-        // 1) Validar todo
-        $this->validate($this->rulesStep1() + $this->rulesStep2() + $this->rulesStep3());
-        if ($this->count <= 0) {
-            $this->addError('cart', 'Tu carrito está vacío.');
+        Log::info('[checkout] confirmAndPay CLICK', [
+            'step' => $this->step,
+            'count' => $this->count,
+            'pm' => $this->payment_method,
+            'terms' => $this->terms_accepted,
+        ]);
+
+        // 1) Validación con traza y retorno amable al paso que falló
+        try {
+            $this->validate($this->rulesStep1() + $this->rulesStep2() + $this->rulesStep3());
+        } catch (ValidationException $e) {
+            $errs = $e->validator->errors()->toArray();
+            Log::warning('[checkout] validation failed', ['errors' => $errs]);
+
+            // Mueve al paso correspondiente para que el usuario vea los errores
+            $keys = array_keys($errs);
+            $this->step = collect($keys)->contains(fn ($k) => str_starts_with($k, 'attendees.')) ? 2 : 1;
+
+            // Opcional: notificación visual
+            $this->dispatch('toast', body: 'Revisa los campos pendientes.');
 
             return;
         }
 
-        // 2) Normalizar montos (CLP enteros)
+        // 2) Normaliza montos y crea Orden (con logs)
         $items = $this->items;
         $calcSubtotal = 0;
         foreach ($items as &$it) {
-            $it['price'] = (int) round($it['price']);                 // unidad
+            $it['price'] = (int) round($it['price']);
             $it['qty'] = (int) $it['qty'];
             $it['subtotal'] = (int) ($it['price'] * $it['qty']);
             $calcSubtotal += $it['subtotal'];
         }
         unset($it);
-        $total = $calcSubtotal; // aquí podrías sumar cargos/descuentos
+        $total = $calcSubtotal;
 
-        // 3) Persistir en transacción
-        $order = DB::transaction(function () use ($items, $calcSubtotal, $total) {
-            $code = 'ORD-'.now()->format('Ymd').'-'.Str::ulid();
+        try {
+            DB::beginTransaction();
 
             $order = Order::create([
-                'code' => $code,
+                'code' => 'ORD-'.now()->format('Ymd').'-'.Str::ulid(),
                 'buyer_name' => $this->buyer_name,
                 'buyer_email' => $this->buyer_email,
                 'payment_method' => 'webpayplus',
@@ -317,7 +333,6 @@ class CheckoutPage extends Component
                     'meta' => [],
                 ]);
 
-                // attendees por key del carrito
                 $key = (string) $it['key'];
                 $rows = $this->attendees[$key] ?? [];
                 for ($i = 0; $i < $it['qty']; $i++) {
@@ -332,14 +347,25 @@ class CheckoutPage extends Component
                 }
             }
 
-            return $order;
-        });
+            DB::commit();
+            Log::info('[checkout] order created', ['order_id' => $order->id, 'total' => $order->total]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('[checkout] order create failed', ['msg' => $e->getMessage()]);
+            $this->dispatch('toast', body: 'No se pudo preparar tu orden. Intenta de nuevo.');
 
-        // 4) Guarda snapshot por si lo necesitas luego (opcional)
-        session(['checkout_order_id' => $order->id]);
+            return;
+        }
 
-        // 5) Redirige a iniciar WebPay con esta orden
-        $this->redirectRoute('webpay.start', ['order' => $order->id]);
+        // 3) Redirección (con log)
+        try {
+            Log::info('[checkout] redirecting to webpay.start');
+            // Livewire v3: esto fuerza redirección de navegador (no SPA)
+            $this->redirectRoute('webpay.start', ['order' => $order->id], navigate: false);
+        } catch (\Throwable $e) {
+            Log::error('[checkout] redirect failed', ['msg' => $e->getMessage()]);
+            $this->dispatch('toast', body: 'No se pudo redirigir a Webpay.');
+        }
     }
 
     public function render()
