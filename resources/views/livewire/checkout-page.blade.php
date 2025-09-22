@@ -184,24 +184,22 @@
             <div class="flex items-center gap-2">
                 @if (($step ?? 1) < 3) <button type="button" class="px-4 py-2 rounded-lg
                 bg-[#19355C] text-white text-sm font-semibold hover:bg-[#47A8DF] transition
-                disabled:opacity-50 disabled:cursor-not-allowed" wire:click="nextStep" @disabled(! $this->canContinue)
-                    wire:loading.attr="disabled"
-                    wire:target="nextStep">
+                disabled:opacity-50 disabled:cursor-not-allowed" wire:click="nextStep" wire:target="nextStep">
                     Continuar
                     </button>
                     @else
                     <form wire:submit.prevent="confirmAndPay">
+                        @if ($errors->any())
+                        <div class="p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-700">
+                            Hay errores en pasos anteriores. Revisa los campos marcados.
+                        </div>
+                        @endif
                         <button type="submit" class="px-4 py-2 rounded-lg bg-[#19355C] text-white text-sm font-semibold hover:bg-[#47A8DF] transition
                    data-[off=true]:opacity-50 data-[off=true]:cursor-not-allowed"
                             data-off="{{ $this->canPay ? 'false' : 'true' }}">
                             <span wire:loading.remove wire:target="confirmAndPay">Confirmar y pagar</span>
                             <span wire:loading wire:target="confirmAndPay">Procesando…</span>
                         </button>
-                        @if ($errors->any())
-            <div class="p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-700">
-                Hay errores en pasos anteriores. Revisa los campos marcados.
-            </div>
-            @endif
                     </form>
 
                     @endif
