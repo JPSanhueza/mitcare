@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\WebpayController;
 use App\Http\Controllers\CartHttpController;
 use App\Livewire\CartPage;
 use App\Livewire\CheckoutPage;
@@ -24,6 +25,12 @@ Route::delete('/carrito/item/{key}', [CartHttpController::class, 'destroy'])
 
 Route::post('/carrito/clear', [CartHttpController::class, 'clear'])
     ->name('cart.clear');
+
+Route::get('/checkout/pagar/{order}', [WebpayController::class, 'start'])
+    ->name('webpay.start');
+
+Route::post('/checkout/webpay/retorno', [WebpayController::class, 'callback'])
+    ->name('webpay.callback');
 
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])

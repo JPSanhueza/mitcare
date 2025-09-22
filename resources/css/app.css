@@ -60,6 +60,10 @@ html {
     scroll-behavior: smooth;
 }
 
+[x-cloak] {
+    display: none !important;
+}
+
 input:focus[data-flux-control],
 textarea:focus[data-flux-control],
 select:focus[data-flux-control] {
