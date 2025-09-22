@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'transbank' => [
+        'webpay_plus_url' => env('WEBPAY_URL', 'https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2/transactions'),
+        'webpay_plus_cc' => env('WEBPAY_ID', '597055555532'),
+        'webpay_plus_api_key' => env('WEBPAY_SECRET', '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C'),
+    ],
+
 ];

@@ -30,12 +30,10 @@ class CourseForm
                     $set('slug', Str::slug($state));
                 }),
 
-            // TextInput::make('slug')
-            //     ->label('Slug')
-            //     ->helperText('Se genera automáticamente desde el nombre. Puedes editarlo.')
-            //     ->required()
-            //     ->unique(ignoreRecord: true)
-            //     ->maxLength(255),
+            TextInput::make('subtitulo')
+                ->label('Subtítulo')
+                ->maxLength(255)
+                ->nullable(),
 
             RichEditor::make('descripcion')
                 ->label('Descripción')

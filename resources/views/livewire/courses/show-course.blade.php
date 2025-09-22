@@ -1,71 +1,53 @@
-<section class="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-2 gap-10">
-    {{-- Imagen --}}
-    <div>
-        <div class="aspect-square w-full overflow-hidden rounded-xl shadow">
-            <img src="{{ $imageUrl }}" alt="{{ $course->nombre }}" class="w-full h-full object-cover">
-        </div>
-    </div>
+<section>
+    <div class="grid grid-cols-1 lg:grid-cols-2 overflow-hidden shadow-lg py-1 bg-[#47A8DF]">
 
-    {{-- Datos --}}
-    <div>
-        <h1 class="text-3xl sm:text-4xl font-extrabold text-[#0e3654]">{{ $course->nombre }}</h1>
-        <p class="mt-3 text-[#0e3654]/80 ">{!! $course->descripcion !!}</p>
-
-        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            <div class="p-4 rounded-lg bg-slate-50">
-                <div class="font-semibold text-slate-700">Modalidad</div>
-                <div class="capitalize">{{ $course->modality }}</div>
-            </div>
-
-            @if($course->start_at)
-            <div class="p-4 rounded-lg bg-slate-50">
-                <div class="font-semibold text-slate-700">Inicio</div>
-                <div>{{ $course->start_at->format('d/m/Y H:i') }}</div>
-            </div>
-            @endif
-
-            @if($course->end_at)
-            <div class="p-4 rounded-lg bg-slate-50">
-                <div class="font-semibold text-slate-700">Término</div>
-                <div>{{ $course->end_at->format('d/m/Y H:i') }}</div>
-            </div>
-            @endif
-
-            @if($course->location && in_array($course->modality, ['presencial','mixto']))
-            <div class="p-4 rounded-lg bg-slate-50">
-                <div class="font-semibold text-slate-700">Ubicación</div>
-                <div>{{ $course->location }}</div>
-            </div>
-            @endif
-        </div>
-
-        {{-- Precio y CTA --}}
-        <div class="mt-8 flex items-end justify-between gap-6">
+        {{-- LADO IZQUIERDO: bloque sólido con info principal --}}
+        <div class="bg-[#19355C] text-white p-8 md:p-12 flex flex-col justify-start">
             <div>
-                <div class="text-sm text-slate-500">Precio</div>
-                <div class="text-3xl font-extrabold text-[#0e3654]">
-                    {{ '$' . number_format($course->price, 0, ',', '.') }} CLP
-                </div>
-                @if($course->capacity)
-                    <div class="mt-1 text-xs text-slate-500">Cupos: {{ $course->capacity }}</div>
+                <h1 class="text-3xl md:text-5xl font-extrabold leading-tight">
+                    {{ $course->nombre }}
+                </h1>
+
+                @if($course->subtitulo)
+                <p class="mt-6 text-white/90 text-base md:text-lg max-w-prose">
+                    {!! $course->subtitulo !!}
+                </p>
                 @endif
             </div>
 
-            <button
-                wire:click="startCheckout"
-                class="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-[#ff0b78] text-white font-bold hover:brightness-110 transition"
-            >
-                Comprar
-            </button>
+            <div class="mt-10 flex items-center gap-4 flex-wrap">
+                {{-- Precio como chip --}}
+                <span
+                    class="inline-flex items-center px-5 py-3 rounded-full bg-[#ff0b78] text-white text-xl font-bold shadow">
+                    {{ '$' . number_format($course->price, 0, ',', '.') }}
+                </span>
+
+                {{-- CTA --}}
+                <button wire:click="addToCart"
+                    class="inline-flex items-center px-6 py-3 rounded-full bg-[#41a8d8] text-white font-bold hover:brightness-110 transition">
+                    Agregar al carrito
+                </button>
+            </div>
         </div>
 
-        {{-- Enlaces externos opcionales --}}
-        @if($course->external_url)
-            <div class="mt-6">
-                <a href="{{ $course->external_url }}" target="_blank" class="text-sm text-blue-700 underline">
-                    Más información externa
-                </a>
+        {{-- LADO DERECHO: imagen de fondo con overlay y texto --}}
+        <div class="relative flex items-center justify-center bg-[#0e3654]">
+            <div class="w-full aspect-square relative">
+                {{-- Imagen cuadrada --}}
+                <img src="{{ $imageUrl }}" alt="{{ $course->nombre }}" class="w-full h-full object-cover rounded-none">
+
+                {{-- Overlay --}}
+                <div class="absolute inset-0 bg-[#19355C]/60"></div>
+
+                {{-- Texto encima --}}
+                <div class="absolute inset-0 flex flex-col p-10 md:p-22 text-xl gap-10 text-white">
+                    @if($course->descripcion)
+                    <p class="text-white/90">
+                        {!! $course->descripcion !!}
+                    </p>
+                    @endif
+                </div>
             </div>
-        @endif
+        </div>
     </div>
 </section>

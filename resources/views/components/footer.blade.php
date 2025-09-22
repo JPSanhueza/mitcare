@@ -1,4 +1,4 @@
-<footer class="bg-[#0e395e] text-white">
+<footer class="bg-[#19355C] text-white">
     <div class="max-w-7xl mx-auto px-4 pt-10 pb-5 lg:pt-14 lg:pb-6 text-center lg:text-start">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-center">
             {{-- Columna 1: Logo + redes --}}

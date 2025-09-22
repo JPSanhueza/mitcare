@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\CartHttpController;
+use App\Livewire\CartPage;
+use App\Livewire\CheckoutPage;
+use App\Livewire\Courses\ShowCourse;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
-use App\Livewire\Courses\ShowCourse;
 
 Route::get('/', function () {
     return view('welcome');
@@ -12,7 +15,15 @@ Route::get('/', function () {
 
 Route::get('/cursos/{course:slug}', ShowCourse::class)->name('courses.show');
 
+Route::get('/carrito', CartPage::class)->name('cart.index');
 
+Route::get('/checkout', CheckoutPage::class)->name('checkout.index');
+
+Route::delete('/carrito/item/{key}', [CartHttpController::class, 'destroy'])
+    ->name('cart.item.destroy');
+
+Route::post('/carrito/clear', [CartHttpController::class, 'clear'])
+    ->name('cart.clear');
 
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])

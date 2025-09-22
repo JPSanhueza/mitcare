@@ -17,6 +17,8 @@
 
 <body class="text-black">
 
+    <livewire:cart-fab key="cart-fab" />
+
     {{-- Header con navegación --}}
     <x-layouts.header />
 

@@ -16,6 +16,7 @@ return new class extends Migration
 
         // Catálogo básico
         $table->string('nombre');
+        $table->text('subtitulo')->nullable();
         $table->string('slug')->unique();
         $table->text('descripcion')->nullable();
 
