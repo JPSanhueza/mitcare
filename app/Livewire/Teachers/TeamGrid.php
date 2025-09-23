@@ -43,8 +43,7 @@ odontología, kinesiología y más.';
         ->orderBy('order', 'asc')
             ->where('is_active', true)
             ->latest('created_at')
-            ->take($this->limit)
-
+            // ->take($this->limit)
             ->get()
             ->map(function (Teacher $t) {
                 $t->foto_url = $this->resolveImageUrl($t->foto);

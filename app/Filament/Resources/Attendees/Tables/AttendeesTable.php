@@ -42,7 +42,7 @@ class AttendeesTable
 
                 // Toggle rápido de control Moodle
                 ToggleColumn::make('moodle_has_account')
-                    ->label('Verificado')
+                    ->label('Verificado Aula Virtual')
                     ->afterStateUpdated(function (bool $state, $record): void {
                         // Si se marca / desmarca, dejamos constancia de cuándo se verificó
                         $record->moodle_checked_at = Carbon::now();
