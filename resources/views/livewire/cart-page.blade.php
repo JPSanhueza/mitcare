@@ -43,25 +43,23 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="py-3 px-4 text-center">
+                            {{-- <td class="py-3 px-4 text-center">
                                 <div class="inline-flex items-center gap-1">
                                     <button class="px-2 py-1 border rounded disabled:opacity-50"
                                         wire:click="decrement('{{ $item['key'] }}')" @disabled($item['qty'] <=1)
                                         wire:loading.attr="disabled"
-                                        wire:target="increment,decrement,updateQty,removeItem,clear"
-                                        aria-label="Disminuir cantidad">−</button>
+                                        wire:target="increment,decrement,updateQty,removeItem,clear">−</button>
 
                                     <input type="number" min="1" value="{{ $item['qty'] }}"
                                         class="w-16 text-center border rounded py-1"
                                         wire:change="updateQty('{{ $item['key'] }}', $event.target.value)"
                                         wire:key="qty-input-{{ $item['key'] }}">
 
-                                    <button class="px-2 py-1 border rounded"
-                                        wire:click="increment('{{ $item['key'] }}')" wire:loading.attr="disabled"
+                                    <button wire:click="increment('{{ $item['key'] }}')" wire:loading.attr="disabled"
                                         wire:target="increment,decrement,updateQty,removeItem,clear"
-                                        aria-label="Aumentar cantidad">+</button>
+                                        class="px-2 py-1 border rounded">+</button>
                                 </div>
-                            </td>
+                            </td> --}}
 
                             <td class="py-3 px-4 text-right">${{ number_format($item['price'],0,',','.') }}</td>
                             <td class="py-3 px-4 text-right font-semibold">${{

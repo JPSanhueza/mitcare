@@ -21,7 +21,17 @@ class CourseEnrollmentMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Inscripción confirmada: '.$this->item->course_name)
-            ->markdown('mail.course-enrollment');
+        // $courseUrl   = route('courses.show', $this->item->course_id ?? null);
+        // $dashboardUrl= route('dashboard');
+
+        return $this
+            ->subject('Inscripción confirmada: '.$this->item->course_name)
+            // Útil si quieres que respondan a soporte:
+            // ->replyTo(config('mail.from.address'), config('mail.from.name'))
+            ->markdown('mail.course-enrollment', [
+                'previewText'  => '¡Listo! Confirmamos tu cupo en '.$this->item->course_name.'. Aquí te contamos los próximos pasos.',
+                // 'courseUrl'    => $courseUrl,
+                // 'dashboardUrl' => $dashboardUrl,
+            ]);
     }
 }

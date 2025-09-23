@@ -127,11 +127,6 @@
                                     wire:loading.attr="disabled" wire:target="useBuyerFor">
                                     Usar datos del comprador
                                 </button>
-                                {{-- debug temporal --}}
-                                {{--
-                                <pre
-                                    class="text-xs text-gray-500">{{ json_encode($attendees[$item['key']] ?? [], JSON_PRETTY_PRINT) }}</pre>
-                                --}}
                             </div>
                     </div>
                     @endfor

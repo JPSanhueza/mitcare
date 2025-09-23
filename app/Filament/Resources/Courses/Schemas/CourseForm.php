@@ -91,7 +91,7 @@ class CourseForm
             FileUpload::make('image')
                 ->label('Imagen (portada)')
                 ->image()
-                ->disk('s3')
+                ->disk('public')
                 ->directory('courses')
                 ->imageEditor(),
 

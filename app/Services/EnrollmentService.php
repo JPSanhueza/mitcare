@@ -2,10 +2,11 @@
 
 namespace App\Services;
 
+use App\Mail\CourseEnrollmentMail;
 use App\Models\Order;
+use App\Services\Cart\CartService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\CourseEnrollmentMail;
 
 class EnrollmentService
 {
@@ -27,11 +28,12 @@ class EnrollmentService
 
                 try {
                     Mail::to($att->email)->queue(new CourseEnrollmentMail($order, $item, $att));
+                    Log::info('Correo de inscripción ENVIADO (sync)', ['attendee_id' => $att->id, 'email' => $att->email]);
                 } catch (\Throwable $e) {
                     Log::error('No se pudo enviar correo de inscripción', [
                         'attendee_id' => $att->id,
-                        'email'       => $att->email,
-                        'error'       => $e->getMessage(),
+                        'email' => $att->email,
+                        'error' => $e->getMessage(),
                     ]);
                 }
             }
@@ -39,7 +41,7 @@ class EnrollmentService
 
         // Si usas carrito de sesión:
         try {
-            app(\App\Services\Cart\CartService::class)->clear();
+            app(CartService::class)->clear();
         } catch (\Throwable $e) {
             Log::warning('No se pudo limpiar carrito post pago', ['msg' => $e->getMessage()]);
         }
