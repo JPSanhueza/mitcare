@@ -32,7 +32,7 @@ class FeaturedGrid extends Component
         $courses = Course::query()
             ->when(method_exists(Course::class, 'scopePublicado'), fn ($q) => $q->publicado(), fn ($q) => $q->where('is_active', true))
             ->orderBy('order', 'asc')
-            ->take($this->limit)
+            // ->take($this->limit)
 
             ->get()
             ->map(function (Course $c) {

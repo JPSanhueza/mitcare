@@ -5,6 +5,7 @@ namespace App\Services\Payments;
 use App\Models\Order;
 use Illuminate\Support\Facades\Log;
 use Transbank\Webpay\WebpayPlus\Transaction;
+use App\Jobs\ReconcileWebpayOrder;
 
 class WebpayStarter
 {
@@ -16,26 +17,30 @@ class WebpayStarter
         }
 
         // Reglas Webpay
-        $buyOrder  = (string) $order->id; // <= 26 chars
+        $buyOrder = (string) $order->id; // <= 26 chars
         $sessionId = substr(session()->getId() ?: ('sess_'.uniqid()), 0, 61);
-        $amount    = (int) $order->total;
+        $amount = (int) $order->total;
         $returnUrl = route('webpay.callback');
 
-        $tx  = new Transaction();
+        $tx = new Transaction;
         $res = $tx->create($buyOrder, $sessionId, $amount, $returnUrl);
 
         $token = $res->getToken();
-        $url   = $res->getUrl();
+        $url = $res->getUrl();
 
         // Actualiza orden a processing y guarda token/session en meta
         $meta = $order->meta ?? [];
-        $meta['webpay_token']      = $token;
+        $meta['webpay_token'] = $token;
         $meta['webpay_session_id'] = $sessionId;
 
         $order->update([
             'status' => 'processing',
-            'meta'   => $meta,
+            'meta' => $meta,
         ]);
+
+        ReconcileWebpayOrder::dispatch($order->id)
+            ->delay(now()->addMinutes(10))      // primer chequeo en 10 min
+            ->onQueue('payments');              // si usas cola específica
 
         Log::info('Webpay token generado', ['order_id' => $order->id, 'token' => $token]);
 

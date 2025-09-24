@@ -47,7 +47,7 @@
         transition shadow-md disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer';
         @endphp
 
-        <form wire:submit.prevent="send" class="space-y-6">
+        <form wire:submit.prevent="send" wire:key="contact-form-{{ $formKey }}" class="space-y-6" autocomplete="off">
 
             {{-- fila 1 --}}
             <div class="grid md:grid-cols-2 gap-6 ">
@@ -83,12 +83,16 @@
                 </div>
             </div>
 
-            {{-- curso --}}
+            {{-- curso (select) --}}
             <div>
                 <label for="curso" class="{{ $label }}">Curso de interés</label>
-                <input id="curso" type="text" wire:model.defer="curso" class="{{ $input }}"
-                    placeholder="Nombre del curso">
-                @error('curso') <p class="{{ $error }}">{{ $message }}</p> @enderror
+                <select id="curso" wire:model="curso_id" class="{{ $input }}">
+                    <option value="">Selecciona un curso (opcional)</option>
+                    @foreach($courses as $c)
+                    <option value="{{ $c['id'] }}">{{ $c['nombre'] }}</option>
+                    @endforeach
+                </select>
+                @error('curso_id') <p class="{{ $error }}">{{ $message }}</p> @enderror
             </div>
 
             {{-- mensaje --}}

@@ -8,6 +8,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
@@ -53,7 +54,14 @@ class CourseForm
 
             DateTimePicker::make('published_at')
                 ->label('Publicado desde')
-                ->seconds(false),
+                ->seconds(false)
+    // Validación servidor (Laravel):
+                // ->rules(fn (Get $get) => $get('start_at') ? ['before_or_equal:start_at'] : [])
+                // ->validationMessages([
+                //     'before_or_equal' => 'La publicación debe ser posterior o igual al inicio.',
+                // ])
+    // Restricción en UI:
+                ->maxDate(fn (Get $get) => $get('start_at') ?: null),
 
             TextInput::make('capacity')
                 ->label('Cupos')
@@ -75,12 +83,20 @@ class CourseForm
 
             DateTimePicker::make('start_at')
                 ->label('Inicio')
-                ->seconds(false),
+                ->seconds(false)
+                ->live(),
 
+            // Término: no puede ser menor que start_at
             DateTimePicker::make('end_at')
                 ->label('Término')
                 ->seconds(false)
-                ->rule('after_or_equal:start_at'),
+                // Validación servidor (Laravel):
+                ->rules(fn (Get $get) => $get('start_at') ? ['after_or_equal:start_at'] : [])
+                ->validationMessages([
+                    'after_or_equal' => 'El término debe ser posterior o igual al inicio.',
+                ])
+                // Restricción en UI:
+                ->minDate(fn (Get $get) => $get('start_at') ?: null),
 
             TextInput::make('location')
                 ->label('Ubicación')

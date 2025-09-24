@@ -6,16 +6,17 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderItemAttendee;
 use App\Services\Cart\CartService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 class CheckoutPage extends Component
 {
+    private const DRAFT_NS = 'checkout.draft.v1';
+
     /** Paso del wizard (1: comprador, 2: estudiantes, 3: pago) */
     public int $step = 1;
 
@@ -37,6 +38,8 @@ class CheckoutPage extends Component
 
     public int $attVersion = 0;
 
+    public bool $isPaying = false;
+
     /** Snapshot del carrito */
     public array $items = [];
 
@@ -53,8 +56,10 @@ class CheckoutPage extends Component
 
     public function mount(): void
     {
-        $this->refreshCart();
-        $this->syncAttendeesStructure();
+        $this->refreshCart();      // carrito actual
+        $this->hydrateFromDraft(); // trae borrador (buyer, attendees, step, etc.)
+        $this->syncAttendeesStructure(); // reacomoda attendees según qty actual
+        $this->persistDraft();     // guarda estado inicial ya coherente
     }
 
     /** Si el carrito cambia desde otro componente, re-sincroniza */
@@ -66,6 +71,7 @@ class CheckoutPage extends Component
         $this->subtotal = $this->cart->subtotal();
 
         $this->syncAttendeesStructure();
+        $this->persistDraft();
     }
 
     /** Mantiene attendees alineado con los ítems (keys + qty) */
@@ -87,6 +93,63 @@ class CheckoutPage extends Component
         $this->attendees = $new;
     }
 
+    private function draftKey(): string
+    {
+        // Si hay usuario autenticado, guarda por usuario. Si no, una clave fija por navegador.
+        $base = 'checkout.draft.v1';
+        if (auth()->check()) {
+            return "{$base}.user.".auth()->id();
+        }
+
+        // Para invitados, una sola clave estable por cookie de sesión.
+        return "{$base}.guest";
+    }
+
+    private function persistDraft(): void
+    {
+        session()->put($this->draftKey(), [
+            'step' => $this->step,
+            'buyer_name' => $this->buyer_name,
+            'buyer_email' => $this->buyer_email,
+            'payment_method' => $this->payment_method,
+            'terms_accepted' => $this->terms_accepted,
+            'attendees' => $this->attendees,    // se recorta luego según qty
+            'items' => $this->items,        // snapshot para reconstruir estructura
+            'subtotal' => $this->subtotal,
+            'count' => $this->count,
+            'ts' => now()->timestamp,
+        ]);
+    }
+
+    private function hydrateFromDraft(): void
+    {
+        $data = session()->get($this->draftKey());
+        if (! $data || ! is_array($data)) {
+            return;
+        }
+
+        // Solo tomamos lo seguro; el carrito real manda
+        $this->step = (int) ($data['step'] ?? $this->step);
+        $this->buyer_name = (string) ($data['buyer_name'] ?? $this->buyer_name);
+        $this->buyer_email = (string) ($data['buyer_email'] ?? $this->buyer_email);
+        $this->payment_method = (string) ($data['payment_method'] ?? $this->payment_method);
+        $this->terms_accepted = (bool) ($data['terms_accepted'] ?? $this->terms_accepted);
+        $this->attendees = (array) ($data['attendees'] ?? $this->attendees);
+
+        // Re-sincroniza estructura con el carrito vigente (qty/keys actuales)
+        $this->syncAttendeesStructure();
+    }
+
+    private function clearDraft(): void
+    {
+        session()->forget($this->draftKey());
+    }
+
+    public function dehydrate(): void
+    {
+        $this->persistDraft();
+    }
+
     /** Rellena una fila con los datos del comprador */
     public function useBuyerFor(string $key, int $index): void
     {
@@ -104,6 +167,7 @@ class CheckoutPage extends Component
 
         // 🔁 fuerza un remount del bloque con inputs
         $this->attVersion++;
+        $this->persistDraft();
     }
 
     /** Ir al siguiente paso con validación del paso actual */
@@ -119,6 +183,7 @@ class CheckoutPage extends Component
             }
 
             $this->step = 2;
+            $this->persistDraft();
 
             return;
         }
@@ -126,6 +191,7 @@ class CheckoutPage extends Component
         if ($this->step === 2) {
             $this->validate($this->rulesStep2());
             $this->step = 3;
+            $this->persistDraft();
 
             return;
         }
@@ -136,6 +202,7 @@ class CheckoutPage extends Component
         if ($this->step > 1) {
             $this->step--;
         }
+        $this->persistDraft();
     }
 
     /** Validaciones por paso */
@@ -169,7 +236,7 @@ class CheckoutPage extends Component
     {
         return [
             'payment_method' => ['required', 'in:webpayplus'],
-            'terms_accepted' => ['accepted'],
+            // 'terms_accepted' => ['accepted'],
         ];
     }
 
@@ -184,6 +251,7 @@ class CheckoutPage extends Component
             // Usa el set completo de reglas del paso 2; validateOnly aplicará a $name
             $this->validateOnly($name, $this->rulesStep2());
         }
+        $this->persistDraft();
     }
 
     /** Helpers de validez por paso (no lanzan excepción) */
@@ -271,6 +339,12 @@ class CheckoutPage extends Component
     /** Confirmar y redirigir a WebPay (snapshot en sesión) */
     public function confirmAndPay(): void
     {
+        // Evita re-entradas locales
+        if ($this->isPaying) {
+            return;
+        }
+        $this->isPaying = true;
+
         Log::info('[checkout] confirmAndPay CLICK', [
             'step' => $this->step,
             'count' => $this->count,
@@ -278,24 +352,25 @@ class CheckoutPage extends Component
             'terms' => $this->terms_accepted,
         ]);
 
-        // 1) Validación con traza y retorno amable al paso que falló
+        // 1) Validación de los 3 pasos
         try {
             $this->validate($this->rulesStep1() + $this->rulesStep2() + $this->rulesStep3());
-        } catch (ValidationException $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
             $errs = $e->validator->errors()->toArray();
             Log::warning('[checkout] validation failed', ['errors' => $errs]);
 
-            // Mueve al paso correspondiente para que el usuario vea los errores
+            // regresar al paso con errores
             $keys = array_keys($errs);
             $this->step = collect($keys)->contains(fn ($k) => str_starts_with($k, 'attendees.')) ? 2 : 1;
 
-            // Opcional: notificación visual
             $this->dispatch('toast', body: 'Revisa los campos pendientes.');
+            $this->dispatch('unlockPayBtn'); // re-habilita el botón en la UI
+            $this->isPaying = false;
 
             return;
         }
 
-        // 2) Normaliza montos y crea Orden (con logs)
+        // 2) Normaliza ítems y totales
         $items = $this->items;
         $calcSubtotal = 0;
         foreach ($items as &$it) {
@@ -307,64 +382,107 @@ class CheckoutPage extends Component
         unset($it);
         $total = $calcSubtotal;
 
+        // 3) Candado para evitar dobles inicios (idempotencia)
+        // Puedes usar también el ID de una pre-orden si lo tuvieras.
+        $lockKey = 'checkout:'.session()->getId();
+
         try {
-            DB::beginTransaction();
+            $result = Cache::lock($lockKey, 15)->block(0, function () use ($items, $calcSubtotal, $total) {
 
-            $order = Order::create([
-                'code' => 'ORD-'.now()->format('Ymd').'-'.Str::ulid(),
-                'buyer_name' => $this->buyer_name,
-                'buyer_email' => $this->buyer_email,
-                'payment_method' => 'webpayplus',
-                'status' => 'pending',
-                'subtotal' => $calcSubtotal,
-                'total' => $total,
-                'currency' => 'CLP',
-                'meta' => [],
-            ]);
+                // 3.1) Crea la orden bajo el candado
+                try {
+                    DB::beginTransaction();
 
-            foreach ($items as $it) {
-                $item = OrderItem::create([
-                    'order_id' => $order->id,
-                    'course_id' => (int) $it['id'],
-                    'course_name' => (string) $it['name'],
-                    'unit_price' => (int) $it['price'],
-                    'qty' => (int) $it['qty'],
-                    'subtotal' => (int) $it['subtotal'],
-                    'meta' => [],
-                ]);
+                    do {
+                        $code = 'ORD-'.now()->format('Ymd').'-'.str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                    } while (Order::where('code', $code)->exists());
 
-                $key = (string) $it['key'];
-                $rows = $this->attendees[$key] ?? [];
-                for ($i = 0; $i < $it['qty']; $i++) {
-                    $row = $rows[$i] ?? ['name' => '', 'email' => ''];
-                    OrderItemAttendee::create([
-                        'order_item_id' => $item->id,
-                        'course_id' => (int) $it['id'],
-                        'name' => (string) ($row['name'] ?? ''),
-                        'email' => (string) ($row['email'] ?? ''),
+                    $order = Order::create([
+                        'code' => $code,
+                        'buyer_name' => $this->buyer_name,
+                        'buyer_email' => $this->buyer_email,
+                        'payment_method' => 'webpayplus',
                         'status' => 'pending',
+                        'subtotal' => $calcSubtotal,
+                        'total' => $total,
+                        'currency' => 'CLP',
+                        'meta' => [],
                     ]);
+
+                    foreach ($items as $it) {
+                        $item = OrderItem::create([
+                            'order_id' => $order->id,
+                            'course_id' => (int) $it['id'],
+                            'course_name' => (string) $it['name'],
+                            'unit_price' => (int) $it['price'],
+                            'qty' => (int) $it['qty'],
+                            'subtotal' => (int) $it['subtotal'],
+                            'meta' => [],
+                        ]);
+
+                        $key = (string) $it['key'];
+                        $rows = $this->attendees[$key] ?? [];
+                        for ($i = 0; $i < $it['qty']; $i++) {
+                            $row = $rows[$i] ?? ['name' => '', 'email' => ''];
+                            OrderItemAttendee::create([
+                                'order_item_id' => $item->id,
+                                'course_id' => (int) $it['id'],
+                                'name' => (string) ($row['name'] ?? ''),
+                                'email' => (string) ($row['email'] ?? ''),
+                                'status' => 'pending',
+                            ]);
+                        }
+                    }
+
+                    DB::commit();
+                    Log::info('[checkout] order created', ['order_id' => $order->id, 'total' => $order->total]);
+
+                } catch (\Throwable $e) {
+                    DB::rollBack();
+                    Log::error('[checkout] order create failed', ['msg' => $e->getMessage()]);
+                    $this->dispatch('toast', body: 'No se pudo preparar tu orden. Intenta de nuevo.');
+                    $this->addError('payment', 'No se pudo procesar el pago, intenta nuevamente.');
+                    $this->dispatch('unlockPayBtn');
+                    $this->isPaying = false;
+
+                    return null;
                 }
+
+                // 3.2) Redirección a iniciar pago (tu ruta webpay.start)
+                try {
+                    Log::info('[checkout] redirecting to webpay.start', ['order_id' => $order->id]);
+
+                    // Livewire v3: redirección de navegador (no SPA)
+                    $this->redirectRoute('webpay.start', ['order' => $order->id], navigate: false);
+
+                    // Importante: terminar aquí para no ejecutar más código.
+                    return 'redirected';
+                } catch (\Throwable $e) {
+                    Log::error('[checkout] redirect failed', ['msg' => $e->getMessage()]);
+                    $this->dispatch('toast', body: 'No se pudo redirigir a Webpay.');
+                    $this->dispatch('unlockPayBtn');
+                    $this->isPaying = false;
+
+                    return null;
+                }
+            });
+
+            // Si no se pudo obtener el lock (tap muy rápido o doble envío)
+            if ($result === null) {
+                Log::warning('[checkout] lock not acquired');
+                $this->addError('payment', 'Estamos procesando tu pago. Si no avanza, actualiza la página.');
+                $this->dispatch('unlockPayBtn');
+                $this->isPaying = false;
             }
 
-            DB::commit();
-            Log::info('[checkout] order created', ['order_id' => $order->id, 'total' => $order->total]);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            Log::error('[checkout] order create failed', ['msg' => $e->getMessage()]);
-            $this->dispatch('toast', body: 'No se pudo preparar tu orden. Intenta de nuevo.');
+            // Si fue 'redirected', el navegador ya navegó.
 
-            return;
-        }
-
-        // 3) Redirección (con log)
-        try {
-            Log::info('[checkout] redirecting to webpay.start');
-            // Livewire v3: esto fuerza redirección de navegador (no SPA)
-            $this->redirectRoute('webpay.start', ['order' => $order->id], navigate: false);
         } catch (\Throwable $e) {
-            Log::error('[checkout] redirect failed', ['msg' => $e->getMessage()]);
-            $this->dispatch('toast', body: 'No se pudo redirigir a Webpay.');
+            // Falla del mecanismo de lock o error general
+            Log::error('[checkout] lock/flow error', ['msg' => $e->getMessage()]);
+            $this->addError('payment', 'No se pudo iniciar el pago. Intenta nuevamente.');
+            $this->dispatch('unlockPayBtn');
+            $this->isPaying = false;
         }
     }
 

@@ -11,7 +11,6 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -30,9 +29,10 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->brandLogoHeight('4rem')
             ->brandLogo(asset('img/logos/otec-logo-blanco.png'))
-            // ->homeUrl('/')
-            // ->favicon(asset('img/layout/favicon-32x32.png'))
+            ->homeUrl('/')
+            ->favicon(asset('img/layout/favicon-32x32.png'))
             ->brandName('OTEC MITCARE')
+            ->globalSearch(false)
             ->colors([
                 'primary' => Color::hex('#19355C'),
                 'secondary' => Color::hex('#E71F6C'),
