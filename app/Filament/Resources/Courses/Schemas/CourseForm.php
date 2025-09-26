@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Courses\Schemas;
 
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -55,12 +56,6 @@ class CourseForm
             DateTimePicker::make('published_at')
                 ->label('Publicado desde')
                 ->seconds(false)
-    // Validación servidor (Laravel):
-                // ->rules(fn (Get $get) => $get('start_at') ? ['before_or_equal:start_at'] : [])
-                // ->validationMessages([
-                //     'before_or_equal' => 'La publicación debe ser posterior o igual al inicio.',
-                // ])
-    // Restricción en UI:
                 ->maxDate(fn (Get $get) => $get('start_at') ?: null),
 
             TextInput::make('capacity')
@@ -81,21 +76,19 @@ class CourseForm
                 ->default('online')
                 ->required(),
 
-            DateTimePicker::make('start_at')
+            DatePicker::make('start_at')
                 ->label('Inicio')
                 ->seconds(false)
                 ->live(),
 
             // Término: no puede ser menor que start_at
-            DateTimePicker::make('end_at')
+            DatePicker::make('end_at')
                 ->label('Término')
                 ->seconds(false)
-                // Validación servidor (Laravel):
                 ->rules(fn (Get $get) => $get('start_at') ? ['after_or_equal:start_at'] : [])
                 ->validationMessages([
                     'after_or_equal' => 'El término debe ser posterior o igual al inicio.',
                 ])
-                // Restricción en UI:
                 ->minDate(fn (Get $get) => $get('start_at') ?: null),
 
             TextInput::make('location')
@@ -107,7 +100,7 @@ class CourseForm
             FileUpload::make('image')
                 ->label('Imagen (portada)')
                 ->image()
-                ->disk('s3')
+                ->disk('public')
                 ->directory('courses')
                 ->imageEditor(),
 

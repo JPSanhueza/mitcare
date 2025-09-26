@@ -21,8 +21,8 @@ class Course extends Model
         'price' => 'decimal:2',
         'is_active' => 'boolean',
         'published_at' => 'datetime',
-        'start_at' => 'datetime',
-        'end_at' => 'datetime',
+        'start_at' => 'date',
+        'end_at' => 'date',
     ];
 
     /** Generar slug automáticamente */
