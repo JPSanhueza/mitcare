@@ -21,7 +21,6 @@ class TeacherForm
             FileUpload::make('foto')
                 ->label('Foto')
                 ->image()
-                ->disk('s3')
                 ->directory('teachers')
                 ->imageEditor(),
 
