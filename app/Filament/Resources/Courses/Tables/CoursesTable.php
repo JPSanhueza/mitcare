@@ -28,6 +28,7 @@ class CoursesTable
                     'warning' => 'mixto',
                     'info' => 'presencial',
                 ])->sortable(),
+                TextColumn::make('total_hours')->label('Horas totales'),
                 IconColumn::make('is_active')->label('Activo')->boolean()->sortable(),
                 TextColumn::make('published_at')->label('Publicado')->dateTime('d-m-Y H:i')
                     ->sortable()->toggleable(isToggledHiddenByDefault: true),
@@ -52,6 +53,25 @@ class CoursesTable
                     ->icon('heroicon-m-arrow-top-right-on-square')
                     ->url(fn (Course $r) => url("/cursos/{$r->slug}"))
                     ->openUrlInNewTab(),
+
+                    Action::make('students')
+                    ->label('Estudiantes')
+                    ->icon('heroicon-o-users')
+                    ->color('info')
+                    ->modalHeading(fn (Course $record) => "Estudiantes de: {$record->nombre}")
+                    ->modalWidth('4xl')
+                    ->modalSubmitAction(false) // solo lectura
+                    ->modalCancelActionLabel('Cerrar')
+                    ->modalContent(fn (Course $record) => view(
+                        'filament.resources.courses.partials.students-list',
+                        [
+                            'course'    => $record,
+                            'students'  => $record->students()
+                                ->orderBy('apellido')
+                                ->orderBy('nombre')
+                                ->get(),
+                        ]
+                    )),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

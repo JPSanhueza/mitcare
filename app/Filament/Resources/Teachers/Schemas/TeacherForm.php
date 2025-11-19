@@ -34,6 +34,11 @@ class TeacherForm
                 ->numeric()
                 ->default('0'),
 
+            TextInput::make('organization')
+                ->label('Organización')
+                ->maxLength(255)
+                ->nullable(),
+
             // TextInput::make('email')
             //     ->label('Correo')
             //     ->email()

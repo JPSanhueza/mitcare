@@ -36,9 +36,4 @@ class Diploma extends Model
     {
         return $this->belongsTo(Student::class);
     }
-
-    public function template()
-    {
-        return $this->belongsTo(DiplomaTemplate::class, 'template_id');
-    }
 }
