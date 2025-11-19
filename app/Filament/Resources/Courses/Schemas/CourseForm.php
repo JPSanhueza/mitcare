@@ -65,6 +65,16 @@ class CourseForm
                 ->helperText('Déjalo vacío si no hay límite.')
                 ->nullable(),
 
+            TextInput::make('total_hours')
+                ->label('Horas totales')
+                ->numeric()
+                ->minValue(0)
+                ->required(),
+
+            TextInput::make('hours_description')
+                ->label('Descripción de las horas')
+                ->helperText('Ej: 23 horas teóricas asincrónicas y 7 horas prácticas'),
+
             // Ejecución
             Select::make('modality')
                 ->label('Modalidad')
@@ -100,6 +110,7 @@ class CourseForm
             FileUpload::make('image')
                 ->label('Imagen (portada)')
                 ->image()
+                ->disk('public')
                 ->directory('courses')
                 ->imageEditor(),
 

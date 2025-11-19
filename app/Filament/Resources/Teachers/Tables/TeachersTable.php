@@ -21,6 +21,7 @@ class TeachersTable
             ->columns([
                 ImageColumn::make('foto')->label('Foto')->circular(),
                 TextColumn::make('nombre')->label('Nombre')->searchable()->sortable(),
+                TextColumn::make('apellido')->label('Apellido')->searchable()->sortable(),
                 TextColumn::make('order')
                     ->label('Orden')
                     ->numeric()

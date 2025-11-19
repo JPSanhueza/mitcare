@@ -64,4 +64,18 @@ class Course extends Model
     {
         return 'slug';
     }
+
+    public function students()
+    {
+        return $this->belongsToMany(Student::class)
+            ->using(CourseStudent::class)
+            ->withPivot([
+                'enrolled_at',
+                'final_grade',
+                'approved',
+                'attendance',
+                'diploma_issued',
+            ])
+            ->withTimestamps();
+    }
 }
