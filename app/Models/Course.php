@@ -15,7 +15,7 @@ class Course extends Model
         'price', 'total_hours', 'hours_description',
         'is_active', 'order', 'published_at',
         'capacity', 'modality', 'start_at', 'end_at',
-        'location', 'image', 'external_url', 'moodle_course_id',
+        'location', 'image', 'external_url', 'moodle_course_id','total_hours','hours_description'
     ];
 
     protected $casts = [
