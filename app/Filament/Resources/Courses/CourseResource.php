@@ -7,7 +7,7 @@ use App\Filament\Resources\Courses\Pages\EditCourse;
 use App\Filament\Resources\Courses\Pages\ListCourses;
 use App\Filament\Resources\Courses\Pages\ViewCourse;
 use App\Filament\Resources\Courses\Schemas\CourseForm;
-use App\Filament\Resources\Courses\Schemas\CourseInfolist;
+use App\Filament\Resources\Courses\RelationManagers\StudentsRelationManager;
 use App\Filament\Resources\Courses\Tables\CoursesTable;
 use App\Models\Course;
 use BackedEnum;
@@ -39,7 +39,7 @@ class CourseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            StudentsRelationManager::class,
         ];
     }
 

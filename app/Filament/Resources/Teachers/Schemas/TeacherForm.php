@@ -18,6 +18,11 @@ class TeacherForm
                 ->required()
                 ->maxLength(255),
 
+            TextInput::make('apellido')
+                ->label('Apellido')
+                ->required()
+                ->maxLength(255),
+
             FileUpload::make('foto')
                 ->label('Foto')
                 ->image()
