@@ -11,7 +11,6 @@ return new class extends Migration {
             $table->string('organization')->nullable()->after('especialidad');
             $table->string('apellido')->nullable()->after('nombre');
             $table->string('signature')->nullable()->after('organization');
-            $table->string('signature')->nullable()->after('foto');
         });
     }
 
