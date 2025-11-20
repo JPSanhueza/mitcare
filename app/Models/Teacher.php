@@ -11,7 +11,6 @@ class Teacher extends Model
         'apellido',
         'descripcion',
         'foto',
-        'signature',
         'especialidad',
         'email',
         'telefono',
