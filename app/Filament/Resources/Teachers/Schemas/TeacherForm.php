@@ -23,7 +23,11 @@ class TeacherForm
                 ->image()
                 ->directory('teachers')
                 ->imageEditor(),
-
+            FileUpload::make('signature')
+                ->label('Firma')
+                ->image()
+                ->directory('teachers')
+                ->imageEditor(),
             Toggle::make('is_active')
                 ->label('Activo')
                 ->default(true),

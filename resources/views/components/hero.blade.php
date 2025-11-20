@@ -1,4 +1,4 @@
-{{-- resources/views/partials/hero.blade.php (o pégalo directo en tu vista) --}}
+    {{-- resources/views/partials/hero.blade.php (o pégalo directo en tu vista) --}}
 <section class="relative overflow-hidden">
     {{-- Fondo + overlay --}}
     <div aria-hidden="true" class="absolute inset-0">

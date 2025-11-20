@@ -11,10 +11,11 @@ class Teacher extends Model
         'apellido',
         'descripcion',
         'foto',
+        'signature',
         'especialidad',
         'email',
         'telefono',
-        'especialidad',
+        'organization',
         'is_active',
         'order'
     ];

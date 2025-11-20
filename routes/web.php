@@ -10,7 +10,8 @@ use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\StudentAuthController;
+use App\Http\Controllers\StudentCertificateController;
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
@@ -30,7 +31,7 @@ Route::post('/carrito/clear', [CartHttpController::class, 'clear'])
 Route::get('/checkout/pagar/{order}', [WebpayController::class, 'start'])
     ->name('webpay.start');
 
-Route::match(['GET','POST'], '/checkout/webpay/retorno', [WebpayController::class, 'callback'])
+Route::match(['GET', 'POST'], '/checkout/webpay/retorno', [WebpayController::class, 'callback'])
     ->name('webpay.callback');
 
 Route::get('/checkout/exito/{order}', [CheckoutResultController::class, 'success'])
@@ -38,7 +39,31 @@ Route::get('/checkout/exito/{order}', [CheckoutResultController::class, 'success
 
 Route::get('/checkout/error/{order?}', [CheckoutResultController::class, 'failed'])
     ->name('checkout.failed');
+Route::get('/certificados/login', [StudentAuthController::class, 'showLoginForm'])
+    ->name('student.login');
 
+Route::post('/certificados/login', [StudentAuthController::class, 'login'])
+    ->name('student.login.submit');
+
+Route::post('/certificados/logout', [StudentAuthController::class, 'logout'])
+    ->name('student.logout');
+
+// Rutas protegidas para estudiantes logueados
+Route::middleware('student.auth')->group(function () {
+    Route::get('/certificados', [StudentCertificateController::class, 'index'])
+        ->name('student.certificates');
+
+    Route::get('/certificados/{diploma}/descargar', [StudentCertificateController::class, 'download'])
+        ->name('student.diplomas.download');
+});
+
+
+// Reset de contraseña basado en RUT
+Route::get('/certificados/recuperar', [StudentAuthController::class, 'showResetForm'])
+    ->name('student.password.request');
+
+Route::post('/certificados/recuperar', [StudentAuthController::class, 'resetPassword'])
+    ->name('student.password.reset');
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])
 //     ->name('dashboard');
