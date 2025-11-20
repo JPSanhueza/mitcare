@@ -14,7 +14,8 @@ class Teacher extends Model
         'especialidad',
         'email',
         'telefono',
-        'especialidad',
+        'organization',
+        'signature',
         'is_active',
         'order'
     ];
