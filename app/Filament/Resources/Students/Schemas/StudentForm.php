@@ -7,6 +7,8 @@ use App\Rules\ValidRut;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Closure;
+use Filament\Forms\Get;
 
 class StudentForm
 {
@@ -29,18 +31,35 @@ class StudentForm
                     ->required()
                     ->placeholder('12.345.678-5')
                     ->maxLength(20)
-                    // ✅ Validación de formato + duplicado
+                    // ✅ Solo formato + DV (tu regla personalizada)
                     ->rules([new ValidRut()])
-                    // ✅ Al hidratar (editar), mostrar con puntos y guion
+                    // ✅ Unicidad (ignorando el registro actual)
+                    ->rule(function (?Student $record) {
+                        return function (string $attribute, $value, Closure $fail) use ($record) {
+                            $normalized = Student::normalizeRut((string) $value);
+
+                            $query = Student::query()
+                                ->where('rut', $normalized);
+
+                            if ($record) {
+                                // Ignora el propio registro al editar
+                                $query->whereKeyNot($record->getKey());
+                            }
+
+                            if ($query->exists()) {
+                                $fail('El RUT ingresado ya está registrado.');
+                            }
+                        };
+                    })
+                    // Mostrar formateado al editar
                     ->afterStateHydrated(function (TextInput $component, $state) {
                         if ($state) {
                             $component->state(Student::formatRut($state));
                         }
                     })
-                    // ✅ Antes de guardar, normalizar (sin puntos ni guion)
+                    // Guardar siempre normalizado
                     ->dehydrateStateUsing(fn($state) => Student::normalizeRut($state))
                     ->helperText('Este será el usuario con el que el estudiante iniciará sesión para descargar su diploma. Puedes escribir el RUT con puntos y guion.'),
-
                 TextInput::make('password')
                     ->label('Contraseña (opcional)')
                     ->password()

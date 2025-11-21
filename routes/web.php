@@ -55,6 +55,13 @@ Route::middleware('student.auth')->group(function () {
 
     Route::get('/certificados/{diploma}/descargar', [StudentCertificateController::class, 'download'])
         ->name('student.diplomas.download');
+
+        
+    Route::get('/certificados/cambiar-clave', [StudentAuthController::class, 'showForceChangeForm'])
+        ->name('student.password.force');
+
+    Route::post('/certificados/cambiar-clave', [StudentAuthController::class, 'forceChangePassword'])
+        ->name('student.password.force.submit');
 });
 
 

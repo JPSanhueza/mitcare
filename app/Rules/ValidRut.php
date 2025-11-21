@@ -20,7 +20,7 @@ class ValidRut implements ValidationRule
         }
 
         // 3) Validar duplicado
-        $query = Student::where('rut', $rutNormalizado);
+        /* $query = Student::where('rut', $rutNormalizado);
 
         // Si estamos editando en Filament, la ruta trae {record}
         $currentId = request()->route('record') ?? request()->route('id');
@@ -31,6 +31,6 @@ class ValidRut implements ValidationRule
 
         if ($query->exists()) {
             $fail('El RUT ingresado ya está registrado.');
-        }
+        } */
     }
 }
