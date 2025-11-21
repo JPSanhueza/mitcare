@@ -53,8 +53,15 @@ class StudentAuthController extends Controller
         // Guardamos la sesión de estudiante
         $request->session()->put('student_id', $student->id);
 
+        //  Si debe cambiar contraseña, lo mandamos a la vista de cambio obligatorio
+        if ($student->must_change_password) {
+            return redirect()->route('student.password.force');
+        }
+
+        // Si no, va normal a sus certificados
         return redirect()->route('student.certificates');
     }
+
 
     /**
      * Cerrar sesión de estudiante.
@@ -111,4 +118,48 @@ class StudentAuthController extends Controller
             ->route('student.login')
             ->with('success', 'Tu contraseña ha sido actualizada. Ahora puedes iniciar sesión.');
     }
+    public function showForceChangeForm(Request $request)
+    {
+        $studentId = $request->session()->get('student_id');
+
+        if (!$studentId) {
+            return redirect()->route('student.login');
+        }
+
+        $student = Student::findOrFail($studentId);
+
+        return view('student.auth.force-change-password', [
+            'student' => $student,
+        ]);
+    }
+
+    public function forceChangePassword(Request $request)
+    {
+        $studentId = $request->session()->get('student_id');
+
+        if (!$studentId) {
+            return redirect()->route('student.login');
+        }
+
+        /** @var Student $student */
+        $student = Student::findOrFail($studentId);
+
+        $data = $request->validate([
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'new_password.required' => 'Debes ingresar una nueva contraseña.',
+            'new_password.min' => 'La nueva contraseña debe tener al menos :min caracteres.',
+            'new_password.confirmed' => 'La confirmación de la contraseña no coincide.',
+        ]);
+
+        // Asignar nueva contraseña (mutator se encarga del hash)
+        $student->password = $data['new_password'];
+        $student->must_change_password = false;
+        $student->save();
+
+        return redirect()
+            ->route('student.certificates')
+            ->with('success', 'Tu contraseña ha sido actualizada correctamente.');
+    }
+
 }
