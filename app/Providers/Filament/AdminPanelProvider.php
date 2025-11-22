@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandLogoHeight('4rem')
-            ->brandLogo(asset('img/logos/otec-logo-blanco.png'))
+            ->brandLogo(asset('img/layout/android-chrome-192x192.png'))
             ->homeUrl('/')
             ->favicon(asset('img/layout/favicon-32x32.png'))
             ->brandName('OTEC MITCARE')

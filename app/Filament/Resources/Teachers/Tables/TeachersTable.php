@@ -30,12 +30,14 @@ class TeachersTable
                     ->sortable(),
                 // TextColumn::make('email')->label('Correo')->searchable()->toggleable(),
                 // TextColumn::make('telefono')->label('Teléfono')->toggleable(),
-                // IconColumn::make('is_active')->label('Activo')->boolean()->sortable(),
                 ToggleColumn::make('is_active')->label('estado'),
             ])
             ->filters([
                 TernaryFilter::make('is_active')->label('Activos')->boolean(),
             ])
+            ->reorderable('order')
+            ->defaultSort('order')
+            ->searchable()
             ->recordActions([
                 EditAction::make(),
             ])

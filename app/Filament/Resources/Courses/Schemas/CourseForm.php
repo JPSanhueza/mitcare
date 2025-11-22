@@ -112,10 +112,20 @@ class CourseForm
                 ->image()
                 ->disk('public')
                 ->directory('courses')
-                ->imageEditor(),
+                ->imageEditor()
+                ->rules([
+                    'image',
+                    'mimes:jpg,jpeg,png,webp',
+                ])
+                ->validationMessages([
+                    'image' => 'El archivo debe ser una imagen válida.',
+                    'mimes' => 'El formato de la imagen debe ser jpg, jpeg, png o webp.',
+                    'max' => 'La imagen no puede exceder los 1024 KB (1 MB).',
+                ])
+                ->maxSize(1024),
 
             TextInput::make('order')
-                ->label('Orden')
+                ->label('Orden en pantalla')
                 ->required()
                 ->numeric()
                 ->default('0'),

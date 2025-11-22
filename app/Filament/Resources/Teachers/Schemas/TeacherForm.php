@@ -26,16 +26,48 @@ class TeacherForm
             FileUpload::make('foto')
                 ->label('Foto')
                 ->image()
+                ->disk('public')
                 ->directory('teachers')
-                ->imageEditor(),
+                ->imageEditor()
+                ->rules([
+                    'image',
+                    'mimes:jpg,jpeg,png,webp',
+                ])
+                ->validationMessages([
+                    'image' => 'El archivo debe ser una imagen válida.',
+                    'mimes' => 'El formato de la imagen debe ser jpg, jpeg, png o webp.',
+                    'max' => 'La imagen no puede exceder los 1024 KB (1 MB).',
+                                ])
+                ->maxSize(1024),
+
             FileUpload::make('signature')
                 ->label('Firma')
                 ->image()
+                ->disk('public')
                 ->directory('teachers')
-                ->imageEditor(),
-            Toggle::make('is_active')
-                ->label('Activo')
-                ->default(true),
+                ->imageEditor()
+                ->imageEditorViewportWidth('1080')
+                ->imageEditorViewportHeight('1080')
+                ->rules([
+                    'image',
+                    'mimes:jpg,jpeg,png,webp',
+                ])
+                ->validationMessages([
+                    'image' => 'El archivo debe ser una imagen válida.',
+                    'mimes' => 'El formato de la imagen debe ser jpg, jpeg, png o webp.',
+                    // 'dimensions' => 'La imagen debe tener una relación de aspecto de 1:1 (edita para corregir).',
+                    'max' => 'La imagen no puede exceder los 1024 KB (1 MB).',
+                ])
+                ->maxSize(1024),
+
+            TextInput::make('especialidad')
+                ->label('Especialidad/Cargo')
+                ->nullable(),
+
+            TextInput::make('organization')
+                ->label('Organización')
+                ->maxLength(255)
+                ->nullable(),
 
             TextInput::make('order')
                 ->label('Orden')
@@ -43,10 +75,9 @@ class TeacherForm
                 ->numeric()
                 ->default('0'),
 
-            TextInput::make('organization')
-                ->label('Organización')
-                ->maxLength(255)
-                ->nullable(),
+            Toggle::make('is_active')
+                ->label('Activo')
+                ->default(true),
 
             // TextInput::make('email')
             //     ->label('Correo')
@@ -57,11 +88,6 @@ class TeacherForm
             // TextInput::make('telefono')
             //     ->label('Teléfono')
             //     ->maxLength(50)
-            //     ->nullable(),
-
-            // Textarea::make('especialidad')
-            //     ->label('Especialidad')
-            //     ->rows(2)
             //     ->nullable(),
 
             // Textarea::make('descripcion')

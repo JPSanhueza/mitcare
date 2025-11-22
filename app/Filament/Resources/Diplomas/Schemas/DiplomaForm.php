@@ -19,6 +19,22 @@ use Filament\Schemas\Schema;
 
 class DiplomaForm
 {
+
+function format_rut($rut) {
+    if (!$rut) return '';
+
+    $rut = preg_replace('/[^0-9kK]/', '', $rut);
+
+    $dv = strtoupper(substr($rut, -1));
+    $num = substr($rut, 0, -1);
+
+    if ($num === '') return $rut;
+
+    $num = number_format((int)$num, 0, ',', '.');
+
+    return $num . '-' . $dv;
+}
+
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
@@ -76,7 +92,7 @@ class DiplomaForm
                                     ->orderBy('apellido')
                                     ->get()
                                     ->mapWithKeys(fn ($t) => [
-                                        $t->id => "{$t->nombre} {$t->apellido}",
+                                        $t->id => "{$t->nombre} {$t->apellido} - {$t->organization}",
                                     ])
                                     ->toArray();
                             })
@@ -88,49 +104,38 @@ class DiplomaForm
                  * PASO 2: Estudiantes
                  * ------------------------------ */
                 Step::make('Estudiantes')
-                    ->schema([
-                        Repeater::make('students')
-                            ->label('Estudiantes del curso')
-                            ->visible(fn (Get $get) => filled($get('course_id')))
-                            ->columns(6)
-                            ->schema([
-                                Hidden::make('student_id'),
+    ->schema([
+        Repeater::make('students')
+            ->label('Estudiantes del curso')
+            ->visible(fn (Get $get) => filled($get('course_id')))
+            ->columns(1)
 
-                                Toggle::make('selected')
-                                    ->label('Crear diploma')
-                                    ->inline(false),
+            // 🚫 NO permitir tocar la estructura
+            ->addable(false)       // quita "Añadir a estudiantes del curso"
+            ->deletable(false)     // quita el basurero
+            ->reorderable(false)   // quita el ícono de arrastre
+            ->collapsible(false)
 
-                                TextInput::make('name')
-                                    ->label('Nombre')
-                                    ->disabled()
-                                    ->dehydrated(false)
-                                    ->columnSpan(2),
+            ->dehydrated(true)
 
-                                TextInput::make('rut')
-                                    ->label('RUT')
-                                    ->disabled()
-                                    ->dehydrated(false),
+            ->schema([
+                // ÚNICO campo editable: si se crea o no el diploma
+                Toggle::make('selected')
+                    ->label('Crear diploma')
+                    ->columnSpanFull(),
 
-                                TextInput::make('final_grade')
-                                    ->label('Nota final')
-                                    ->disabled()
-                                    ->dehydrated(false),
-
-                                Toggle::make('approved')
-                                    ->label('Aprobado')
-                                    ->disabled()
-                                    ->dehydrated(false),
-
-                                TextInput::make('attendance')
-                                    ->label('Asistencia')
-                                    ->suffix('%')
-                                    ->disabled()
-                                    ->dehydrated(false),
-                            ])
-                            // Queremos el array completo en el estado del form
-                            ->dehydrated(true),
-                    ]),
-
+                // Vista de solo lectura con los datos del alumno
+                View::make('filament.resources.diplomas.partials.student-row')
+                    ->viewData(fn (Get $get) => [
+                        'name'        => $get('name'),
+                        'rut'         => $get('rut'),
+                        'final_grade' => $get('final_grade'),
+                        'approved'    => $get('approved'),
+                        'attendance'  => $get('attendance'),
+                    ])
+                    ->columnSpanFull(),
+            ]),
+    ]),
                 /* ------------------------------
                  * PASO 3: Fecha + resumen
                  * ------------------------------ */
@@ -142,7 +147,6 @@ class DiplomaForm
                             ->required(),
 
                         View::make('filament.resources.diplomas.partials.summary')
-                            // ->label('Resumen')
                             ->viewData(function (Get $get) {
                                 $course = $get('course_id')
                                     ? Course::find($get('course_id'))
