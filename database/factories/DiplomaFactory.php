@@ -22,7 +22,6 @@ class DiplomaFactory extends Factory
             'file_path' => 'diplomas/' . Str::random(10) . '.pdf',
             'verification_code' => 'DIP-' . strtoupper(Str::random(8)),
             'qr_path' => 'qrs/' . Str::random(8) . '.png',
-            // ❌ sin template_id
         ];
     }
 }

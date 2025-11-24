@@ -92,7 +92,7 @@ function format_rut($rut) {
                                     ->orderBy('apellido')
                                     ->get()
                                     ->mapWithKeys(fn ($t) => [
-                                        $t->id => "{$t->nombre} {$t->apellido} - {$t->organization}",
+                                        $t->id => "{$t->nombre} {$t->apellido}",
                                     ])
                                     ->toArray();
                             })

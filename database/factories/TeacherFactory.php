@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Teacher;
+use App\Models\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TeacherFactory extends Factory
@@ -28,7 +29,7 @@ class TeacherFactory extends Factory
             'especialidad' => $this->faker->randomElement($especialidades),
             'email' => $this->faker->unique()->safeEmail,
             'telefono' => $this->faker->numerify('+56 9 ########'),
-            'organization' => $this->faker->company,
+            'organization_id' => Organization::query()->inRandomOrder()->value('id'),
             'is_active' => true,
             'order' => $this->faker->numberBetween(1, 100),
         ];

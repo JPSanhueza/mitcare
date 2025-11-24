@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Teachers\Schemas;
 
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
@@ -64,9 +64,11 @@ class TeacherForm
                 ->label('Especialidad/Cargo')
                 ->nullable(),
 
-            TextInput::make('organization')
+            Select::make('organization_id')
                 ->label('Organización')
-                ->maxLength(255)
+                ->relationship('organization', 'nombre')
+                ->searchable()
+                ->preload()
                 ->nullable(),
 
             TextInput::make('order')

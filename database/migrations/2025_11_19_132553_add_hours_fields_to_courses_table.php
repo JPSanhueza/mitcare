@@ -11,16 +11,17 @@ return new class extends Migration {
             $table->unsignedInteger('total_hours')->nullable()
                 ->after('price');
 
-
             $table->string('hours_description')->nullable()
                 ->after('total_hours');
+
+            $table->string('nombre_diploma')->nullable()->after('nombre');
         });
     }
 
     public function down(): void
     {
         Schema::table('courses', function (Blueprint $table) {
-            $table->dropColumn(['total_hours', 'hours_description']);
+            $table->dropColumn(['total_hours', 'hours_description, nombre_diploma']);
         });
     }
 };
