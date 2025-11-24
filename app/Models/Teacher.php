@@ -17,8 +17,14 @@ class Teacher extends Model
         'email',
         'telefono',
         'organization',
-        'signature',
         'is_active',
         'order'
     ];
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class)
+            ->using(CourseTeacher::class)
+            ->withPivot(['role'])
+            ->withTimestamps();
+    }
 }
