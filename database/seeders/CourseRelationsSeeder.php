@@ -17,53 +17,53 @@ class CourseRelationsSeeder extends Seeder
     public function run(): void
     {
         $courses = Course::all();
-        $students = Student::all();
+        // $students = Student::all();
         $teachers = Teacher::all();
 
-        if ($courses->isEmpty() || $students->isEmpty() || $teachers->isEmpty()) {
+        if ($courses->isEmpty() ||  $teachers->isEmpty()) { //$students->isEmpty() ||
             $this->command?->warn('⚠️ Faltan cursos, estudiantes o docentes para relacionar.');
             return;
         }
 
         // Limpia pivots sin romper FKs (delete en vez de truncate)
-        DB::table('course_student')->delete();
+        // DB::table('course_student')->delete();
         DB::table('course_teacher')->delete();
 
         /* ============================
          *  ESTUDIANTES POR CURSO
          * ============================ */
-        foreach ($courses as $course) {
-            // Entre 10 y 40 estudiantes por curso
-            $numStudents = rand(10, 40);
-            $studentsForCourse = $students->random($numStudents);
+        // foreach ($courses as $course) {
+        //     // Entre 10 y 40 estudiantes por curso
+        //     $numStudents = rand(10, 40);
+        //     $studentsForCourse = $students->random($numStudents);
 
-            foreach ($studentsForCourse as $student) {
-                $startAt = $course->start_at
-                    ? Carbon::parse($course->start_at)
-                    : now()->subDays(rand(10, 60));
+        //     foreach ($studentsForCourse as $student) {
+        //         $startAt = $course->start_at
+        //             ? Carbon::parse($course->start_at)
+        //             : now()->subDays(rand(10, 60));
 
-                $enrolledAt = (clone $startAt)->subDays(rand(1, 15));
+        //         $enrolledAt = (clone $startAt)->subDays(rand(1, 15));
 
-                $finalGrade = rand(35, 70) / 10;  // 3.5 a 7.0
-                $approved = $finalGrade >= 4.0;
-                $attendance = rand(50, 100);
+        //         $finalGrade = rand(35, 70) / 10;  // 3.5 a 7.0
+        //         $approved = $finalGrade >= 4.0;
+        //         $attendance = rand(50, 100);
 
-                // Solo se emite diploma si aprobó y tiene buena asistencia
-                $diplomaIssued = $approved && $attendance >= 75 && rand(0, 100) < 80;
+        //         // Solo se emite diploma si aprobó y tiene buena asistencia
+        //         $diplomaIssued = $approved && $attendance >= 75 && rand(0, 100) < 80;
 
-                DB::table('course_student')->insert([
-                    'course_id' => $course->id,
-                    'student_id' => $student->id,
-                    'enrolled_at' => $enrolledAt,
-                    'final_grade' => $finalGrade,
-                    'approved' => $approved,
-                    'attendance' => $attendance,
-                    'diploma_issued' => $diplomaIssued,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-        }
+        //         DB::table('course_student')->insert([
+        //             'course_id' => $course->id,
+        //             'student_id' => $student->id,
+        //             'enrolled_at' => $enrolledAt,
+        //             'final_grade' => $finalGrade,
+        //             'approved' => $approved,
+        //             'attendance' => $attendance,
+        //             'diploma_issued' => $diplomaIssued,
+        //             'created_at' => now(),
+        //             'updated_at' => now(),
+        //         ]);
+        //     }
+        // }
 
         /* ============================
          *  DOCENTES POR CURSO
