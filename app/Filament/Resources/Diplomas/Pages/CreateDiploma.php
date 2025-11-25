@@ -4,10 +4,10 @@ namespace App\Filament\Resources\Diplomas\Pages;
 
 use App\Filament\Resources\Diplomas\DiplomaResource;
 use App\Jobs\GenerateDiplomaPdf;
+use App\Livewire\Diplomas\BatchProgress;
 use App\Models\Course;
 use App\Models\Diploma;
 use App\Models\DiplomaBatch;
-use App\Livewire\Diplomas\BatchProgress;
 use App\Models\Student;
 use App\Models\Teacher;
 use Filament\Notifications\Notification;
@@ -89,6 +89,8 @@ class CreateDiploma extends CreateRecord
 
         $course = Course::find($courseId);
         $teacher = Teacher::find($teacherIds);
+        $course = Course::find($courseId);
+        $teacher = Teacher::find($teacherId);
 
         if (!$course || !$teacher) {
             Notification::make()
@@ -182,5 +184,6 @@ class CreateDiploma extends CreateRecord
         // Para el popup de progreso (si lo tienes montado)
         $this->dispatch('diplomas-batch-started', batchId: $batch->id)
             ->to(BatchProgress::class);
+    }
     }
 }
