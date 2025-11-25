@@ -12,20 +12,23 @@ class StudentFactory extends Factory
 
     public function definition(): array
     {
-        $nombre = $this->faker->firstName;
-        $apellido = $this->faker->lastName;
+        $faker = fake(); // O fake('es_CL') si quieres asegurar locale chileno
+
+        $nombre = $faker->firstName();
+        $apellido = $faker->lastName();
         $rut = $this->generateValidRut();
 
         return [
             'nombre' => $nombre,
             'apellido' => $apellido,
-            'email' => $this->faker->unique()->safeEmail,
+            'email' => $faker->unique()->safeEmail(),
             'rut' => $rut,
             'password' => Hash::make('Password123!'),
-            'telefono' => $this->faker->numerify('+56 9 ########'),
-            'direccion' => $this->faker->address,
+            'telefono' => $faker->numerify('+56 9 ########'),
+            'direccion' => $faker->address(),
         ];
     }
+
 
     private function generateValidRut(): string
     {
