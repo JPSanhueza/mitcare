@@ -12,8 +12,8 @@ class StudentFactory extends Factory
 
     public function definition(): array
     {
-        // Usa el helper global de Laravel
-        $faker = fake(); // respetará config('app.faker_locale')
+        // Carga el faker usando el método propio del Factory
+        $faker = $this->withFaker();
 
         $nombre = $faker->firstName();
         $apellido = $faker->lastName();
