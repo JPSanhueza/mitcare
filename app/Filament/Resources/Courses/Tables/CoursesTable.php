@@ -12,6 +12,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class CoursesTable
@@ -29,7 +30,7 @@ class CoursesTable
                     'info' => 'presencial',
                 ])->sortable(),
                 TextColumn::make('total_hours')->label('Horas totales'),
-                IconColumn::make('is_active')->label('Activo')->boolean()->sortable(),
+                ToggleColumn::make('is_active')->label('estado'),
                 TextColumn::make('published_at')->label('Publicado')->dateTime('d-m-Y H:i')
                     ->sortable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('order')
@@ -45,6 +46,9 @@ class CoursesTable
                     'mixto' => 'Mixto',
                 ]),
             ])
+            ->reorderable('order')
+            ->defaultSort('order')
+            ->searchable()
             ->recordActions([
                 EditAction::make(),
 

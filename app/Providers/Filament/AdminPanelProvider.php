@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandLogoHeight('4rem')
-            ->brandLogo(asset('img/logos/otec-logo-blanco.png'))
+            ->brandLogo(asset('img/layout/android-chrome-192x192.png'))
             ->homeUrl('/')
             ->favicon(asset('img/layout/favicon-32x32.png'))
             ->brandName('OTEC MITCARE')
@@ -38,6 +38,10 @@ class AdminPanelProvider extends PanelProvider
                 'secondary' => Color::hex('#E71F6C'),
                 'success' => Color::hex('#47A8DF'),
             ])
+            ->renderHook(
+                'panels::body.end',
+                fn () => view('filament.hooks.diplomas-batch-progress'),
+            )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

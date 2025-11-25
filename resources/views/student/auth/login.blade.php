@@ -32,19 +32,32 @@
                     @enderror
                 </div>
 
-                <div>
+                <div x-data="{ show: false }">
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         Contraseña
                     </label>
-                    <input type="password" name="password"
-                        class="w-full rounded-lg border-gray-300 focus:border-[#19355C] focus:ring-[#19355C]" required>
+
+                    <div class="relative">
+                        <input :type="show ? 'text' : 'password'" name="password"
+                            class="w-full rounded-lg border-gray-300 focus:border-[#19355C] focus:ring-[#19355C] pr-10"
+                            required>
+
+                        <button type="button" @click="show = !show"
+                            class="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-500 hover:text-gray-700">
+                            <span x-show="!show">Ver</span>
+                            <span x-show="show">Ocultar</span>
+                        </button>
+                    </div>
+
                     <p class="mt-1 text-xs text-gray-500">
                         Recuerda: 6 primeros dígitos de tu RUT (sin puntos ni guion) + 2 primeras letras de tu nombre.
                     </p>
+
                     @error('password')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
+
 
                 <button type="submit"
                     class="w-full inline-flex justify-center rounded-xl px-4 py-2.5 bg-[#19355C] text-white font-semibold hover:bg-[#142843] transition">

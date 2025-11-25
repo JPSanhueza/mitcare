@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Teacher extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'nombre',
         'apellido',
@@ -14,9 +17,21 @@ class Teacher extends Model
         'especialidad',
         'email',
         'telefono',
-        'organization',
+        'organization_id',
         'signature',
         'is_active',
-        'order'
+        'order',
     ];
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class)
+            ->using(CourseTeacher::class)
+            ->withPivot(['role'])
+            ->withTimestamps();
+    }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
 }

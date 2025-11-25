@@ -8,6 +8,7 @@ use App\Filament\Resources\Courses\Pages\ListCourses;
 use App\Filament\Resources\Courses\Pages\ViewCourse;
 use App\Filament\Resources\Courses\Schemas\CourseForm;
 use App\Filament\Resources\Courses\RelationManagers\StudentsRelationManager;
+use App\Filament\Resources\Courses\RelationManagers\TeachersRelationManager;
 use App\Filament\Resources\Courses\Tables\CoursesTable;
 use App\Models\Course;
 use BackedEnum;
@@ -40,6 +41,7 @@ class CourseResource extends Resource
     {
         return [
             StudentsRelationManager::class,
+            TeachersRelationManager::class,
         ];
     }
 

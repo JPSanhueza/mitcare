@@ -11,7 +11,7 @@ class Course extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nombre', 'slug', 'descripcion', 'subtitulo',
+        'nombre', 'nombre_diploma', 'slug', 'descripcion', 'subtitulo',
         'price', 'total_hours', 'hours_description',
         'is_active', 'order', 'published_at',
         'capacity', 'modality', 'start_at', 'end_at',
@@ -39,7 +39,7 @@ class Course extends Model
                 $original = $course->slug;
                 $counter = 1;
                 while (static::where('slug', $course->slug)->exists()) {
-                    $course->slug = $original.'-'.$counter++;
+                    $course->slug = $original . '-' . $counter++;
                 }
             }
         });
@@ -77,6 +77,13 @@ class Course extends Model
                 'attendance',
                 'diploma_issued',
             ])
+            ->withTimestamps();
+    }
+    public function teachers()
+    {
+        return $this->belongsToMany(Teacher::class)
+            ->using(CourseTeacher::class)
+            ->withPivot(['role'])
             ->withTimestamps();
     }
 }

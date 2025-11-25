@@ -7,7 +7,7 @@
             </a>
 
             <!-- Links (desktop) -->
-            <ul class="hidden lg:flex items-center gap-12 text-lg md:text-xl">
+            <ul class="hidden xl:flex items-center gap-10 text-lg md:text-xl">
                 <li>
                     <a href="{{ route('home') }}" class="hover:opacity-75">
                         Inicio
@@ -36,14 +36,14 @@
             </ul>
 
             <!-- Botón Contacto (desktop) -->
-            <div class="hidden lg:block">
+            <div class="hidden xl:block">
                 <a href="/#contacto"
                     class="inline-flex items-center rounded-2xl px-4 py-2 text-lg
                 font-semibold bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md">
                     Contacto
                 </a>
             </div>
-            <div class="hidden lg:block">
+            <div class="hidden xl:block">
                 <a href="{{ route('student.login') }}"
                     class="inline-flex items-center rounded-2xl
         px-3 py-2 text-lg font-semibold bg-[#10B981] hover:bg-[#059669] transition shadow-md">
@@ -51,7 +51,7 @@
                 </a>
             </div>
 
-            <div class="hidden lg:block">
+            <div class="hidden xl:block">
                 <a href="https://aulavirtual.otecmitcare.cl/" target="_blank"
                     class="inline-flex items-center rounded-2xl
                 px-3 py-2 text-lg font-semibold bg-[#47A8DF] hover:bg-[#269ade] transition shadow-md">
@@ -60,7 +60,7 @@
             </div>
 
             <!-- Hamburguesa (móvil) -->
-            <button @click="open = !open" class="lg:hidden inline-flex items-center justify-center h-10 w-10">
+            <button @click="open = !open" class="xl:hidden inline-flex items-center justify-center h-10 w-10">
                 <svg x-show="!open" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -74,7 +74,7 @@
     </div>
 
     <!-- Panel móvil -->
-    <div x-show="open" x-transition.origin.top class="lg:hidden border-t border-white/10">
+    <div x-show="open" x-transition.origin.top class="xl:hidden border-t border-white/10">
         <div class="px-4 py-3 space-y-2 text-base">
             <a href="{{ route('home') }}" class="block py-2 hover:opacity-80">Inicio</a>
             <a href="/#quienes-somos" class="block py-2 hover:opacity-80">Quienes somos</a>

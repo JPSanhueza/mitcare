@@ -1,79 +1,286 @@
-<div class="space-y-6 text-sm">
+@php
+    use Illuminate\Support\Facades\Storage;
+    use Illuminate\Support\Str;
+
+    function format_rut($rut)
+    {
+        if (!$rut) {
+            return '';
+        }
+
+        $rut = preg_replace('/[^0-9kK]/', '', $rut);
+
+        $dv = strtoupper(substr($rut, -1));
+        $num = substr($rut, 0, -1);
+
+        if ($num === '') {
+            return $rut; // fallback raro
+        }
+
+        $num = number_format((int) $num, 0, ',', '.');
+
+        return $num . '-' . $dv;
+    }
+@endphp
+
+<style>
+    /* ===========================
+       ESTILOS BASE (MODO CLARO)
+       =========================== */
+
+    .diploma-summary {
+        font-size: 14px;
+        line-height: 1.5;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 4px;
+    }
+
+    .diploma-summary * {
+        box-sizing: border-box;
+    }
+
+    .diploma-summary-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 16px;
+        background-color: #f3f4f6;
+        color: #111827;
+    }
+
+    .diploma-summary-card h3 {
+        margin: 0 0 8px 0;
+        font-size: 15px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .diploma-summary-card p {
+        margin: 2px 0;
+    }
+
+    .diploma-summary-muted {
+        color: #6b7280;
+        font-size: 12px;
+    }
+
+    .diploma-summary-strong {
+        font-weight: 600;
+    }
+
+    .diploma-summary-status-ok {
+        color: #16a34a;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .diploma-summary-status-bad {
+        color: #dc2626;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .diploma-signature-preview {
+        margin-top: 6px;
+        max-height: 60px;
+        max-width: 220px;
+        object-fit: contain;
+        display: block;
+    }
+
+    .diploma-summary-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        margin-top: 8px;
+    }
+
+    .diploma-summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        background-color: #ffffff;
+    }
+
+    .diploma-summary-table thead {
+        background-color: #e5e7eb;
+    }
+
+    .diploma-summary-table th,
+    .diploma-summary-table td {
+        padding: 6px 8px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+        color: #111827;
+    }
+
+    .diploma-summary-table th {
+        font-weight: 600;
+    }
+
+    .diploma-summary-table tr:nth-child(even) td {
+        background-color: #f9fafb;
+    }
+
+    .diploma-summary-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .diploma-summary-date {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .diploma-summary-background-signature {
+        background-color: #ffffff;
+        border-radius: 15px;
+        padding: 2px;
+        width: fit-content;
+        display: flex;
+        align-items: center;
+    }
+
+    .diploma-summary-total {
+        margin-bottom: 4px;
+    }
+
+    /* ===========================
+       MODO OSCURO
+       =========================== */
+
+    .dark .diploma-summary-card {
+        border-color: #4f4f50;
+        background-color: #252525;
+        color: #e5e7eb;
+    }
+
+    .dark .diploma-summary-card h3 {
+        color: #f9fafb;
+    }
+
+    .dark .diploma-summary-muted {
+        color: #9ca3af;
+    }
+
+    .dark .diploma-summary-table {
+        background-color: #111111;
+    }
+
+    .dark .diploma-summary-table thead {
+        background-color: #323336;
+    }
+
+    .dark .diploma-summary-table th,
+    .dark .diploma-summary-table td {
+        border-bottom-color: #323437;
+        color: #e5e7eb;
+    }
+
+    .dark .diploma-summary-table tr:nth-child(even) td {
+        background-color: #191a1b;
+    }
+
+    .dark .diploma-summary-date {
+        color: #9ca3af;
+    }
+
+    .dark .diploma-summary-background-signature {
+        background-color: #cbcbcb;
+        border-radius: 15px;
+        padding: 2px;
+        width: fit-content;
+        display: flex;
+        align-items: center;
+    }
+
+    .dark .diploma-summary-status-ok {
+        color: #16a34a;
+    }
+
+    .dark .diploma-summary-status-bad {
+        color: #fca5a5;
+    }
+</style>
+
+<div class="diploma-summary">
     {{-- Curso --}}
-    <div class="border rounded-lg p-4 bg-gray-50">
-        <h3 class="text-base font-semibold text-gray-800 mb-2">
-            Curso seleccionado
-        </h3>
+    <div class="diploma-summary-card">
+        <h3>Curso seleccionado</h3>
 
         @if ($course)
-            <p><span class="font-semibold">Nombre:</span> {{ $course->nombre }}</p>
-            <p><span class="font-semibold">Modalidad:</span> {{ ucfirst($course->modality) }}</p>
-            <p><span class="font-semibold">Horas totales:</span> {{ $course->total_hours }}</p>
-            <p><span class="font-semibold">Detalle horas:</span> {{ $course->hours_description }}</p>
+            <p><span class="diploma-summary-strong">Nombre:</span> {{ $course->nombre }}</p>
+            <p><span class="diploma-summary-strong">Modalidad:</span> {{ ucfirst($course->modality) }}</p>
+            <p><span class="diploma-summary-strong">Horas totales:</span> {{ $course->total_hours }}</p>
+            <p><span class="diploma-summary-strong">Detalle horas:</span> {{ $course->hours_description }}</p>
         @else
-            <p class="text-gray-500">No hay curso seleccionado.</p>
+            <p class="diploma-summary-muted">No hay curso seleccionado.</p>
         @endif
     </div>
 
     {{-- Docente --}}
-    <div class="border rounded-lg p-4 bg-gray-50">
-        <h3 class="text-base font-semibold text-gray-800 mb-2">
-            Docente
-        </h3>
+    <div class="diploma-summary-card">
+        <h3>Docente</h3>
 
         @if ($teacher)
-            <p><span class="font-semibold">Nombre:</span> {{ $teacher->nombre }} {{ $teacher->apellido }}</p>
-            <p><span class="font-semibold">Email:</span> {{ $teacher->email }}</p>
-            <p class="text-xs text-gray-500 mt-1">
-                Recuerda que este docente debe tener cargada su firma (signature) para el diploma.
-            </p>
+            <p><span class="diploma-summary-strong">Nombre:</span> {{ $teacher->nombre }} {{ $teacher->apellido }}</p>
+
+            @php
+                $signatureUrl = null;
+                $hasSignature = false;
+
+                if (!empty($teacher->signature)) {
+                    $path = $teacher->signature;
+
+                    $signatureUrl = Storage::disk('public')->url($path);
+                    $hasSignature = true;
+                }
+            @endphp
+
+            @if ($hasSignature && $signatureUrl)
+                <div class="diploma-summary-background-signature">
+                    <img src="{{ $signatureUrl }}" alt="Firma docente" class="diploma-signature-preview">
+                </div>
+            @else
+                <p class="diploma-summary-status-bad">
+                    Este docente aún no tiene firma cargada para el diploma.
+                </p>
+            @endif
         @else
-            <p class="text-gray-500">No hay docente seleccionado.</p>
+            <p class="diploma-summary-muted">No hay docente seleccionado.</p>
         @endif
     </div>
 
     {{-- Estudiantes --}}
-    <div class="border rounded-lg p-4 bg-gray-50">
-        <h3 class="text-base font-semibold text-gray-800 mb-2">
-            Estudiantes seleccionados para diploma
-        </h3>
+    <div class="diploma-summary-card">
+        <h3>Estudiantes seleccionados para diploma</h3>
 
         @if ($students->isEmpty())
-            <p class="text-gray-500">No hay estudiantes seleccionados.</p>
+            <p class="diploma-summary-muted">No hay estudiantes seleccionados.</p>
         @else
-            <p class="mb-2">
-                Total: <span class="font-semibold">{{ $students->count() }}</span>
+            <p class="diploma-summary-total">
+                Total: <span class="diploma-summary-strong">{{ $students->count() }}</span>
             </p>
 
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 text-xs">
-                    <thead class="bg-gray-100">
+            <div class="diploma-summary-table-wrapper">
+                <table class="diploma-summary-table">
+                    <thead>
                         <tr>
-                            <th class="px-3 py-2 text-left font-semibold text-gray-700">Nombre</th>
-                            <th class="px-3 py-2 text-left font-semibold text-gray-700">RUT</th>
-                            <th class="px-3 py-2 text-left font-semibold text-gray-700">Nota final</th>
-                            <th class="px-3 py-2 text-left font-semibold text-gray-700">Aprobado</th>
-                            <th class="px-3 py-2 text-left font-semibold text-gray-700">Asistencia</th>
+                            <th>Nombre</th>
+                            <th>RUT</th>
+                            <th>Nota final</th>
+                            <th>Aprobado</th>
+                            <th>Asistencia</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100 bg-white">
+                    <tbody>
                         @foreach ($students as $s)
                             <tr>
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {{ $s['name'] ?? '' }}
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {{ $s['rut'] ?? '' }}
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {{ $s['final_grade'] ?? '-' }}
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {{ !empty($s['approved']) ? 'Aprobado' : 'Reprobado' }}
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {{ isset($s['attendance']) ? $s['attendance'].'%' : '-' }}
-                                </td>
+                                <td>{{ $s['name'] ?? '' }}</td>
+                                <td>{{ format_rut($s['rut'] ?? '') }}</td>
+                                <td>{{ $s['final_grade'] ?? '-' }}</td>
+                                <td>{{ !empty($s['approved']) ? 'Aprobado' : 'Reprobado' }}</td>
+                                <td>{{ isset($s['attendance']) ? $s['attendance'] . '%' : '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -81,14 +288,4 @@
             </div>
         @endif
     </div>
-
-    {{-- Fecha --}}
-    @if ($issued_at)
-        <p class="text-xs text-gray-500">
-            Fecha de emisión seleccionada:
-            <span class="font-semibold">
-                {{ \Carbon\Carbon::parse($issued_at)->format('d-m-Y') }}
-            </span>
-        </p>
-    @endif
 </div>

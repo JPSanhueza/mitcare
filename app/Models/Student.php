@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Throwable;
+use Illuminate\Support\Str;
 
 class Student extends Model
 {
@@ -50,14 +51,21 @@ class Student extends Model
                     ]);
                 }
 
-                // Generar password automática si no viene
+                // 🔐 Generar password automática
                 if (empty($student->password)) {
+
                     $cuerpo = substr($student->rut, 0, -1);
                     $primeros6 = substr($cuerpo, 0, 6);
-                    $dosLetras = substr($student->nombre ?? '', 0, 2);
+                    $dosLetras = strtoupper(substr($student->nombre ?? '', 0, 2));
 
-                    $student->password = Hash::make($primeros6 . $dosLetras);
+                    // Un poco más fuerte: números + letras + símbolo
+                    $passwordPlano = $primeros6 . $dosLetras . '!';
+
+                    $student->password = Hash::make($passwordPlano);
                 }
+
+                // Marcar que DEBE cambiar la contraseña al ingresar
+                $student->must_change_password = true;
 
             } catch (ValidationException $e) {
                 throw $e;
