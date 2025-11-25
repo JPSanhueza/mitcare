@@ -218,6 +218,9 @@
                             <div style="font-size:11px;">
                                 {{ $t->especialidad ?? 'Docente' }}
                             </div>
+                             <div style="font-size:11px;">
+                                {{ $t->organization->nombre ?? 'Docente' }}
+                            </div>
                         </td>
                     @endforeach
                 </tr>

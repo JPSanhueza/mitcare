@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
-use Filament\Actions;
+
 class CreateDiploma extends CreateRecord
 {
     protected static string $resource = DiplomaResource::class;
@@ -26,10 +26,12 @@ class CreateDiploma extends CreateRecord
     {
         $this->redirect($this->getResource()::getUrl('index'));
     }
+
     protected function getFormActions(): array
     {
         return [];
     }
+
     public function create(bool $another = false): void
     {
         $data = $this->form->getState();
@@ -87,11 +89,11 @@ class CreateDiploma extends CreateRecord
         }
 
         // Docentes sin firma
-        $teachersWithoutSignature = $teachers->filter(fn($t) => empty($t->signature));
+        $teachersWithoutSignature = $teachers->filter(fn ($t) => empty($t->signature));
 
         if ($teachersWithoutSignature->isNotEmpty()) {
             $names = $teachersWithoutSignature
-                ->map(fn($t) => "{$t->nombre} {$t->apellido}")
+                ->map(fn ($t) => "{$t->nombre} {$t->apellido}")
                 ->implode(', ');
 
             Notification::make()
@@ -108,7 +110,6 @@ class CreateDiploma extends CreateRecord
          * -------------------------- */
         $issuedRaw = $data['issued_at'] ?? null;
 
-        // 👈 AQUÍ se controla el “estoy en paso 1/2”
         if (blank($issuedRaw)) {
             Notification::make()
                 ->title('Falta la fecha de emisión')
@@ -119,9 +120,15 @@ class CreateDiploma extends CreateRecord
             return;
         }
 
-        // Solo los que tengan el toggle activado (ej: "selected" / "crear_diploma")
+        $issuedAt = $issuedRaw instanceof Carbon
+            ? $issuedRaw
+            : Carbon::parse($issuedRaw);
+
+        /** @var Collection<int, array> $students */
+        $students = collect($data['students'] ?? []);
+
         $selectedStudents = $students->filter(
-            fn(array $s) => ! empty($s['selected'])
+            fn (array $s) => ! empty($s['selected'])
         );
 
         if ($selectedStudents->isEmpty()) {
@@ -134,21 +141,25 @@ class CreateDiploma extends CreateRecord
             return;
         }
 
-        // 1) Crear batch
-        $batch = DiplomaBatch::create([
-            'course_id' => $course->id,
-            'teacher_id' => $teachers->first()->id,
-            'total' => $selectedStudents->count(),
-            'processed' => 0,
-            'status' => 'pending',
-        ]);
+        DB::beginTransaction();
 
-            $diplomaIds   = [];
+        try {
+
+            // 1) Crear batch
+            $batch = DiplomaBatch::create([
+                'course_id' => $course->id,
+                'teacher_id' => $teachers->first()->id,
+                'total' => $selectedStudents->count(),
+                'processed' => 0,
+                'status' => 'pending',
+            ]);
+
+            $diplomaIds = [];
             $createdCount = 0;
 
             foreach ($selectedStudents as $row) {
                 $studentId = $row['id'] ?? $row['student_id'] ?? null;
-                $student   = null;
+                $student = null;
 
                 if ($studentId) {
                     $student = Student::find($studentId);
@@ -156,7 +167,7 @@ class CreateDiploma extends CreateRecord
 
                 if (! $student && ! empty($row['rut'])) {
                     $rutLimpio = preg_replace('/[^0-9kK]/', '', $row['rut']);
-                    $student   = Student::where('rut', $rutLimpio)->first();
+                    $student = Student::where('rut', $rutLimpio)->first();
                 }
 
                 if (! $student) {
@@ -166,12 +177,12 @@ class CreateDiploma extends CreateRecord
                 $finalGrade = $row['final_grade'] ?? null;
 
                 $diploma = Diploma::create([
-                    'course_id'         => $course->id,
-                    'student_id'        => $student->id,
-                    'issued_at'         => $issuedAt,
-                    'final_grade'       => $finalGrade,
+                    'course_id' => $course->id,
+                    'student_id' => $student->id,
+                    'issued_at' => $issuedAt,
+                    'final_grade' => $finalGrade,
                     'verification_code' => strtoupper(uniqid('DIP-')),
-                    'diploma_batch_id'  => $batch->id,
+                    'diploma_batch_id' => $batch->id,
                 ]);
 
                 $diplomaIds[] = $diploma->id;
@@ -180,9 +191,9 @@ class CreateDiploma extends CreateRecord
 
             if (empty($diplomaIds)) {
                 $batch->update([
-                    'total'     => 0,
+                    'total' => 0,
                     'processed' => 0,
-                    'status'    => 'failed',
+                    'status' => 'failed',
                 ]);
 
                 DB::commit();
@@ -198,13 +209,13 @@ class CreateDiploma extends CreateRecord
 
             // 2) Actualizar lote + encolar PDFs
             $batch->update([
-                'total'  => $createdCount,
+                'total' => $createdCount,
                 'status' => 'processing',
             ]);
 
-        foreach ($diplomaIds as $id) {
-            GenerateDiplomaPdf::dispatch($id, $teacherIds);
-        }
+            foreach ($diplomaIds as $id) {
+                GenerateDiplomaPdf::dispatch($id, $teacherIds);
+            }
 
             DB::commit();
 
