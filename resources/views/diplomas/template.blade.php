@@ -6,115 +6,117 @@
     <title>Diploma</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'DejaVu Sans', sans-serif;
             margin: 0;
             padding: 0;
-            color: #333;
+            font-family: 'DejaVu Sans', sans-serif;
+            background-image: url('{{ public_path('img/fondos/fondo-diploma.jpg') }}');
+            background-size: 100% 100%; /* importante para DOMPDF */
+            background-repeat: no-repeat;
+            background-position: center;
+            color: #1d2850;
         }
 
         .page {
+            position: relative;
             width: 100%;
             height: 100%;
-            padding: 60px 70px;
-            box-sizing: border-box;
-            position: relative;
+        }
+
+        .content {
+            position: absolute;
+            inset: 70px 90px; /* margen interior dentro del marco */
+            text-align: center;
+            padding: 10px 40px 0;
         }
 
         h1,
         h2,
-        h3 {
+        h3,
+        p {
             margin: 0;
             padding: 0;
         }
 
-        .title {
-            text-align: center;
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 30px;
-            color: #555;
+        /* Logo superior centro */
+        .logo-top {
+            width: 200px;
+            margin: 10px auto 30px;
+        }
+
+        .cert-title {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 40px;
         }
 
         .student-name {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 700;
-            color: #0078b7;
-            margin-bottom: 4px;
-            text-align: center;
+            margin-bottom: 6px;
         }
 
         .student-rut {
-            font-size: 20px;
-            font-weight: 600;
-            color: #0078b7;
-            text-align: center;
-            margin-bottom: 25px;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 35px;
         }
 
         .section {
             font-size: 15px;
-            line-height: 1.6;
-            margin: 14px 0;
+            line-height: 1.7;
+            margin: 8px 0;
         }
 
         .course-title {
-            font-size: 22px;
+            font-size: 19px;
             font-weight: 700;
-            color: #008fd1;
-            margin: 20px 0;
-            text-align: center;
+            margin: 16px 0 10px;
         }
 
-        .center {
-            text-align: center;
-        }
-
-        /* Logo Confidence abajo izq */
-        .bottom-left-logo {
+        /* Firmas (fila centrada) */
+        .signature-area {
             position: absolute;
-            bottom: 40px;
-            left: 40px;
-            width: 130px;
+            left: 0;
+            right: 0;
+            bottom: 120px;
+            text-align: center;
         }
 
-        .footer-text {
-            text-align: center;
+        /* Logos inferiores */
+        .logo-confidence {
             position: absolute;
-            bottom: 40px;
-            width: 100%;
-            font-size: 13px;
-            color: #444;
+            left: 120px;
+            bottom: 60px;
+            width: 120px;
+        }
+
+        .inn-text {
+            position: absolute;
+            left: 118px;
+            bottom: 50px;
+            font-size: 9px;
             font-weight: 600;
         }
 
-        /* Espacios para firmas (solo líneas por ahora) */
-        .signatures {
-            margin-top: 80px;
-            display: flex;
-            justify-content: space-around;
-            text-align: center;
+        .logo-inn {
+            position: absolute;
+            right: 120px;
+            bottom: 60px;
+            width: 150px;
         }
 
-        .signature-block {
-            width: 40%;
-        }
-
-        .signature-line {
-            margin-top: 60px;
-            border-top: 1px solid #333;
-            width: 100%;
-        }
-
-        .signature-name {
-            font-size: 15px;
-            font-weight: 700;
-            margin-top: 6px;
-        }
-
-        .signature-role {
-            font-size: 13px;
-            color: #555;
+        /* QR arriba izquierda */
+        .qr-code {
+            position: absolute;
+            top: 80px;   /* ajusta fino si quieres */
+            left: 80px;  /* ajusta fino si quieres */
+            width: 95px;
         }
     </style>
 </head>
@@ -128,7 +130,7 @@
             }
 
             $rut = preg_replace('/[^0-9kK]/', '', $rut);
-            $dv = strtoupper(substr($rut, -1));
+            $dv  = strtoupper(substr($rut, -1));
             $num = substr($rut, 0, -1);
 
             if ($num === '') {
@@ -142,89 +144,111 @@
 
         $rutFormateado = $formatRut($student->rut ?? '');
 
-        $qrData = base64_encode(Storage::disk('public')->get($diploma->qr_path));
+        use Illuminate\Support\Facades\Storage;
+
+        $qrSvgRaw   = Storage::disk('public')->get($diploma->qr_path);
+        $qrSvgBase64 = base64_encode($qrSvgRaw);
+
+        $teacher = $teachers->first();
     @endphp
 
     <div class="page">
+        <div class="content">
+            {{-- Logo OTEC arriba centro --}}
+            <img src="{{ public_path('img/logos/otec-mitcare-logo-azul.png') }}"
+                 alt="OTEC Mitcare"
+                 class="logo-top">
 
-        {{-- Título principal --}}
-        <h2 class="title">CERTIFICADO DE APROBACIÓN A:</h2>
+            {{-- Título principal --}}
+            <h2 class="cert-title">OTEC MITCARE CERTIFICA A:</h2>
 
-        {{-- Nombre + RUT --}}
-        <div class="student-name">
-            {{ $student->nombre }} {{ $student->apellido }}
-        </div>
-
-        <div class="student-rut">
-            RUT {{ $rutFormateado }}
-        </div>
-
-        {{-- Descripción del curso --}}
-        <div class="section">
-            Por cursar <strong>{{ $course->total_hours }} hrs</strong> cronológicas en formato
-            <strong>{{ ucfirst($course->modality) }}</strong>
-            @if ($course->location)
-                <strong>{{ $course->location }}</strong>
-            @endif
-            @if ($course->hours_description)
-                ({{ $course->hours_description }})
-            @endif
-            obtenido:
-        </div>
-
-        {{-- Título del curso --}}
-        <div class="course-title">
-            {{ $course->nombre }}
-        </div>
-
-        {{-- Nota + asistencia --}}
-        <div class="section">
-            Calificación final de <strong>{{ number_format($finalGrade, 1, ',', '.') }}</strong>
-            con escala de <strong>1 a 7</strong> y un
-            <strong>{{ $attendance }}%</strong> de asistencia.
-        </div>
-
-        {{-- Fecha --}}
-        <div class="section center" style="margin-top: 25px;">
-            Se extiende el siguiente certificado con fecha
-            <strong>{{ $issuedAt->format('d \d\e F \d\e Y') }}</strong>.
-        </div>
-
-        {{-- Espacios firmas (sin firma ni logos todavía) --}}
-        <div class="signatures">
-
-            <div class="signature-block">
-                <div class="signature-line"></div>
-                <div class="signature-name">
-                    {{ $teacher->nombre }} {{ $teacher->apellido }}
-                </div>
-                <div class="signature-role">
-                    Docente
-                </div>
+            {{-- Nombre + RUT --}}
+            <div class="student-name">
+                {{ $student->nombre }} {{ $student->apellido }}
             </div>
 
-            <div class="signature-block">
-                <div class="signature-line"></div>
-                <div class="signature-name">
-                    {{ $organization->nombre ?? 'OTEC Mitcare SPA' }}
-                </div>
-                <div class="signature-role">
-                    Organización
-                </div>
+            <div class="student-rut">
+                RUT {{ $rutFormateado }}
             </div>
 
+            {{-- Descripción del curso --}}
+            <p class="section">
+                Por cursar <strong>{{ $course->total_hours }} hrs</strong> cronológicas en formato
+                <strong>{{ ucfirst($course->modality) }}</strong>
+                @if ($course->location)
+                    {{ $course->location }}
+                @endif
+                @if ($course->hours_description)
+                    ({{ $course->hours_description }})
+                @endif
+                obtenido:
+            </p>
+
+            {{-- Nombre del curso --}}
+            <p class="course-title">
+                {{ $course->nombre }}
+            </p>
+
+            {{-- Nota + asistencia --}}
+            <p class="section">
+                Calificación de <strong>{{ number_format($finalGrade, 1, ',', '.') }}</strong>
+                con escala de <strong>1 a 7</strong> y un
+                <strong>{{ $attendance }}%</strong> de asistencia.
+            </p>
+
+            {{-- Fecha --}}
+            <p class="section" style="margin-top: 24px;">
+                Se extiende el siguiente certificado con fecha
+                <strong>{{ $issuedAt->format('d \d\e F \d\e Y') }}, Santiago de Chile.</strong>
+            </p>
         </div>
 
-        {{-- Logo fijo abajo izquierda --}}
-        <img src="{{ public_path('img/logos/confidence-logo2.png') }}" class="bottom-left-logo">
+        {{-- FIRMAS DINÁMICAS --}}
+        <div class="signature-area">
+            <table style="width:100%; text-align:center; margin-top:20px;">
+                <tr>
+                    @foreach ($teachers as $t)
+                        <td style="width:33%;">
+                            @if ($t->signature)
+                                <img src="{{ public_path('storage/' . $t->signature) }}"
+                                     style="height:70px; margin-bottom:5px;">
+                            @else
+                                <div style="height:70px; margin-bottom:5px;"></div>
+                            @endif
 
-        {{-- Texto fijo abajo centro --}}
-        <div class="footer-text">
+                            <div style="border-top:1px solid #0a2342; width:70%; margin:0 auto;"></div>
+
+                            <div style="margin-top:5px; font-size:13px; font-weight:bold;">
+                                {{ $t->nombre }} {{ $t->apellido }}
+                            </div>
+
+                            <div style="font-size:11px;">
+                                {{ $t->especialidad ?? 'Docente' }}
+                            </div>
+                        </td>
+                    @endforeach
+                </tr>
+            </table>
+        </div>
+
+        {{-- Logo Confidence + texto --}}
+        <img src="{{ public_path('img/logos/confidence-logo2.png') }}"
+             alt="Confidence Certification"
+             class="logo-confidence">
+
+        <div class="inn-text">
             OTECMITCARE INN: A-13052 NCh2728:2015
         </div>
 
-        <img src="data:image/png;base64,{{ $qrData }}" alt="Código QR" width="120">
+        {{-- Logo INN Chile --}}
+        <img src="{{ public_path('img/logos/inn-chile.png') }}"
+             alt="INN Chile"
+             class="logo-inn">
 
+        {{-- QR arriba izquierda --}}
+        <img src="data:image/svg+xml;base64,{{ $qrSvgBase64 }}"
+             alt="Código QR"
+             class="qr-code">
     </div>
 
 </body>

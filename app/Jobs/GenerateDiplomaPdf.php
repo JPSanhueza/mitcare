@@ -8,14 +8,14 @@ use App\Models\DiplomaBatch;
 use App\Models\Teacher;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class GenerateDiplomaPdf implements ShouldQueue
 {
@@ -23,9 +23,13 @@ class GenerateDiplomaPdf implements ShouldQueue
 
     public int $diplomaId;
 
-    public function __construct(int $diplomaId)
+    /** @var array<int> */
+    public array $teacherIds;
+
+    public function __construct(int $diplomaId, array $teacherIds = [])
     {
-        $this->diplomaId = $diplomaId;
+        $this->diplomaId  = $diplomaId;
+        $this->teacherIds = $teacherIds;
     }
 
     public function handle(): void
@@ -38,33 +42,48 @@ class GenerateDiplomaPdf implements ShouldQueue
             return;
         }
 
-        $course      = $diploma->course;
-        $student     = $diploma->student;
-        $issuedAt    = $diploma->issued_at instanceof Carbon
-                        ? $diploma->issued_at
-                        : Carbon::parse($diploma->issued_at);
+        $course   = $diploma->course;
+        $student  = $diploma->student;
+        $issuedAt = $diploma->issued_at instanceof Carbon
+            ? $diploma->issued_at
+            : Carbon::parse($diploma->issued_at);
 
         /* ==========================
-         *   DOCENTE + ORGANIZACIÓN
+         *   DOCENTES + ORGANIZACIÓN
          * ========================== */
-        $teacher = null;
-        $organization = null;
 
-        if ($diploma->diploma_batch_id) {
+        // Colección de docentes seleccionados en el wizard
+        $teachers = collect();
+
+        if (! empty($this->teacherIds)) {
+            $teachers = Teacher::with('organization')
+                ->whereIn('id', $this->teacherIds)
+                ->get();
+        }
+
+        // Fallback: si por algún motivo no llegaron teacherIds, usamos el batch
+        if ($teachers->isEmpty() && $diploma->diploma_batch_id) {
             $batch = DiplomaBatch::find($diploma->diploma_batch_id);
 
             if ($batch && $batch->teacher_id) {
-                $teacher = Teacher::with(['organization'])
-                    ->find($batch->teacher_id);
-
-                $organization = $teacher?->organization;
+                $singleTeacher = Teacher::with('organization')->find($batch->teacher_id);
+                if ($singleTeacher) {
+                    $teachers = collect([$singleTeacher]);
+                }
             }
         }
 
-        if (!$teacher) {
-            $teacher = Teacher::with('organization')->first();
-            $organization = $teacher?->organization;
+        // Fallback final: cualquier profe
+        if ($teachers->isEmpty()) {
+            $fallback = Teacher::with('organization')->first();
+            if ($fallback) {
+                $teachers = collect([$fallback]);
+            }
         }
+
+        // Por compatibilidad, dejamos un "teacher" principal como el primero
+        $teacher      = $teachers->first();
+        $organization = $teacher?->organization;
 
         /* ==========================
          *   NOTA y ASISTENCIA
@@ -83,25 +102,24 @@ class GenerateDiplomaPdf implements ShouldQueue
         }
 
         /* ==========================
-         *   QR: Código único + PNG
+         *   QR: Código único + SVG
          * ========================== */
 
         if (blank($diploma->verification_code)) {
-            $diploma->verification_code = strtoupper(uniqid('DIP-'));
+            $diploma->verification_code = Str::uuid()->toString();
             $diploma->save();
         }
 
         $verifyUrl = route('diplomas.verify', $diploma->verification_code);
 
-        // PNG del QR
-        $qrPng = QrCode::format('png')
+        $qrSvg = QrCode::format('svg')
             ->size(400)
             ->margin(1)
             ->errorCorrection('H')
             ->generate($verifyUrl);
 
-        $qrPath = "diplomas/qrs/qr-{$diploma->id}.png";
-        Storage::disk('public')->put($qrPath, $qrPng);
+        $qrPath = "diplomas/qrs/qr-{$diploma->id}.svg";
+        Storage::disk('public')->put($qrPath, $qrSvg);
 
         $diploma->qr_path = $qrPath;
         $diploma->save();
@@ -113,7 +131,7 @@ class GenerateDiplomaPdf implements ShouldQueue
         $pdf = Pdf::loadView('diplomas.template', [
             'student'      => $student,
             'course'       => $course,
-            'teacher'      => $teacher,
+            'teachers'     => $teachers,
             'organization' => $organization,
             'issuedAt'     => $issuedAt,
             'finalGrade'   => $finalGrade,

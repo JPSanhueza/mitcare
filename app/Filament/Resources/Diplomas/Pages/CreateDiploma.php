@@ -69,10 +69,6 @@ class CreateDiploma extends CreateRecord
             return;
         }
 
-        $issuedAt = $issuedRaw instanceof Carbon
-            ? $issuedRaw
-            : Carbon::parse($issuedRaw);
-
         // Solo los que tengan el toggle activado (ej: "selected" / "crear_diploma")
         $selectedStudents = $students->filter(
             fn(array $s) => !empty($s['selected'])
@@ -82,19 +78,6 @@ class CreateDiploma extends CreateRecord
             Notification::make()
                 ->title('No se seleccionaron estudiantes')
                 ->warning()
-                ->send();
-
-            return;
-        }
-
-        $course = Course::find($courseId);
-        $teacher = Teacher::find($teacherIds);
-
-
-        if (!$course || !$teacher) {
-            Notification::make()
-                ->title('No se pudo encontrar el curso o el docente seleccionados')
-                ->danger()
                 ->send();
 
             return;
@@ -167,7 +150,7 @@ class CreateDiploma extends CreateRecord
         ]);
 
         foreach ($diplomaIds as $id) {
-            GenerateDiplomaPdf::dispatch($id);
+            GenerateDiplomaPdf::dispatch($id, $teacherIds);
         }
 
         // 3) Feedback + reset + volver al paso 1
