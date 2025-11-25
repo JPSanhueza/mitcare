@@ -12,6 +12,7 @@ use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentAuthController;
 use App\Http\Controllers\StudentCertificateController;
+use App\Http\Controllers\DiplomaVerificationController;
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
@@ -56,7 +57,7 @@ Route::middleware('student.auth')->group(function () {
     Route::get('/certificados/{diploma}/descargar', [StudentCertificateController::class, 'download'])
         ->name('student.diplomas.download');
 
-        
+
     Route::get('/certificados/cambiar-clave', [StudentAuthController::class, 'showForceChangeForm'])
         ->name('student.password.force');
 
@@ -64,6 +65,8 @@ Route::middleware('student.auth')->group(function () {
         ->name('student.password.force.submit');
 });
 
+Route::get('/certificados/verificar/{code}', [DiplomaVerificationController::class, 'show'])
+    ->name('diplomas.verify');
 
 // Reset de contraseña basado en RUT
 Route::get('/certificados/recuperar', [StudentAuthController::class, 'showResetForm'])
