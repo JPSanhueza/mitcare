@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             TeacherSeeder::class,
             CourseSeeder::class,
             CourseRelationsSeeder::class,
-            DiplomaSeeder::class,
+            // DiplomaSeeder::class,
         ]); 
         User::create([
             'name' => 'Administrador',
