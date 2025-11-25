@@ -12,21 +12,18 @@ class StudentFactory extends Factory
 
     public function definition(): array
     {
-        // Carga el faker usando el método propio del Factory
-        $faker = $this->withFaker();
-
-        $nombre = $faker->firstName();
-        $apellido = $faker->lastName();
+        $nombre = $this->faker->firstName;
+        $apellido = $this->faker->lastName;
         $rut = $this->generateValidRut();
 
         return [
-            'nombre'    => $nombre,
-            'apellido'  => $apellido,
-            'email'     => $faker->unique()->safeEmail(),
-            'rut'       => $rut,
-            'password'  => Hash::make('Password123!'),
-            'telefono'  => $faker->numerify('+56 9 ########'),
-            'direccion' => $faker->address(),
+            'nombre' => $nombre,
+            'apellido' => $apellido,
+            'email' => $this->faker->unique()->safeEmail,
+            'rut' => $rut,
+            'password' => Hash::make('Password123!'),
+            'telefono' => $this->faker->numerify('+56 9 ########'),
+            'direccion' => $this->faker->address,
         ];
     }
 
@@ -48,12 +45,10 @@ class StudentFactory extends Factory
         }
 
         $dv = 11 - ($suma % 11);
-
-        if ($dv == 11) {
+        if ($dv == 11)
             $dv = '0';
-        } elseif ($dv == 10) {
+        elseif ($dv == 10)
             $dv = 'K';
-        }
 
         return $cuerpo . $dv;
     }
