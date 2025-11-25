@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Student;
+use Faker\Factory as FakerFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,7 +13,8 @@ class StudentFactory extends Factory
 
     public function definition(): array
     {
-        $faker = fake(); // O fake('es_CL') si quieres asegurar locale chileno
+        // Creamos una instancia de Faker directamente
+        $faker = FakerFactory::create('es_CL'); // o el locale que quieras
 
         $nombre = $faker->firstName();
         $apellido = $faker->lastName();
@@ -28,7 +30,6 @@ class StudentFactory extends Factory
             'direccion' => $faker->address(),
         ];
     }
-
 
     private function generateValidRut(): string
     {
@@ -48,10 +49,12 @@ class StudentFactory extends Factory
         }
 
         $dv = 11 - ($suma % 11);
-        if ($dv == 11)
+
+        if ($dv == 11) {
             $dv = '0';
-        elseif ($dv == 10)
+        } elseif ($dv == 10) {
             $dv = 'K';
+        }
 
         return $cuerpo . $dv;
     }
