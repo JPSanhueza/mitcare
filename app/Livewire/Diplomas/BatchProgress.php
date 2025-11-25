@@ -31,6 +31,7 @@ class BatchProgress extends Component
     {
         $this->batchId = null;
         $this->batch   = null;
+        $this->dispatch('diplomas-batch-closed');
     }
 
     public function getProgressProperty(): int

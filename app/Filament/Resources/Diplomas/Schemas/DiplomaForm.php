@@ -16,6 +16,9 @@ use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Notifications\Notification;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Blade;
 
 class DiplomaForm
 {
@@ -46,6 +49,26 @@ class DiplomaForm
                  * PASO 1: Curso y docente
                  * ------------------------------ */
                 Step::make('Curso y docente')
+                    ->beforeValidation(function (Get $get) {
+                        $teacherIds = $get('teacher_ids') ?? [];
+                        $teachers = \App\Models\Teacher::whereIn('id', $teacherIds)->get();
+
+                        $missing = $teachers->filter(fn($t) => empty($t->signature));
+
+                        if ($missing->isNotEmpty()) {
+                            $names = $missing
+                                ->map(fn($t) => "{$t->nombre} {$t->apellido}")
+                                ->implode(', ');
+
+                            Notification::make()
+                                ->title('Docentes sin firma')
+                                ->body("Los siguientes docentes no tienen firma cargada: $names")
+                                ->danger()
+                                ->send();
+
+                            throw new \Filament\Support\Exceptions\Halt();
+                        }
+                    })
                     ->schema([
                         Select::make('course_id')
                             ->label('Curso')
@@ -92,6 +115,11 @@ class DiplomaForm
                             ->label('Docentes')
                             ->required()        // al menos 1 docente
                             ->multiple()        // 👈 clave: selección múltiple
+                            ->rules(['required', 'array', 'min:1'])
+                            ->validationMessages([
+                                'required' => 'Debes seleccionar al menos un docente.',
+                                'min'      => 'Debes seleccionar al menos un docente.',
+                            ])
                             ->options(function (Get $get) {
                                 $courseId = $get('course_id');
 
@@ -160,6 +188,7 @@ class DiplomaForm
                  * PASO 3: Fecha + resumen
                  * ------------------------------ */
                 Step::make('Confirmación')
+                    // aquí puedes tener tu beforeValidation() si ya lo pusiste
                     ->schema([
                         DatePicker::make('issued_at')
                             ->label('Fecha de emisión')
@@ -172,11 +201,10 @@ class DiplomaForm
                                     ? Course::find($get('course_id'))
                                     : null;
 
-                                // 🔹 DOCENTES MÚLTIPLES
                                 $teacherIds = array_filter($get('teacher_ids') ?? []);
                                 $teachers = collect();
 
-                                if (!empty($teacherIds)) {
+                                if (! empty($teacherIds)) {
                                     $teachers = Teacher::whereIn('id', $teacherIds)
                                         ->orderBy('nombre')
                                         ->orderBy('apellido')
@@ -188,15 +216,30 @@ class DiplomaForm
                                     ->values();
 
                                 return [
-                                    'course' => $course,
-                                    'teachers' => $teachers,   // 👈 antes era 'teacher'
-                                    'students' => $students,
+                                    'course'    => $course,
+                                    'teachers'  => $teachers,
+                                    'students'  => $students,
                                     'issued_at' => $get('issued_at'),
                                 ];
                             }),
-
                     ]),
-            ])->columnSpanFull(),
+            ])
+                ->submitAction(
+                    new HtmlString(
+                        Blade::render(<<<'BLADE'
+            <x-filament::button
+                type="submit"
+                size="lg"
+                color="primary"
+            >
+                Crear diplomas
+            </x-filament::button>
+        BLADE)
+                    )
+                )
+                ->columnSpanFull()
+
+                ->columnSpanFull(),
         ]);
     }
 }
