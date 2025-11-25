@@ -19,6 +19,7 @@ use Filament\Schemas\Schema;
 use Filament\Notifications\Notification;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Facades\Blade;
+use Filament\Actions\Action;
 
 class DiplomaForm
 {
@@ -50,19 +51,30 @@ class DiplomaForm
                  * ------------------------------ */
                 Step::make('Curso y docente')
                     ->beforeValidation(function (Get $get) {
+
+                        // ⚠️ Validación de Filament --> interceptamos el caso requerido vacío
+                        if ($get('course_id') === null || $get('course_id') === '') {
+                            Notification::make()
+                                ->title('Curso requerido')
+                                ->body('Debes seleccionar un curso antes de continuar.')
+                                ->danger()
+                                ->send();
+
+                            throw new \Filament\Support\Exceptions\Halt();
+                        }
+
+                        // --- TU VALIDACIÓN DE FIRMAS ---
                         $teacherIds = $get('teacher_ids') ?? [];
                         $teachers = \App\Models\Teacher::whereIn('id', $teacherIds)->get();
 
                         $missing = $teachers->filter(fn($t) => empty($t->signature));
 
                         if ($missing->isNotEmpty()) {
-                            $names = $missing
-                                ->map(fn($t) => "{$t->nombre} {$t->apellido}")
-                                ->implode(', ');
+                            $names = $missing->map(fn($t) => "{$t->nombre} {$t->apellido}")->implode(', ');
 
                             Notification::make()
                                 ->title('Docentes sin firma')
-                                ->body("Los siguientes docentes no tienen firma cargada: $names")
+                                ->body("Los siguientes docentes no tienen firma cargada: $names.")
                                 ->danger()
                                 ->send();
 
