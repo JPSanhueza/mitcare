@@ -41,7 +41,7 @@ class CourseResource extends Resource
     {
         return [
             StudentsRelationManager::class,
-              TeachersRelationManager::class,
+            TeachersRelationManager::class,
         ];
     }
 
