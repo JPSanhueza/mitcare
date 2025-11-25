@@ -12,12 +12,12 @@ class Diploma extends Model
     protected $fillable = [
         'course_id',
         'student_id',
+        'diploma_batch_id',
         'issued_at',
         'final_grade',
         'file_path',
         'verification_code',
         'qr_path',
-        'template_id',
     ];
 
     protected $casts = [
@@ -35,5 +35,10 @@ class Diploma extends Model
     public function student()
     {
         return $this->belongsTo(Student::class);
+    }
+
+    public function batch()
+    {
+        return $this->belongsTo(DiplomaBatch::class, 'diploma_batch_id');
     }
 }

@@ -38,6 +38,10 @@ class AdminPanelProvider extends PanelProvider
                 'secondary' => Color::hex('#E71F6C'),
                 'success' => Color::hex('#47A8DF'),
             ])
+            ->renderHook(
+                'panels::body.end',
+                fn () => view('filament.hooks.diplomas-batch-progress'),
+            )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

@@ -12,6 +12,7 @@ return new class extends Migration {
 
             $table->foreignId('course_id')->constrained()->cascadeOnDelete();
             $table->foreignId('student_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('diploma_batch_id')->constrained()->cascadeOnDelete();
 
             // Fecha de emisión
             $table->date('issued_at');

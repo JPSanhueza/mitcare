@@ -15,7 +15,7 @@ class DiplomaViewService
         Student $student,
         Carbon $issuedAt
     ): array {
-        $organization = $teacher->organization; // 1:N
+        $organization = $teacher->organization;
 
         return [
             'student'      => $student,
