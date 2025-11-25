@@ -15,7 +15,7 @@
             padding: 0;
             font-family: 'DejaVu Sans', sans-serif;
             background-image: url('{{ public_path('img/fondos/fondo-diploma.jpg') }}');
-            background-size: 100% 100%; /* importante para DOMPDF */
+            background-size: 100% 100%;
             background-repeat: no-repeat;
             background-position: center;
             color: #1d2850;
@@ -29,9 +29,10 @@
 
         .content {
             position: absolute;
-            inset: 70px 90px; /* margen interior dentro del marco */
+            top: 90px; /* antes era 70 + problemas */
+            left: 120px;
+            right: 120px;
             text-align: center;
-            padding: 10px 40px 0;
         }
 
         h1,
@@ -44,8 +45,8 @@
 
         /* Logo superior centro */
         .logo-top {
-            width: 200px;
-            margin: 10px auto 30px;
+            width: 220px;
+            margin: 10px auto 25px;
         }
 
         .cert-title {
@@ -91,24 +92,16 @@
         /* Logos inferiores */
         .logo-confidence {
             position: absolute;
-            left: 120px;
+            left: 60px;
             bottom: 60px;
-            width: 120px;
-        }
-
-        .inn-text {
-            position: absolute;
-            left: 118px;
-            bottom: 50px;
-            font-size: 9px;
-            font-weight: 600;
+            width: 150px;
         }
 
         .logo-inn {
             position: absolute;
-            right: 120px;
+            right: 60px;
             bottom: 60px;
-            width: 150px;
+            width: 120px;
         }
 
         /* QR arriba izquierda */
@@ -232,16 +225,12 @@
         </div>
 
         {{-- Logo Confidence + texto --}}
-        <img src="{{ public_path('img/logos/confidence-logo2.png') }}"
+        <img src="{{ public_path('img/logos/confidence-logo3.png') }}"
              alt="Confidence Certification"
              class="logo-confidence">
 
-        <div class="inn-text">
-            OTECMITCARE INN: A-13052 NCh2728:2015
-        </div>
-
         {{-- Logo INN Chile --}}
-        <img src="{{ public_path('img/logos/inn-chile.png') }}"
+        <img src="{{ public_path('img/logos/inn-logo2.png') }}"
              alt="INN Chile"
              class="logo-inn">
 
