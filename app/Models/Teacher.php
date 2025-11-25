@@ -22,6 +22,13 @@ class Teacher extends Model
         'is_active',
         'order',
     ];
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class)
+            ->using(CourseTeacher::class)
+            ->withPivot(['role'])
+            ->withTimestamps();
+    }
 
     public function organization()
     {

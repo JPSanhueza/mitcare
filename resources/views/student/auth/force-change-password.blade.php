@@ -20,37 +20,50 @@
             <form method="POST" action="{{ route('student.password.force.submit') }}" class="space-y-4">
                 @csrf
 
-                <div>
+                <div x-data="{ show: false }">
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         Nueva contraseña
                     </label>
-                    <input
-                        type="password"
-                        name="new_password"
-                        class="w-full rounded-lg border-gray-300 focus:border-[#19355C] focus:ring-[#19355C]"
-                        required
-                    >
+
+                    <div class="relative">
+                        <input :type="show ? 'text' : 'password'" name="new_password"
+                            class="w-full rounded-lg border-gray-300 focus:border-[#19355C] focus:ring-[#19355C] pr-10"
+                            required>
+
+                        <button type="button" @click="show = !show"
+                            class="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-500 hover:text-gray-700">
+                            <span x-show="!show">Ver</span>
+                            <span x-show="show">Ocultar</span>
+                        </button>
+                    </div>
+
                     @error('new_password')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <div>
+
+                <div x-data="{ showConfirm: false }">
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         Confirmar nueva contraseña
                     </label>
-                    <input
-                        type="password"
-                        name="new_password_confirmation"
-                        class="w-full rounded-lg border-gray-300 focus:border-[#19355C] focus:ring-[#19355C]"
-                        required
-                    >
+
+                    <div class="relative">
+                        <input :type="showConfirm ? 'text' : 'password'" name="new_password_confirmation"
+                            class="w-full rounded-lg border-gray-300 focus:border-[#19355C] focus:ring-[#19355C] pr-10"
+                            required>
+
+                        <button type="button" @click="showConfirm = !showConfirm"
+                            class="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-500 hover:text-gray-700">
+                            <span x-show="!showConfirm">Ver</span>
+                            <span x-show="showConfirm">Ocultar</span>
+                        </button>
+                    </div>
                 </div>
 
-                <button
-                    type="submit"
-                    class="w-full inline-flex justify-center rounded-xl px-4 py-2.5 bg-[#19355C] text-white font-semibold hover:bg-[#142843] transition"
-                >
+
+                <button type="submit"
+                    class="w-full inline-flex justify-center rounded-xl px-4 py-2.5 bg-[#19355C] text-white font-semibold hover:bg-[#142843] transition">
                     Guardar y continuar
                 </button>
             </form>
