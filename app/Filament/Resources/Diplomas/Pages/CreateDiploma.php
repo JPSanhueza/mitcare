@@ -89,8 +89,7 @@ class CreateDiploma extends CreateRecord
 
         $course = Course::find($courseId);
         $teacher = Teacher::find($teacherIds);
-        $course = Course::find($courseId);
-        $teacher = Teacher::find($teacherId);
+
 
         if (!$course || !$teacher) {
             Notification::make()
@@ -185,5 +184,5 @@ class CreateDiploma extends CreateRecord
         $this->dispatch('diplomas-batch-started', batchId: $batch->id)
             ->to(BatchProgress::class);
     }
-    }
+    
 }
