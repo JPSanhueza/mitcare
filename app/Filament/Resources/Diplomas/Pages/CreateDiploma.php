@@ -103,7 +103,7 @@ class CreateDiploma extends CreateRecord
         // 1) Crear batch
         $batch = DiplomaBatch::create([
             'course_id' => $course->id,
-            'teacher_id' => $teacher->id,
+            'teacher_id' => $teachers->first()->id,
             'total' => $selectedStudents->count(),
             'processed' => 0,
             'status' => 'pending',
@@ -184,5 +184,5 @@ class CreateDiploma extends CreateRecord
         $this->dispatch('diplomas-batch-started', batchId: $batch->id)
             ->to(BatchProgress::class);
     }
-    
+
 }
