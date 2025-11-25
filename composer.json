@@ -15,10 +15,10 @@
         "league/flysystem-aws-s3-v3": "3.0",
         "livewire/flux": "^2.1.1",
         "livewire/volt": "^1.7.0",
-        "transbank/transbank-sdk": "4"
+        "transbank/transbank-sdk": "4",
+        "fakerphp/faker": "^1.23"
     },
     "require-dev": {
-        "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.18",
         "laravel/sail": "^1.41",
