@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Diploma</title>
@@ -20,7 +21,9 @@
             position: relative;
         }
 
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
             margin: 0;
             padding: 0;
         }
@@ -117,106 +120,113 @@
 </head>
 
 <body>
-@php
-    // Formatear RUT aquí para no repetir lógica en el controlador
-    $formatRut = function (?string $rut) {
-        if (!$rut) return '';
+    @php
+        // Formatear RUT aquí para no repetir lógica en el controlador
+        $formatRut = function (?string $rut) {
+            if (!$rut) {
+                return '';
+            }
 
-        $rut = preg_replace('/[^0-9kK]/', '', $rut);
-        $dv  = strtoupper(substr($rut, -1));
-        $num = substr($rut, 0, -1);
+            $rut = preg_replace('/[^0-9kK]/', '', $rut);
+            $dv = strtoupper(substr($rut, -1));
+            $num = substr($rut, 0, -1);
 
-        if ($num === '') {
-            return $rut;
-        }
+            if ($num === '') {
+                return $rut;
+            }
 
-        $num = number_format((int) $num, 0, ',', '.');
+            $num = number_format((int) $num, 0, ',', '.');
 
-        return $num . '-' . $dv;
-    };
+            return $num . '-' . $dv;
+        };
 
-    $rutFormateado = $formatRut($student->rut ?? '');
-@endphp
+        $rutFormateado = $formatRut($student->rut ?? '');
 
-<div class="page">
+        $qrData = base64_encode(Storage::disk('public')->get($diploma->qr_path));
+    @endphp
 
-    {{-- Título principal --}}
-    <h2 class="title">CERTIFICADO DE APROBACIÓN A:</h2>
+    <div class="page">
 
-    {{-- Nombre + RUT --}}
-    <div class="student-name">
-        {{ $student->nombre }} {{ $student->apellido }}
-    </div>
+        {{-- Título principal --}}
+        <h2 class="title">CERTIFICADO DE APROBACIÓN A:</h2>
 
-    <div class="student-rut">
-        RUT {{ $rutFormateado }}
-    </div>
-
-    {{-- Descripción del curso --}}
-    <div class="section">
-        Por cursar <strong>{{ $course->total_hours }} hrs</strong> cronológicas en formato
-        <strong>{{ ucfirst($course->modality) }}</strong>
-        @if($course->location)
-            <strong>{{ $course->location }}</strong>
-        @endif
-        @if($course->hours_description)
-            ({{ $course->hours_description }})
-        @endif
-        obtenido:
-    </div>
-
-    {{-- Título del curso --}}
-    <div class="course-title">
-        {{ $course->nombre }}
-    </div>
-
-    {{-- Nota + asistencia --}}
-    <div class="section">
-        Calificación final de <strong>{{ number_format($finalGrade, 1, ',', '.') }}</strong>
-        con escala de <strong>1 a 7</strong> y un
-        <strong>{{ $attendance }}%</strong> de asistencia.
-    </div>
-
-    {{-- Fecha --}}
-    <div class="section center" style="margin-top: 25px;">
-        Se extiende el siguiente certificado con fecha
-        <strong>{{ $issuedAt->format('d \d\e F \d\e Y') }}</strong>.
-    </div>
-
-    {{-- Espacios firmas (sin firma ni logos todavía) --}}
-    <div class="signatures">
-
-        <div class="signature-block">
-            <div class="signature-line"></div>
-            <div class="signature-name">
-                {{ $teacher->nombre }} {{ $teacher->apellido }}
-            </div>
-            <div class="signature-role">
-                Docente
-            </div>
+        {{-- Nombre + RUT --}}
+        <div class="student-name">
+            {{ $student->nombre }} {{ $student->apellido }}
         </div>
 
-        <div class="signature-block">
-            <div class="signature-line"></div>
-            <div class="signature-name">
-                {{ $organization->nombre ?? 'OTEC Mitcare SPA' }}
-            </div>
-            <div class="signature-role">
-                Organización
-            </div>
+        <div class="student-rut">
+            RUT {{ $rutFormateado }}
         </div>
 
+        {{-- Descripción del curso --}}
+        <div class="section">
+            Por cursar <strong>{{ $course->total_hours }} hrs</strong> cronológicas en formato
+            <strong>{{ ucfirst($course->modality) }}</strong>
+            @if ($course->location)
+                <strong>{{ $course->location }}</strong>
+            @endif
+            @if ($course->hours_description)
+                ({{ $course->hours_description }})
+            @endif
+            obtenido:
+        </div>
+
+        {{-- Título del curso --}}
+        <div class="course-title">
+            {{ $course->nombre }}
+        </div>
+
+        {{-- Nota + asistencia --}}
+        <div class="section">
+            Calificación final de <strong>{{ number_format($finalGrade, 1, ',', '.') }}</strong>
+            con escala de <strong>1 a 7</strong> y un
+            <strong>{{ $attendance }}%</strong> de asistencia.
+        </div>
+
+        {{-- Fecha --}}
+        <div class="section center" style="margin-top: 25px;">
+            Se extiende el siguiente certificado con fecha
+            <strong>{{ $issuedAt->format('d \d\e F \d\e Y') }}</strong>.
+        </div>
+
+        {{-- Espacios firmas (sin firma ni logos todavía) --}}
+        <div class="signatures">
+
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-name">
+                    {{ $teacher->nombre }} {{ $teacher->apellido }}
+                </div>
+                <div class="signature-role">
+                    Docente
+                </div>
+            </div>
+
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-name">
+                    {{ $organization->nombre ?? 'OTEC Mitcare SPA' }}
+                </div>
+                <div class="signature-role">
+                    Organización
+                </div>
+            </div>
+
+        </div>
+
+        {{-- Logo fijo abajo izquierda --}}
+        <img src="{{ public_path('img/logos/confidence-logo2.png') }}" class="bottom-left-logo">
+
+        {{-- Texto fijo abajo centro --}}
+        <div class="footer-text">
+            OTECMITCARE INN: A-13052 NCh2728:2015
+        </div>
+
+        <img src="data:image/png;base64,{{ $qrData }}" alt="Código QR" width="120">
+
     </div>
-
-    {{-- Logo fijo abajo izquierda --}}
-    <img src="{{ public_path('img/logos/confidence-logo2.png') }}" class="bottom-left-logo">
-
-    {{-- Texto fijo abajo centro --}}
-    <div class="footer-text">
-        OTECMITCARE INN: A-13052 NCh2728:2015
-    </div>
-
-</div>
 
 </body>
+
 </html>
