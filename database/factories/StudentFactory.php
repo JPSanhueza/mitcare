@@ -12,18 +12,21 @@ class StudentFactory extends Factory
 
     public function definition(): array
     {
-        $nombre = $this->faker->firstName();
-        $apellido = $this->faker->lastName();
+        // Usa el helper global de Laravel
+        $faker = fake(); // respetará config('app.faker_locale')
+
+        $nombre = $faker->firstName();
+        $apellido = $faker->lastName();
         $rut = $this->generateValidRut();
 
         return [
-            'nombre' => $nombre,
-            'apellido' => $apellido,
-            'email' => $this->faker->unique()->safeEmail(),
-            'rut' => $rut,
-            'password' => Hash::make('Password123!'),
-            'telefono' => $this->faker->numerify('+56 9 ########'),
-            'direccion' => $this->faker->address(),
+            'nombre'    => $nombre,
+            'apellido'  => $apellido,
+            'email'     => $faker->unique()->safeEmail(),
+            'rut'       => $rut,
+            'password'  => Hash::make('Password123!'),
+            'telefono'  => $faker->numerify('+56 9 ########'),
+            'direccion' => $faker->address(),
         ];
     }
 
