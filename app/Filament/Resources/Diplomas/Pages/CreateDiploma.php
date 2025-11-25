@@ -14,56 +14,106 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-
+use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
+use Filament\Actions;
 class CreateDiploma extends CreateRecord
 {
     protected static string $resource = DiplomaResource::class;
 
+    #[On('diplomas-batch-closed')]
+    public function redirectAfterBatchClosed(): void
+    {
+        $this->redirect($this->getResource()::getUrl('index'));
+    }
+    protected function getFormActions(): array
+    {
+        return [];
+    }
     public function create(bool $another = false): void
     {
         $data = $this->form->getState();
 
-        /** @var int|null $courseId */
+        /** --------------------------
+         * CURSO
+         * -------------------------- */
         $courseId = $data['course_id'] ?? null;
 
-        /** @var array<int> $teacherIds */
-        $teacherIds = $data['teacher_ids'] ?? [];
-
-        if (empty($teacherIds)) {
+        if (! $courseId) {
             Notification::make()
-                ->title('Faltan docentes')
-                ->body('Debes seleccionar al menos un docente para el diploma.')
+                ->title('Faltan datos del curso')
+                ->body('Debes seleccionar un curso antes de crear diplomas.')
                 ->warning()
                 ->send();
 
             return;
         }
 
-        $issuedRaw = $data['issued_at'] ?? now();
+        $course = Course::find($courseId);
 
-        /** @var Collection<int, array> $students */
-        $students = collect($data['students'] ?? []);
-
-        if (!$courseId) {
+        if (! $course) {
             Notification::make()
-                ->title('Faltan datos del curso')
+                ->title('Curso no encontrado')
                 ->danger()
                 ->send();
 
             return;
         }
 
-        $issuedAt = $issuedRaw instanceof Carbon
-            ? $issuedRaw
-            : Carbon::parse($issuedRaw);
+        /** --------------------------
+         * DOCENTES
+         * -------------------------- */
+        $teacherIds = array_filter($data['teacher_ids'] ?? []);
 
-        $course = Course::find($courseId);
+        if (empty($teacherIds)) {
+            Notification::make()
+                ->title('Faltan docentes')
+                ->body('Debes seleccionar al menos un docente.')
+                ->warning()
+                ->send();
+
+            return;
+        }
+
         $teachers = Teacher::whereIn('id', $teacherIds)->get();
 
-        if (!$course || $teachers->isEmpty()) {
+        if ($teachers->isEmpty()) {
             Notification::make()
-                ->title('No se pudo encontrar el curso o los docentes seleccionados')
+                ->title('Docentes inválidos')
                 ->danger()
+                ->send();
+
+            return;
+        }
+
+        // Docentes sin firma
+        $teachersWithoutSignature = $teachers->filter(fn($t) => empty($t->signature));
+
+        if ($teachersWithoutSignature->isNotEmpty()) {
+            $names = $teachersWithoutSignature
+                ->map(fn($t) => "{$t->nombre} {$t->apellido}")
+                ->implode(', ');
+
+            Notification::make()
+                ->title('Docentes sin firma')
+                ->body("Los siguientes docentes no tienen firma cargada: {$names}. Debes cargarlas antes de emitir diplomas.")
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        /** --------------------------
+         * FECHA DE EMISIÓN
+         * -------------------------- */
+        $issuedRaw = $data['issued_at'] ?? null;
+
+        // 👈 AQUÍ se controla el “estoy en paso 1/2”
+        if (blank($issuedRaw)) {
+            Notification::make()
+                ->title('Falta la fecha de emisión')
+                ->body('Debes ir al paso "Confirmación" y definir la fecha de emisión antes de crear los diplomas.')
+                ->warning()
                 ->send();
 
             return;
@@ -71,12 +121,13 @@ class CreateDiploma extends CreateRecord
 
         // Solo los que tengan el toggle activado (ej: "selected" / "crear_diploma")
         $selectedStudents = $students->filter(
-            fn(array $s) => !empty($s['selected'])
+            fn(array $s) => ! empty($s['selected'])
         );
 
         if ($selectedStudents->isEmpty()) {
             Notification::make()
                 ->title('No se seleccionaron estudiantes')
+                ->body('Debes marcar al menos un estudiante con "Crear diploma".')
                 ->warning()
                 ->send();
 
@@ -92,80 +143,90 @@ class CreateDiploma extends CreateRecord
             'status' => 'pending',
         ]);
 
-        $diplomaIds = [];
-        $createdCount = 0;
+            $diplomaIds   = [];
+            $createdCount = 0;
 
-        foreach ($selectedStudents as $row) {
-            $studentId = $row['id'] ?? $row['student_id'] ?? null;
-            $student = null;
+            foreach ($selectedStudents as $row) {
+                $studentId = $row['id'] ?? $row['student_id'] ?? null;
+                $student   = null;
 
-            if ($studentId) {
-                $student = Student::find($studentId);
+                if ($studentId) {
+                    $student = Student::find($studentId);
+                }
+
+                if (! $student && ! empty($row['rut'])) {
+                    $rutLimpio = preg_replace('/[^0-9kK]/', '', $row['rut']);
+                    $student   = Student::where('rut', $rutLimpio)->first();
+                }
+
+                if (! $student) {
+                    continue;
+                }
+
+                $finalGrade = $row['final_grade'] ?? null;
+
+                $diploma = Diploma::create([
+                    'course_id'         => $course->id,
+                    'student_id'        => $student->id,
+                    'issued_at'         => $issuedAt,
+                    'final_grade'       => $finalGrade,
+                    'verification_code' => strtoupper(uniqid('DIP-')),
+                    'diploma_batch_id'  => $batch->id,
+                ]);
+
+                $diplomaIds[] = $diploma->id;
+                $createdCount++;
             }
 
-            if (!$student && !empty($row['rut'])) {
-                $rutLimpio = preg_replace('/[^0-9kK]/', '', $row['rut']);
-                $student = Student::where('rut', $rutLimpio)->first();
+            if (empty($diplomaIds)) {
+                $batch->update([
+                    'total'     => 0,
+                    'processed' => 0,
+                    'status'    => 'failed',
+                ]);
+
+                DB::commit();
+
+                Notification::make()
+                    ->title('No se pudo crear ningún diploma')
+                    ->body('Revisa que los estudiantes del wizard tengan un RUT válido o un ID.')
+                    ->danger()
+                    ->send();
+
+                return;
             }
 
-            if (!$student) {
-                continue;
-            }
-
-            $finalGrade = $row['final_grade'] ?? null;
-
-            $diploma = Diploma::create([
-                'course_id' => $course->id,
-                'student_id' => $student->id,
-                'issued_at' => $issuedAt,
-                'final_grade' => $finalGrade,
-                'verification_code' => strtoupper(uniqid('DIP-')),
-                'diploma_batch_id' => $batch->id,
-            ]);
-
-            $diplomaIds[] = $diploma->id;
-            $createdCount++;
-        }
-
-        if (empty($diplomaIds)) {
+            // 2) Actualizar lote + encolar PDFs
             $batch->update([
-                'total' => 0,
-                'processed' => 0,
-                'status' => 'failed',
+                'total'  => $createdCount,
+                'status' => 'processing',
             ]);
-
-            Notification::make()
-                ->title('No se pudo crear ningún diploma')
-                ->body('Revisa que los estudiantes del wizard tengan un RUT válido o un ID.')
-                ->danger()
-                ->send();
-
-            return;
-        }
-
-        // 2) Actualizar batch y despachar un job por diploma
-        $batch->update([
-            'total' => $createdCount,
-            'status' => 'processing',
-        ]);
 
         foreach ($diplomaIds as $id) {
             GenerateDiplomaPdf::dispatch($id, $teacherIds);
         }
 
-        // 3) Feedback + reset + volver al paso 1
-        Notification::make()
-            ->title('Diplomas en proceso')
-            ->body("Se creó un lote de {$batch->total} diplomas. Los PDFs se están generando en segundo plano.")
-            ->success()
-            ->send();
+            DB::commit();
 
-        $this->form->fill();
-        $this->dispatch('wizard::set-step', step: 0);
+            // 3) Notificación + popup de progreso
+            Notification::make()
+                ->title('Diplomas en proceso')
+                ->body("Se creó un lote de {$batch->total} diplomas. Los PDFs se están generando en segundo plano.")
+                ->success()
+                ->send();
 
-        // Para el popup de progreso (si lo tienes montado)
-        $this->dispatch('diplomas-batch-started', batchId: $batch->id)
-            ->to(BatchProgress::class);
+            $this->dispatch('diplomas-batch-started', batchId: $batch->id)
+                ->to(BatchProgress::class);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            Notification::make()
+                ->title('Error inesperado')
+                ->body('Ocurrió un error mientras se creaban los diplomas.')
+                ->danger()
+                ->send();
+
+            throw $e;
+        }
     }
-
 }
