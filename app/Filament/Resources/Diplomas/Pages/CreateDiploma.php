@@ -26,7 +26,7 @@ class CreateDiploma extends CreateRecord
         /** @var int|null $courseId */
         $courseId = $data['course_id'] ?? null;
 
-        /** @var int|null $teacherId */
+        /** @var array<int> $teacherIds */
         $teacherIds = $data['teacher_ids'] ?? [];
 
         if (empty($teacherIds)) {
@@ -44,9 +44,25 @@ class CreateDiploma extends CreateRecord
         /** @var Collection<int, array> $students */
         $students = collect($data['students'] ?? []);
 
-        if (! $courseId) {
+        if (!$courseId) {
             Notification::make()
-                ->title('Falta seleccionar curso')
+                ->title('Faltan datos del curso')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $issuedAt = $issuedRaw instanceof Carbon
+            ? $issuedRaw
+            : Carbon::parse($issuedRaw);
+
+        $course = Course::find($courseId);
+        $teachers = Teacher::whereIn('id', $teacherIds)->get();
+
+        if (!$course || $teachers->isEmpty()) {
+            Notification::make()
+                ->title('No se pudo encontrar el curso o los docentes seleccionados')
                 ->danger()
                 ->send();
 
@@ -59,7 +75,7 @@ class CreateDiploma extends CreateRecord
 
         // Solo los que tengan el toggle activado (ej: "selected" / "crear_diploma")
         $selectedStudents = $students->filter(
-            fn (array $s) => ! empty($s['selected'])
+            fn(array $s) => !empty($s['selected'])
         );
 
         if ($selectedStudents->isEmpty()) {
@@ -72,9 +88,10 @@ class CreateDiploma extends CreateRecord
         }
 
         $course = Course::find($courseId);
-        $teacher = Teacher::find($teacherId);
+        $teacher = Teacher::find($teacherIds);
 
-        if (! $course || ! $teacher) {
+
+        if (!$course || !$teacher) {
             Notification::make()
                 ->title('No se pudo encontrar el curso o el docente seleccionados')
                 ->danger()
@@ -86,7 +103,7 @@ class CreateDiploma extends CreateRecord
         // 1) Crear batch
         $batch = DiplomaBatch::create([
             'course_id' => $course->id,
-            'teacher_id' => $teacher->id,
+            'teacher_id' => $teachers->first()->id,
             'total' => $selectedStudents->count(),
             'processed' => 0,
             'status' => 'pending',
@@ -103,12 +120,12 @@ class CreateDiploma extends CreateRecord
                 $student = Student::find($studentId);
             }
 
-            if (! $student && ! empty($row['rut'])) {
+            if (!$student && !empty($row['rut'])) {
                 $rutLimpio = preg_replace('/[^0-9kK]/', '', $row['rut']);
                 $student = Student::where('rut', $rutLimpio)->first();
             }
 
-            if (! $student) {
+            if (!$student) {
                 continue;
             }
 
@@ -167,4 +184,5 @@ class CreateDiploma extends CreateRecord
         $this->dispatch('diplomas-batch-started', batchId: $batch->id)
             ->to(BatchProgress::class);
     }
+
 }
