@@ -43,15 +43,15 @@ class TeachersRelationManager extends RelationManager
                     ->limit(40)
                     ->toggleable(),
 
-                TextColumn::make('email')
-                    ->label('Email')
-                    ->sortable()
-                    ->searchable()
-                    ->toggleable(),
+    /*                 TextColumn::make('email')
+                        ->label('Email')
+                        ->sortable()
+                        ->searchable()
+                        ->toggleable(),
 
-                TextColumn::make('telefono')
-                    ->label('Teléfono')
-                    ->toggleable(),
+                    TextColumn::make('telefono')
+                        ->label('Teléfono')
+                        ->toggleable(), */
 
                 TextColumn::make('pivot.created_at')
                     ->label('Asignado el')
