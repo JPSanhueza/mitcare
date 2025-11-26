@@ -16,6 +16,10 @@ use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Notifications\Notification;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Blade;
+use Filament\Actions\Action;
 
 class DiplomaForm
 {
@@ -46,7 +50,43 @@ class DiplomaForm
                  * PASO 1: Curso y docente
                  * ------------------------------ */
                 Step::make('Curso y docente')
+                    ->beforeValidation(function (Get $get) {
+
+                        // ⚠️ Validación de Filament --> interceptamos el caso requerido vacío
+                        if ($get('course_id') === null || $get('course_id') === '') {
+                            Notification::make()
+                                ->title('Curso requerido')
+                                ->body('Debes seleccionar un curso antes de continuar.')
+                                ->danger()
+                                ->send();
+
+                            throw new \Filament\Support\Exceptions\Halt();
+                        }
+
+                        // --- TU VALIDACIÓN DE FIRMAS ---
+                        $teacherIds = $get('teacher_ids') ?? [];
+                        $teachers = \App\Models\Teacher::whereIn('id', $teacherIds)->get();
+
+                        $missing = $teachers->filter(fn($t) => empty($t->signature));
+
+                        if ($missing->isNotEmpty()) {
+                            $names = $missing->map(fn($t) => "{$t->nombre} {$t->apellido}")->implode(', ');
+
+                            Notification::make()
+                                ->title('Docentes sin firma')
+                                ->body("Los siguientes docentes no tienen firma cargada: $names.")
+                                ->danger()
+                                ->send();
+
+                            throw new \Filament\Support\Exceptions\Halt();
+                        }
+                    })
                     ->schema([
+                        /* Toggle::make('include_issued')
+                            ->label('Incluir estudiantes con diploma emitido')
+                            ->helperText('Desmarca para evitar duplicar diplomas.')
+                            ->default(false)
+                            ->live(), */
                         Select::make('course_id')
                             ->label('Curso')
                             ->required()
@@ -55,9 +95,8 @@ class DiplomaForm
                                 ->pluck('nombre', 'id'))
                             ->searchable()
                             ->live(onBlur: false)
-                            ->afterStateUpdated(function (Set $set, $state) {
-                                // Al cambiar el curso, limpiamos docente seleccionado
-                                $set('teacher_id', null);
+                            ->afterStateUpdated(function (Set $set, Get $get, $state) {
+                                $set('teacher_ids', []);
 
                                 // Cuando cambia el curso, cargamos estudiantes + notas
                                 if (blank($state)) {
@@ -65,49 +104,78 @@ class DiplomaForm
                                     return;
                                 }
 
+                                // ⬇️ Traemos el curso con sus estudiantes
                                 $course = Course::with('students')->find($state);
 
-                                if (!$course) {
+                                if (! $course) {
                                     $set('students', []);
                                     return;
                                 }
 
-                                $items = $course->students->map(function ($student) {
-                                    return [
-                                        'student_id' => $student->id,
-                                        'name' => $student->nombre . ' ' . $student->apellido,
-                                        'rut' => $student->rut,
-                                        'final_grade' => $student->pivot->final_grade,
-                                        'approved' => (bool) $student->pivot->approved,
-                                        'attendance' => $student->pivot->attendance,
-                                        // Por defecto marcamos para diploma solo a los aprobados
-                                        'selected' => (bool) $student->pivot->approved,
-                                    ];
-                                })->toArray();
+                                // ⬇️ Leemos el toggle
+                                $includeIssued = (bool) $get('include_issued');
+
+                                // Partimos de todos los estudiantes
+                                $students = $course->students;
+
+                                // Si NO queremos incluir emitidos, filtramos
+                                if (! $includeIssued) {
+                                    $students = $students->filter(function ($student) {
+                                        return ! (bool) ($student->pivot->diploma_issued ?? false);
+                                    });
+                                }
+
+                                $items = $students
+                                    ->map(function ($student) {
+                                        return [
+                                            'student_id'  => $student->id,
+                                            'name'        => $student->nombre . ' ' . $student->apellido,
+                                            'rut'         => $student->rut,
+                                            'final_grade' => $student->pivot->final_grade,
+                                            'approved'    => (bool) $student->pivot->approved,
+                                            'attendance'  => $student->pivot->attendance,
+                                            // Por defecto marcamos para diploma solo a los aprobados
+                                            'selected'    => (bool) $student->pivot->approved,
+                                        ];
+                                    })
+                                    ->values()
+                                    ->toArray();
 
                                 $set('students', $items);
+
+                                if (! $includeIssued && empty($items)) {
+                                    Notification::make()
+                                        ->title('Sin estudiantes disponibles')
+                                        ->body('Todos los estudiantes de este curso ya tienen diploma emitido.')
+                                        ->info()
+                                        ->send();
+                                }
                             }),
 
 
-                        Select::make('teacher_id')
-                            ->label('Docente')
-                            ->required()
+
+                        Select::make('teacher_ids')
+                            ->label('Docentes')
+                            ->required()        // al menos 1 docente
+                            ->multiple()        // 👈 clave: selección múltiple
+                            ->rules(['required', 'array', 'min:1'])
+                            ->validationMessages([
+                                'required' => 'Debes seleccionar al menos un docente.',
+                                'min'      => 'Debes seleccionar al menos un docente.',
+                            ])
                             ->options(function (Get $get) {
                                 $courseId = $get('course_id');
 
-                                // Si aún no se ha elegido curso, no mostramos opciones
                                 if (blank($courseId)) {
                                     return [];
                                 }
 
-                                // Cargamos el curso con sus profesores
                                 $course = Course::with('teachers')->find($courseId);
 
                                 if (!$course) {
                                     return [];
                                 }
 
-                                // Filtramos solo docentes activos y los ordenamos
                                 return $course->teachers
                                     ->filter(fn($teacher) => $teacher->is_active)
                                     ->sortBy(fn($t) => $t->nombre . ' ' . $t->apellido)
@@ -118,7 +186,8 @@ class DiplomaForm
                             })
                             ->searchable()
                             ->hidden(fn(Get $get) => blank($get('course_id')))
-                            ->helperText('El docente debe tener cargada su firma.'),
+                            ->helperText('Solo se muestran docentes activos asociados a este curso. Asegúrate de que tengan su firma cargada.'),
+
 
                     ]),
 
@@ -162,10 +231,12 @@ class DiplomaForm
                  * PASO 3: Fecha + resumen
                  * ------------------------------ */
                 Step::make('Confirmación')
+                    // aquí puedes tener tu beforeValidation() si ya lo pusiste
                     ->schema([
                         DatePicker::make('issued_at')
                             ->label('Fecha de emisión')
                             ->default(now())
+                            ->disabled()
                             ->required(),
 
                         View::make('filament.resources.diplomas.partials.summary')
@@ -174,23 +245,45 @@ class DiplomaForm
                                     ? Course::find($get('course_id'))
                                     : null;
 
-                                $teacher = $get('teacher_id')
-                                    ? Teacher::find($get('teacher_id'))
-                                    : null;
+                                $teacherIds = array_filter($get('teacher_ids') ?? []);
+                                $teachers = collect();
+
+                                if (! empty($teacherIds)) {
+                                    $teachers = Teacher::whereIn('id', $teacherIds)
+                                        ->orderBy('nombre')
+                                        ->orderBy('apellido')
+                                        ->get();
+                                }
 
                                 $students = collect($get('students') ?? [])
                                     ->filter(fn($s) => $s['selected'] ?? false)
                                     ->values();
 
                                 return [
-                                    'course' => $course,
-                                    'teacher' => $teacher,
-                                    'students' => $students,
+                                    'course'    => $course,
+                                    'teachers'  => $teachers,
+                                    'students'  => $students,
                                     'issued_at' => $get('issued_at'),
                                 ];
                             }),
                     ]),
-            ])->columnSpanFull(),
+            ])
+                ->submitAction(
+                    new HtmlString(
+                        Blade::render(<<<'BLADE'
+            <x-filament::button
+                type="submit"
+                size="lg"
+                color="primary"
+            >
+                Crear diplomas
+            </x-filament::button>
+        BLADE)
+                    )
+                )
+                ->columnSpanFull()
+
+                ->columnSpanFull(),
         ]);
     }
 }

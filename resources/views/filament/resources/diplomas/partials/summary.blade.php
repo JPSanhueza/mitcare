@@ -218,38 +218,57 @@
         @endif
     </div>
 
-    {{-- Docente --}}
+    {{-- Docentes --}}
     <div class="diploma-summary-card">
-        <h3>Docente</h3>
+        <h3>Docentes</h3>
 
-        @if ($teacher)
-            <p><span class="diploma-summary-strong">Nombre:</span> {{ $teacher->nombre }} {{ $teacher->apellido }}</p>
-
+        @if ($teachers && $teachers->count())
             @php
-                $signatureUrl = null;
-                $hasSignature = false;
-
-                if (!empty($teacher->signature)) {
-                    $path = $teacher->signature;
-
-                    $signatureUrl = Storage::disk('public')->url($path);
-                    $hasSignature = true;
-                }
+                // Número máximo de columnas (máximo 4, pero puede ser 1–4 según docentes)
+                $cols = min($teachers->count(), 4);
             @endphp
 
-            @if ($hasSignature && $signatureUrl)
-                <div class="diploma-summary-background-signature">
-                    <img src="{{ $signatureUrl }}" alt="Firma docente" class="diploma-signature-preview">
-                </div>
-            @else
-                <p class="diploma-summary-status-bad">
-                    Este docente aún no tiene firma cargada para el diploma.
-                </p>
-            @endif
+            <div class="grid gap-6 mt-2"
+                style="display: grid; grid-template-columns: repeat({{ $cols }}, minmax(0, 1fr));">
+
+                @foreach ($teachers as $teacher)
+                    <div class="flex flex-col items-center text-center">
+
+                        {{-- Nombre --}}
+                        <p class="diploma-summary-strong mb-1">
+                            {{ $teacher->nombre }} {{ $teacher->apellido }}
+                        </p>
+
+                        {{-- Firma --}}
+                        @php
+                            $signatureUrl = null;
+                            $hasSignature = false;
+
+                            if (!empty($teacher->signature)) {
+                                $path = $teacher->signature;
+                                $signatureUrl = Storage::disk('public')->url($path);
+                                $hasSignature = true;
+                            }
+                        @endphp
+
+                        @if ($hasSignature && $signatureUrl)
+                            <div class="diploma-summary-background-signature mx-auto">
+                                <img src="{{ $signatureUrl }}" alt="Firma docente" class="diploma-signature-preview">
+                            </div>
+                        @else
+                            <p class="diploma-summary-status-bad text-xs mt-2">
+                                (Sin firma)
+                            </p>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
         @else
-            <p class="diploma-summary-muted">No hay docente seleccionado.</p>
+            <p class="diploma-summary-muted">No se han seleccionado docentes.</p>
         @endif
     </div>
+
+
 
     {{-- Estudiantes --}}
     <div class="diploma-summary-card">

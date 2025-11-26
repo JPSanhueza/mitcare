@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
+
         $this->call([
             // StudentSeeder::class,
             // OrganizationSeeder::class,
@@ -22,10 +23,10 @@ class DatabaseSeeder extends Seeder
             CourseRelationsSeeder::class,
             // DiplomaSeeder::class,
         ]);
-        // User::create([
-        //     'name' => 'Administrador',
-        //     'email' => 'admin@otecmitcare.com',
-        //     'password' => bcrypt('administrador'),
-        // ]);
+        User::create([
+            'name' => 'Administrador',
+            'email' => 'admin@otecmitcare.com',
+            'password' => bcrypt('administrador'),
+        ]);
     }
 }

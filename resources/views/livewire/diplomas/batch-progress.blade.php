@@ -18,13 +18,13 @@
                 padding: 24px;
                 background: #ffffff;
                 color: #1f2937;
-                box-shadow: 0 6px 25px rgba(0,0,0,0.25);
+                box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
             }
 
             .dark .diploma-progress-card {
                 background: #111827;
                 color: #e5e7eb;
-                box-shadow: 0 6px 25px rgba(0,0,0,0.5);
+                box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5);
             }
 
             .diploma-progress-title {
@@ -101,22 +101,15 @@
                     </div>
 
                     <div class="diploma-progress-bar">
-                        <div class="diploma-progress-inner"
-                             style="width: {{ $this->progress }}%;"></div>
+                        <div class="diploma-progress-inner" style="width: {{ $this->progress }}%;"></div>
                     </div>
-
+                    <button type="button" class="diploma-close-btn" wire:click="close">
+                        Cerrar
+                    </button>
                     @if ($batch->status === 'done')
                         <div class="diploma-success-text">
                             ¡Diplomas listos!
                         </div>
-
-                        <button
-                            type="button"
-                            class="diploma-close-btn"
-                            wire:click="close"
-                        >
-                            Cerrar
-                        </button>
                     @endif
                 @else
                     <div class="diploma-progress-title">

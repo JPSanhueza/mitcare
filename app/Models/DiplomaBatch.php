@@ -14,4 +14,9 @@ class DiplomaBatch extends Model
     {
         return $this->hasMany(Diploma::class);
     }
+
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class);
+    }
 }
