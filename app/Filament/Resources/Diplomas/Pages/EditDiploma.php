@@ -7,6 +7,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Storage;
+use App\Jobs\GenerateDiplomaPdf;
 
 class EditDiploma extends EditRecord
 {
@@ -31,6 +32,19 @@ class EditDiploma extends EditRecord
                 ->openUrlInNewTab()
                 // Ocultamos el botón si aún no hay PDF generado
                 ->hidden(fn() => blank($this->record->file_path)),
+
+                Action::make('regeneratePdf')
+                ->label('Re-generar PDF')
+                ->icon('heroicon-m-arrow-path')
+                ->color('info')
+                ->requiresConfirmation()
+                ->modalHeading('Re-generar PDF del certificado')
+                ->modalDescription('Se volverá a generar el archivo PDF de este certificado con la información actual.')
+                ->action(function () {
+                    // $this->record es el diploma que estás editando
+                    GenerateDiplomaPdf::dispatch($this->record->id);
+                })
+                ->successNotificationTitle('El PDF del certificado se está regenerando.'),
 
             DeleteAction::make(),
         ];

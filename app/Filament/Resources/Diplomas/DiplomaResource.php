@@ -22,10 +22,15 @@ class DiplomaResource extends Resource
     protected static ?string $model = Diploma::class;
 
     protected static ?string $recordTitleAttribute = 'Diplomas';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::AcademicCap;
+
     protected static ?string $navigationLabel = 'Certificados';
+
     protected static ?string $modelLabel = 'Certificado';
+
     protected static ?string $pluralModelLabel = 'Certificados';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
@@ -34,6 +39,7 @@ class DiplomaResource extends Resource
         return $schema->components([
             Section::make('Datos del certificado')
                 ->columns(2)
+                ->columnSpanFull()
                 ->schema([
                     Select::make('course_id')
                         ->label('Curso')
@@ -44,6 +50,23 @@ class DiplomaResource extends Resource
                         ->label('Estudiante')
                         // ajusta si tienes nombre/apellido separados
                         ->relationship('student', 'nombre')
+                        ->disabled(),
+
+                    TextInput::make('teacher_display')
+                        ->label('Profesor')
+                        ->disabled()          // solo lectura
+                        ->dehydrated(false)   // NO se guarda en BD
+                        ->afterStateHydrated(function ($component, ?Diploma $record) {
+                            $teacher = $record?->batch?->teacher;
+                            $component->state(
+                                $teacher
+                                    ? trim($teacher->nombre.' '.$teacher->apellido)
+                                    : '—'
+                            );
+                        }),
+
+                    TextInput::make('verification_code')
+                        ->label('Código de verificación')
                         ->disabled(),
 
                     DatePicker::make('issued_at')
@@ -57,14 +80,10 @@ class DiplomaResource extends Resource
                         ->maxValue(7)
                         ->nullable(),
 
-                    TextInput::make('verification_code')
-                        ->label('Código de verificación')
-                        ->disabled(),
-
-                    TextInput::make('file_path')
-                        ->label('Ruta PDF')
-                        ->disabled()
-                        ->columnSpanFull(),
+                    // TextInput::make('file_path')
+                    //     ->label('Ruta PDF')
+                    //     ->disabled()
+                    //     ->columnSpanFull(),
                 ]),
         ]);
     }
@@ -82,9 +101,9 @@ class DiplomaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListDiplomas::route('/'),
+            'index' => ListDiplomas::route('/'),
             'create' => CreateDiploma::route('/create'),      // wizard
-            'edit'   => EditDiploma::route('/{record}/edit'), // form simple
+            'edit' => EditDiploma::route('/{record}/edit'), // form simple
         ];
     }
 }
