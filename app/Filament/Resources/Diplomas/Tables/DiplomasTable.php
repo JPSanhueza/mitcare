@@ -41,11 +41,11 @@ class DiplomasTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->label('Editar')
+                    ->icon('heroicon-m-pencil-square'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

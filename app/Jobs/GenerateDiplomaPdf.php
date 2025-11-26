@@ -96,7 +96,8 @@ class GenerateDiplomaPdf implements ShouldQueue
             'file_path'   => $fileName,
             'final_grade' => $finalGrade,
         ]);
-
+        $course->students()
+            ->updateExistingPivot($student->id, ['diploma_issued' => true]);
         // Actualizar progreso del batch (si existe)
         if ($diploma->diploma_batch_id) {
             $batch = DiplomaBatch::find($diploma->diploma_batch_id);

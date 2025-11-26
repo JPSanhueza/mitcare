@@ -82,6 +82,11 @@ class DiplomaForm
                         }
                     })
                     ->schema([
+                        /* Toggle::make('include_issued')
+                            ->label('Incluir estudiantes con diploma emitido')
+                            ->helperText('Desmarca para evitar duplicar diplomas.')
+                            ->default(false)
+                            ->live(), */
                         Select::make('course_id')
                             ->label('Curso')
                             ->required()
@@ -90,7 +95,7 @@ class DiplomaForm
                                 ->pluck('nombre', 'id'))
                             ->searchable()
                             ->live(onBlur: false)
-                            ->afterStateUpdated(function (Set $set, $state) {
+                            ->afterStateUpdated(function (Set $set, Get $get, $state) {
                                 $set('teacher_ids', []);
 
                                 // Cuando cambia el curso, cargamos estudiantes + notas
@@ -99,28 +104,54 @@ class DiplomaForm
                                     return;
                                 }
 
+                                // ⬇️ Traemos el curso con sus estudiantes
                                 $course = Course::with('students')->find($state);
 
-                                if (!$course) {
+                                if (! $course) {
                                     $set('students', []);
                                     return;
                                 }
 
-                                $items = $course->students->map(function ($student) {
-                                    return [
-                                        'student_id' => $student->id,
-                                        'name' => $student->nombre . ' ' . $student->apellido,
-                                        'rut' => $student->rut,
-                                        'final_grade' => $student->pivot->final_grade,
-                                        'approved' => (bool) $student->pivot->approved,
-                                        'attendance' => $student->pivot->attendance,
-                                        // Por defecto marcamos para diploma solo a los aprobados
-                                        'selected' => (bool) $student->pivot->approved,
-                                    ];
-                                })->toArray();
+                                // ⬇️ Leemos el toggle
+                                $includeIssued = (bool) $get('include_issued');
+
+                                // Partimos de todos los estudiantes
+                                $students = $course->students;
+
+                                // Si NO queremos incluir emitidos, filtramos
+                                if (! $includeIssued) {
+                                    $students = $students->filter(function ($student) {
+                                        return ! (bool) ($student->pivot->diploma_issued ?? false);
+                                    });
+                                }
+
+                                $items = $students
+                                    ->map(function ($student) {
+                                        return [
+                                            'student_id'  => $student->id,
+                                            'name'        => $student->nombre . ' ' . $student->apellido,
+                                            'rut'         => $student->rut,
+                                            'final_grade' => $student->pivot->final_grade,
+                                            'approved'    => (bool) $student->pivot->approved,
+                                            'attendance'  => $student->pivot->attendance,
+                                            // Por defecto marcamos para diploma solo a los aprobados
+                                            'selected'    => (bool) $student->pivot->approved,
+                                        ];
+                                    })
+                                    ->values()
+                                    ->toArray();
 
                                 $set('students', $items);
+
+                                if (! $includeIssued && empty($items)) {
+                                    Notification::make()
+                                        ->title('Sin estudiantes disponibles')
+                                        ->body('Todos los estudiantes de este curso ya tienen diploma emitido.')
+                                        ->info()
+                                        ->send();
+                                }
                             }),
+
 
 
                         Select::make('teacher_ids')
@@ -205,6 +236,7 @@ class DiplomaForm
                         DatePicker::make('issued_at')
                             ->label('Fecha de emisión')
                             ->default(now())
+                            ->disabled()
                             ->required(),
 
                         View::make('filament.resources.diplomas.partials.summary')
