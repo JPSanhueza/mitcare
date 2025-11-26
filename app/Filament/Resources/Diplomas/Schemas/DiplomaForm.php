@@ -205,6 +205,7 @@ class DiplomaForm
                         DatePicker::make('issued_at')
                             ->label('Fecha de emisión')
                             ->default(now())
+                            ->disabled()
                             ->required(),
 
                         View::make('filament.resources.diplomas.partials.summary')

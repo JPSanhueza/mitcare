@@ -6,6 +6,10 @@
     <title>Diploma</title>
 
     <style>
+        @page {
+            margin: 0; /* fondo a página completa */
+        }
+
         * {
             box-sizing: border-box;
         }
@@ -29,21 +33,17 @@
 
         .content {
             position: absolute;
-            top: 90px; /* antes era 70 + problemas */
+            top: 90px;
             left: 120px;
             right: 120px;
             text-align: center;
         }
 
-        h1,
-        h2,
-        h3,
-        p {
+        h1, h2, h3, p {
             margin: 0;
             padding: 0;
         }
 
-        /* Logo superior centro */
         .logo-top {
             width: 220px;
             margin: 10px auto 25px;
@@ -59,37 +59,49 @@
         .student-name {
             font-size: 28px;
             font-weight: 700;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .student-rut {
             font-size: 16px;
             font-weight: 500;
-            margin-bottom: 35px;
         }
 
+        /* Línea amarilla central (bajo nombre y RUT) */
+        .center-separator {
+            height: 1px;
+            background-color: #E5B947;
+            width: 80%;
+            margin: px auto 20px;
+        }
+
+        /* Texto principal: todo uniforme, sin negrita y con menos interlineado */
         .section {
             font-size: 15px;
-            line-height: 1.7;
-            margin: 8px 0;
+            line-height: 1.4;
+            margin: 4px 0;
+            font-weight: 400;
+        }
+
+        .section strong {
+            font-weight: 400; /* por si quedara alguno, lo fuerza a normal */
         }
 
         .course-title {
             font-size: 19px;
             font-weight: 700;
-            margin: 16px 0 10px;
+            margin: 14px 0 10px;
         }
 
-        /* Firmas (fila centrada) */
+        /* Firmas */
         .signature-area {
             position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 120px;
+            left: 10px;
+            right: 10px;
+            bottom: 100px; /* antes 150: ahora más abajo */
             text-align: center;
         }
 
-        /* Logos inferiores */
         .logo-confidence {
             position: absolute;
             left: 60px;
@@ -107,8 +119,8 @@
         /* QR arriba izquierda */
         .qr-code {
             position: absolute;
-            top: 80px;   /* ajusta fino si quieres */
-            left: 80px;  /* ajusta fino si quieres */
+            top: 80px;
+            left: 80px;
             width: 95px;
         }
     </style>
@@ -141,11 +153,14 @@
 
         $qrSvgRaw   = Storage::disk('public')->get($diploma->qr_path);
         $qrSvgBase64 = base64_encode($qrSvgRaw);
-
-        $teacher = $teachers->first();
     @endphp
 
     <div class="page">
+        {{-- QR arriba izquierda --}}
+        <img src="data:image/svg+xml;base64,{{ $qrSvgBase64 }}"
+             alt="Código QR"
+             class="qr-code">
+
         <div class="content">
             {{-- Logo OTEC arriba centro --}}
             <img src="{{ public_path('img/logos/otec-mitcare-logo-azul.png') }}"
@@ -155,7 +170,7 @@
             {{-- Título principal --}}
             <h2 class="cert-title">OTEC MITCARE CERTIFICA A:</h2>
 
-            {{-- Nombre + RUT --}}
+            {{-- Nombre + RUT (sobre la línea amarilla) --}}
             <div class="student-name">
                 {{ $student->nombre }} {{ $student->apellido }}
             </div>
@@ -164,10 +179,12 @@
                 RUT {{ $rutFormateado }}
             </div>
 
-            {{-- Descripción del curso --}}
+            <div class="center-separator"></div>
+
+            {{-- Descripción del curso (texto uniforme, sin negritas) --}}
             <p class="section">
-                Por cursar <strong>{{ $course->total_hours }} hrs</strong> cronológicas en formato
-                <strong>{{ ucfirst($course->modality) }}</strong>
+                Por cursar {{ $course->total_hours }} hrs cronológicas en formato
+                {{ ucfirst($course->modality) }}
                 @if ($course->location)
                     {{ $course->location }}
                 @endif
@@ -177,49 +194,56 @@
                 obtenido:
             </p>
 
-            {{-- Nombre del curso --}}
-            <p class="course-title">
-                {{ $course->nombre }}
-            </p>
-
-            {{-- Nota + asistencia --}}
+            {{-- Nota + asistencia (sin negrita en el cuerpo) --}}
             <p class="section">
-                Calificación de <strong>{{ number_format($finalGrade, 1, ',', '.') }}</strong>
-                con escala de <strong>1 a 7</strong> y un
-                <strong>{{ $attendance }}%</strong> de asistencia.
+                Certificación en {{ $course->nombre }}
+                <br>
+                Calificación de {{ number_format($finalGrade, 1, ',', '.') }}
+                con escala de 1 a 7 y un
+                {{ $attendance }}% de asistencia.
             </p>
 
-            {{-- Fecha --}}
-            <p class="section" style="margin-top: 24px;">
+            {{-- Rango de fechas + ubicación --}}
+            <p class="section" style="margin-top: 16px;">
                 Se extiende el siguiente certificado con fecha
-                <strong>{{ $issuedAt->format('d \d\e F \d\e Y') }}, Santiago de Chile.</strong>
+                {{ optional($course->start_at)->format('d \d\e F \d\e Y') }}
+                @if($course->start_at && $course->end_at)
+                    al {{ $course->end_at->format('d \d\e F \d\e Y') }},
+                @endif
+                {{ $course->location }}.
             </p>
         </div>
 
         {{-- FIRMAS DINÁMICAS --}}
         <div class="signature-area">
-            <table style="width:100%; text-align:center; margin-top:20px;">
+            <table style="width:100%; text-align:center;">
                 <tr>
                     @foreach ($teachers as $t)
                         <td style="width:33%;">
                             @if ($t->signature)
+                                {{-- Firma grande --}}
                                 <img src="{{ public_path('storage/' . $t->signature) }}"
-                                     style="height:70px; margin-bottom:5px;">
+                                     style="height:110px; margin-bottom:5px;">
                             @else
-                                <div style="height:70px; margin-bottom:5px;"></div>
+                                <div style="height:110px; margin-bottom:5px;"></div>
                             @endif
 
-                            <div style="border-top:1px solid #0a2342; width:70%; margin:0 auto;"></div>
+                            {{-- Línea amarilla --}}
+                            <div style="border-top:2px solid #E5B947; width:80%; margin:5px auto 0;"></div>
 
+                            {{-- Nombre --}}
                             <div style="margin-top:5px; font-size:13px; font-weight:bold;">
                                 {{ $t->nombre }} {{ $t->apellido }}
                             </div>
 
+                            {{-- Especialidad --}}
                             <div style="font-size:11px;">
                                 {{ $t->especialidad ?? 'Docente' }}
                             </div>
-                             <div style="font-size:11px;">
-                                {{ $t->organization->nombre ?? 'Docente' }}
+
+                            {{-- Organización --}}
+                            <div style="font-size:11px; margin-top:3px;">
+                                {{ $t->organization->nombre ?? '' }}
                             </div>
                         </td>
                     @endforeach
@@ -227,20 +251,14 @@
             </table>
         </div>
 
-        {{-- Logo Confidence + texto --}}
+        {{-- Logos inferiores --}}
         <img src="{{ public_path('img/logos/confidence-logo3.png') }}"
              alt="Confidence Certification"
              class="logo-confidence">
 
-        {{-- Logo INN Chile --}}
         <img src="{{ public_path('img/logos/inn-logo2.png') }}"
              alt="INN Chile"
              class="logo-inn">
-
-        {{-- QR arriba izquierda --}}
-        <img src="data:image/svg+xml;base64,{{ $qrSvgBase64 }}"
-             alt="Código QR"
-             class="qr-code">
     </div>
 
 </body>

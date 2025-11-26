@@ -108,17 +108,17 @@ class CreateDiploma extends CreateRecord
         /** --------------------------
          * FECHA DE EMISIÓN
          * -------------------------- */
-        $issuedRaw = $data['issued_at'] ?? null;
+        $issuedRaw = $data['issued_at'] ?? now();
 
-        if (blank($issuedRaw)) {
-            Notification::make()
-                ->title('Falta la fecha de emisión')
-                ->body('Debes ir al paso "Confirmación" y definir la fecha de emisión antes de crear los diplomas.')
-                ->warning()
-                ->send();
+        // if (blank($issuedRaw)) {
+        //     Notification::make()
+        //         ->title('Falta la fecha de emisión')
+        //         ->body('Debes ir al paso "Confirmación" y definir la fecha de emisión antes de crear los diplomas.')
+        //         ->warning()
+        //         ->send();
 
-            return;
-        }
+        //     return;
+        // }
 
         $issuedAt = $issuedRaw instanceof Carbon
             ? $issuedRaw
