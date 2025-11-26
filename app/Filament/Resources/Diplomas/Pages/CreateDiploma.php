@@ -16,11 +16,17 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
-
+use Filament\Actions;
+use App\Filament\Resources\Diplomas\Schemas\DiplomaForm;
+use Filament\Schemas\Schema;
 class CreateDiploma extends CreateRecord
 {
     protected static string $resource = DiplomaResource::class;
-
+    public function form(Schema $schema): Schema
+    {
+        // 👇 Aquí usas SOLO el wizard
+        return DiplomaForm::configure($schema);
+    }
     #[On('diplomas-batch-closed')]
     public function redirectAfterBatchClosed(): void
     {
@@ -110,15 +116,16 @@ class CreateDiploma extends CreateRecord
          * -------------------------- */
         $issuedRaw = $data['issued_at'] ?? now();
 
-        // if (blank($issuedRaw)) {
-        //     Notification::make()
-        //         ->title('Falta la fecha de emisión')
-        //         ->body('Debes ir al paso "Confirmación" y definir la fecha de emisión antes de crear los diplomas.')
-        //         ->warning()
-        //         ->send();
+        // 👈 AQUÍ se controla el “estoy en paso 1/2”
+        /* if (blank($issuedRaw)) {
+            Notification::make()
+                ->title('Falta la fecha de emisión')
+                ->body('Debes ir al paso "Confirmación" y definir la fecha de emisión antes de crear los diplomas.')
+                ->warning()
+                ->send();
 
-        //     return;
-        // }
+            return;
+        } */
 
         $issuedAt = $issuedRaw instanceof Carbon
             ? $issuedRaw
