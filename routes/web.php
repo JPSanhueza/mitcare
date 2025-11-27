@@ -74,6 +74,7 @@ Route::get('/certificados/recuperar', [StudentAuthController::class, 'showResetF
 
 Route::post('/certificados/recuperar', [StudentAuthController::class, 'resetPassword'])
     ->name('student.password.reset');
+
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])
 //     ->name('dashboard');
