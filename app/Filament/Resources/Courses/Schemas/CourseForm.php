@@ -136,7 +136,12 @@ class CourseForm
                         ->label('Publicado desde')
                         ->seconds(false)
                         ->maxDate(fn(Get $get) => $get('start_at') ?: null)
+                        ->rules(fn(Get $get) => $get('start_at') ? ['before_or_equal:start_at'] : [])
+                        ->validationMessages([
+                            'before_or_equal' => 'La fecha de publicación debe ser anterior o igual a la fecha de inicio del curso.',
+                        ])
                         ->columnSpan(1),
+
                     Toggle::make('is_active')
                         ->label('Activo')
                         ->helperText('Activa o desactiva la visibilidad en la pagina principal')

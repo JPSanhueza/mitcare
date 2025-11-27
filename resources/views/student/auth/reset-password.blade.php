@@ -14,7 +14,8 @@
                         RUT
                     </label>
                     <input type="text" name="rut" value="{{ old('rut') }}" placeholder="12.345.678-5"
-                        class="w-full rounded-lg border-gray-300 focus:border-[#19355C] focus:ring-[#19355C]" required>
+                        class="w-full h-11 px-3 rounded-lg border border-gray-300 focus:border-[#19355C] focus:ring-[#19355C] text-gray-800"
+                        required>
                     @error('rut')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -25,7 +26,8 @@
                         Nueva contraseña
                     </label>
                     <input type="password" name="new_password"
-                        class="w-full rounded-lg border-gray-300 focus:border-[#19355C] focus:ring-[#19355C]" required>
+                        class="w-full h-11 px-3 rounded-lg border border-gray-300 focus:border-[#19355C] focus:ring-[#19355C] text-gray-800"
+                        required>
                     @error('new_password')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -36,7 +38,8 @@
                         Confirmar nueva contraseña
                     </label>
                     <input type="password" name="new_password_confirmation"
-                        class="w-full rounded-lg border-gray-300 focus:border-[#19355C] focus:ring-[#19355C]" required>
+                        class="w-full h-11 px-3 rounded-lg border border-gray-300 focus:border-[#19355C] focus:ring-[#19355C] text-gray-800"
+                        required>
                 </div>
 
                 <button type="submit"

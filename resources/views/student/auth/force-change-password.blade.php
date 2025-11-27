@@ -27,7 +27,7 @@
 
                     <div class="relative">
                         <input :type="show ? 'text' : 'password'" name="new_password"
-                            class="w-full rounded-lg border-gray-300 focus:border-[#19355C] focus:ring-[#19355C] pr-10"
+                            class="w-full h-11 px-3 rounded-lg border border-gray-300 focus:border-[#19355C] focus:ring-[#19355C] text-gray-800"
                             required>
 
                         <button type="button" @click="show = !show"
@@ -50,7 +50,7 @@
 
                     <div class="relative">
                         <input :type="showConfirm ? 'text' : 'password'" name="new_password_confirmation"
-                            class="w-full rounded-lg border-gray-300 focus:border-[#19355C] focus:ring-[#19355C] pr-10"
+                            class="w-full h-11 px-3 rounded-lg border border-gray-300 focus:border-[#19355C] focus:ring-[#19355C] text-gray-800"
                             required>
 
                         <button type="button" @click="showConfirm = !showConfirm"
