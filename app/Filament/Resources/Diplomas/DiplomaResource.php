@@ -45,7 +45,10 @@ class DiplomaResource extends Resource
                         // ajusta si tienes nombre/apellido separados
                         ->relationship('student', 'nombre')
                         ->disabled(),
-
+                    Select::make('course.teacher_id')
+                        ->label('Profesor')
+                        ->relationship('teacher', 'nombre')
+                        ->disabled(),
                     DatePicker::make('issued_at')
                         ->label('Fecha de emisión')
                         ->required(),
