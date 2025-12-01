@@ -63,7 +63,7 @@ class CoursesTable
                     ->icon('heroicon-o-users')
                     ->color('info')
                     ->modalHeading(fn (Course $record) => "Estudiantes de: {$record->nombre}")
-                    ->modalWidth('4xl')
+                    ->modalWidth('5xl')
                     ->modalSubmitAction(false) // solo lectura
                     ->modalCancelActionLabel('Cerrar')
                     ->modalContent(fn (Course $record) => view(

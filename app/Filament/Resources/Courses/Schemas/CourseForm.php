@@ -135,7 +135,7 @@ class CourseForm
                     DateTimePicker::make('published_at')
                         ->label('Publicado desde')
                         ->seconds(false)
-                        ->maxDate(fn(Get $get) => $get('start_at') ?: null)
+                        // ->maxDate(fn(Get $get) => $get('start_at') ?: null)
                         ->columnSpan(1),
                     Toggle::make('is_active')
                         ->label('Activo')
