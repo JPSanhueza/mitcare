@@ -126,16 +126,17 @@
         /* Firmas */
         .signature-area {
             position: absolute;
-            left: 30px;
-            right: 30px;
-            bottom: 60px;
-            /* antes 150: ahora más abajo */
+            left: 200px;
+            right: 200px;
+            bottom: 40px;
+            align-items: center;
+            justify-content: center;
             text-align: center;
         }
 
         .logo-confidence {
             position: absolute;
-            left: 40px;
+            left: 35px;
             bottom: 55px;
             width: 250px;
         }
@@ -272,7 +273,7 @@
             <table style="width:100%; text-align:center;">
                 <tr>
                     @foreach ($teachers as $t)
-                        <td style="width:33%; padding: 0px 30px 0px 30px; line-height:1.1;">
+                        <td style="width:33%;">
                             @if ($t->signature)
                                 {{-- Firma grande --}}
                                 <img src="{{ public_path('storage/' . $t->signature) }}"
@@ -282,7 +283,7 @@
                             @endif
 
                             {{-- Línea amarilla --}}
-                            <div style="border-top:1px solid #f6d686; width:30%; margin:5px auto 0;"></div>
+                            <div style="border-top:1px solid #f6d686; width:40%; margin:5px auto 0;"></div>
 
                             {{-- Nombre --}}
                             <div style="margin-top:4px; font-size:20px; font-weight:bold;">
@@ -290,12 +291,12 @@
                             </div>
 
                             {{-- Especialidad --}}
-                            <div style="font-size:18px; font-weight:Light;">
+                            <div style="font-size:17px; font-weight:300;">
                                 {{ $t->especialidad ?? 'Docente' }}
                             </div>
 
                             {{-- Organización --}}
-                            <div style="font-size:18px; font-weight:Light;">
+                            <div style="font-size:17px; font-weight:300;">
                                 {{ $t->organization->nombre ?? '' }}
                             </div>
                         </td>
