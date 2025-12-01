@@ -7,7 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class DiplomaBatch extends Model
 {
     protected $fillable = [
-        'course_id', 'teacher_id', 'total', 'processed', 'status',
+        'course_id',
+        'teacher_id',   // “principal” (primero)
+        'teacher_ids',  // NUEVO: array de ids
+        'total',
+        'processed',
+        'status',
+    ];
+
+    protected $casts = [
+        'teacher_ids' => 'array',
     ];
 
     public function diplomas()
