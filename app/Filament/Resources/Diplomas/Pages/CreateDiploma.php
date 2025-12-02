@@ -156,6 +156,7 @@ class CreateDiploma extends CreateRecord
             $batch = DiplomaBatch::create([
                 'course_id' => $course->id,
                 'teacher_id' => $teachers->first()->id,
+                'teacher_ids' => $teacherIds,            
                 'total' => $selectedStudents->count(),
                 'processed' => 0,
                 'status' => 'pending',

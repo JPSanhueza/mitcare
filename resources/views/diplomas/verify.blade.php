@@ -74,11 +74,11 @@
                     {{ optional($diploma->issued_at)->format('d-m-Y') ?? 'N/D' }}
                 </p>
 
-                @if (!is_null($diploma->final_grade))
+                {{-- @if (!is_null($diploma->final_grade))
                     <p class="text-sm text-gray-700">
                         <span class="font-semibold">Nota final:</span> {{ number_format($diploma->final_grade, 2, ',', '.') }}
                     </p>
-                @endif
+                @endif --}}
             </div>
 
             {{-- Opcional: botón para descargar, solo si quieres permitirlo también aquí --}}

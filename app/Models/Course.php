@@ -11,12 +11,12 @@ class Course extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nombre', 'nombre_diploma', 'slug', 'descripcion', 'subtitulo',
-        'price', 'total_hours', 'hours_description',
-        'is_active', 'order', 'published_at',
-        'capacity', 'modality', 'start_at', 'end_at',
-        'location', 'image', 'external_url', 'moodle_course_id','total_hours','hours_description'
-    ];
+    'nombre', 'nombre_diploma', 'slug', 'descripcion', 'subtitulo',
+    'price', 'total_hours', 'hours_description',
+    'is_active', 'order', 'published_at',
+    'capacity', 'modality', 'start_at', 'end_at',
+    'location', 'image', 'external_url', 'moodle_course_id'
+];
 
     protected $casts = [
         'price' => 'decimal:2',

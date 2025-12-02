@@ -28,7 +28,7 @@ class GenerateDiplomaPdf implements ShouldQueue
 
     public function __construct(int $diplomaId, array $teacherIds = [])
     {
-        $this->diplomaId  = $diplomaId;
+        $this->diplomaId = $diplomaId;
         $this->teacherIds = $teacherIds;
     }
 
@@ -38,12 +38,12 @@ class GenerateDiplomaPdf implements ShouldQueue
 
         $diploma = Diploma::with(['course', 'student'])->find($this->diplomaId);
 
-        if (! $diploma || ! $diploma->course || ! $diploma->student) {
+        if (!$diploma || !$diploma->course || !$diploma->student) {
             return;
         }
 
-        $course   = $diploma->course;
-        $student  = $diploma->student;
+        $course = $diploma->course;
+        $student = $diploma->student;
         $issuedAt = $diploma->issued_at instanceof Carbon
             ? $diploma->issued_at
             : Carbon::parse($diploma->issued_at);
@@ -55,23 +55,45 @@ class GenerateDiplomaPdf implements ShouldQueue
         // Colección de docentes seleccionados en el wizard
         $teachers = collect();
 
-        if (! empty($this->teacherIds)) {
+        if (!empty($this->teacherIds)) {
             $teachers = Teacher::with('organization')
                 ->whereIn('id', $this->teacherIds)
                 ->get();
         }
 
         // Fallback: si por algún motivo no llegaron teacherIds, usamos el batch
+        // Fallback: si por algún motivo no llegaron teacherIds, usamos el batch
         if ($teachers->isEmpty() && $diploma->diploma_batch_id) {
             $batch = DiplomaBatch::find($diploma->diploma_batch_id);
 
-            if ($batch && $batch->teacher_id) {
-                $singleTeacher = Teacher::with('organization')->find($batch->teacher_id);
-                if ($singleTeacher) {
-                    $teachers = collect([$singleTeacher]);
+            if ($batch) {
+                // 1) Intentar usar teacher_ids (nuevo)
+                if (!empty($batch->teacher_ids)) {
+                    $ids = is_array($batch->teacher_ids)
+                        ? $batch->teacher_ids
+                        : json_decode($batch->teacher_ids, true);
+
+                    $ids = array_filter((array) $ids);
+
+                    if (!empty($ids)) {
+                        $teachers = Teacher::with('organization')
+                            ->whereIn('id', $ids)
+                            ->get();
+                    }
+                }
+
+                // 2) Compatibilidad hacia atrás: si no hay teacher_ids, usar teacher_id único
+                if ($teachers->isEmpty() && $batch->teacher_id) {
+                    $singleTeacher = Teacher::with('organization')
+                        ->find($batch->teacher_id);
+
+                    if ($singleTeacher) {
+                        $teachers = collect([$singleTeacher]);
+                    }
                 }
             }
         }
+
 
         // Fallback final: cualquier profe
         if ($teachers->isEmpty()) {
@@ -82,7 +104,7 @@ class GenerateDiplomaPdf implements ShouldQueue
         }
 
         // Por compatibilidad, dejamos un "teacher" principal como el primero
-        $teacher      = $teachers->first();
+        $teacher = $teachers->first();
         $organization = $teacher?->organization;
 
         /* ==========================
@@ -129,23 +151,23 @@ class GenerateDiplomaPdf implements ShouldQueue
          * ========================== */
 
         $pdf = Pdf::loadView('diplomas.template', [
-            'student'      => $student,
-            'course'       => $course,
-            'teachers'     => $teachers,
+            'student' => $student,
+            'course' => $course,
+            'teachers' => $teachers,
             'organization' => $organization,
-            'issuedAt'     => $issuedAt,
-            'finalGrade'   => $finalGrade,
-            'attendance'   => $attendance,
-            'qrPath'       => $qrPath,
-            'diploma'      => $diploma,
+            'issuedAt' => $issuedAt,
+            'finalGrade' => $finalGrade,
+            'attendance' => $attendance,
+            'qrPath' => $qrPath,
+            'diploma' => $diploma,
         ])->setPaper('a4', 'landscape')
-          ->setWarnings(false);
+            ->setWarnings(false);
 
         $fileName = "diplomas/pdfs/diploma-{$diploma->id}.pdf";
         Storage::disk('public')->put($fileName, $pdf->output());
 
         $diploma->update([
-            'file_path'   => $fileName,
+            'file_path' => $fileName,
             'final_grade' => $finalGrade,
         ]);
         $course->students()
