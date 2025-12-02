@@ -21,6 +21,7 @@ class CoursesTable
     {
         return $table
             ->columns([
+                TextColumn::make('id')->label('ID')->sortable()->toggleable(isToggledHiddenByDefault: true),
                 ImageColumn::make('image')->label('Portada'),
                 TextColumn::make('nombre')->label('Nombre')->searchable()->sortable()->wrap(),
                 TextColumn::make('price')->label('Precio')->money('CLP')->sortable(),

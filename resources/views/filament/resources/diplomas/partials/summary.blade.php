@@ -186,9 +186,9 @@
     }
 
     .dark .diploma-summary-background-signature {
-        background-color: #cbcbcb;
-        border-radius: 15px;
-        padding: 2px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 3px;
         width: fit-content;
         display: flex;
         align-items: center;

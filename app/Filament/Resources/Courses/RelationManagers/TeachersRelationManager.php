@@ -9,6 +9,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TeachersRelationManager extends RelationManager
 {
@@ -67,8 +68,13 @@ class TeachersRelationManager extends RelationManager
                 AttachAction::make()
                     ->label('Agregar docente')
                     ->preloadRecordSelect()
+                    ->recordSelectOptionsQuery(
+                        fn(Builder $query) => $query
+                            ->orderBy('apellido')
+                            ->orderBy('nombre')
+                    )
                     // 🔹 columnas por las que se puede buscar en el modal
-                    ->recordSelectSearchColumns(['nombre', 'apellido', 'organization']),
+                    ->recordSelectSearchColumns(['nombre', 'apellido']),
             ])
             ->recordActions([
                 DetachAction::make()

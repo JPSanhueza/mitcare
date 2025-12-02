@@ -23,16 +23,26 @@ class DiplomasTable
         return $table
             ->columns([
                 // Alumno: usamos la relación real student.nombre para que Filament pueda buscar y ordenar
-                TextColumn::make('student.nombre')
-                    ->label('Alumno')
-                    ->formatStateUsing(fn ($state, $record) =>
-                        trim(($record->student->nombre ?? '') . ' ' . ($record->student->apellido ?? ''))
-                    )
-                    ->searchable([
-                        'student.nombre',
-                        'student.apellido',
-                    ])
-                    ->sortable(),
+                TextColumn::make('student.rut')
+    ->label('RUT')
+    ->formatStateUsing(function ($state) {
+        if (! $state) {
+            return '';
+        }
+
+        $rut = preg_replace('/[^0-9kK]/', '', $state);
+        $dv  = strtoupper(substr($rut, -1));
+        $num = substr($rut, 0, -1);
+
+        if ($num === '') {
+            return $rut;
+        }
+
+        $num = number_format((int) $num, 0, ',', '.');
+
+        return $num . '-' . $dv;
+    })
+    ->searchable(),
 
                 // Curso, con límite de caracteres y tooltip
                 TextColumn::make('course.nombre')
@@ -67,31 +77,28 @@ class DiplomasTable
 
                 // RUT del alumno formateado, pero sobre la columna real student.rut
                 TextColumn::make('student.rut')
-                    ->label('RUT')
-                    ->formatStateUsing(function ($state) {
-                        if (! $state) {
-                            return '';
-                        }
+    ->label('RUT')
+    ->formatStateUsing(function ($state) {
+        if (! $state) {
+            return '';
+        }
 
-                        $rut = preg_replace('/[^0-9kK]/', '', $state);
-                        $dv  = strtoupper(substr($rut, -1));
-                        $num = substr($rut, 0, -1);
+        $rut = preg_replace('/[^0-9kK]/', '', $state);
+        $dv  = strtoupper(substr($rut, -1));
+        $num = substr($rut, 0, -1);
 
-                        if ($num === '') {
-                            return $rut;
-                        }
+        if ($num === '') {
+            return $rut;
+        }
 
-                        $num = number_format((int) $num, 0, ',', '.');
+        $num = number_format((int) $num, 0, ',', '.');
 
-                        return $num . '-' . $dv;
-                    })
-                    ->searchable(['student.rut']),
+        return $num . '-' . $dv;
+    })
+    ->searchable(),
 
-                // Fecha de emisión
-                TextColumn::make('issued_at')
-                    ->label('Fecha emisión')
-                    ->date('d-m-Y')
-                    ->sortable(),
+                    TextColumn::make('created_at')->label('Fecha emisión')->dateTime('d-m-Y H:i')
+                    ->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
 
             ->filters([

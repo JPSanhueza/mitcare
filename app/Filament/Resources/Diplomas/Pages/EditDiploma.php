@@ -49,4 +49,27 @@ class EditDiploma extends EditRecord
             DeleteAction::make(),
         ];
     }
+
+     protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // Si viene el campo del select múltiple...
+        if (isset($data['teacher_ids_display'])) {
+            $teacherIds = $data['teacher_ids_display'] ?? [];
+
+            // Forzamos máximo 3 por seguridad extra
+            $teacherIds = array_slice($teacherIds, 0, 3);
+
+            // Actualizamos el batch asociado al diploma
+            if ($this->record->batch) {
+                $this->record->batch->update([
+                    'teacher_ids' => $teacherIds,
+                ]);
+            }
+
+            // IMPORTANTÍSIMO: que Filament NO intente guardar esto en la tabla diplomas
+            unset($data['teacher_ids_display']);
+        }
+
+        return $data;
+    }
 }
