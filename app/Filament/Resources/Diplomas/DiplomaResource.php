@@ -7,6 +7,7 @@ use App\Filament\Resources\Diplomas\Pages\EditDiploma;
 use App\Filament\Resources\Diplomas\Pages\ListDiplomas;
 use App\Filament\Resources\Diplomas\Tables\DiplomasTable;
 use App\Models\Diploma;
+use App\Models\Teacher;
 use BackedEnum;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -52,18 +53,34 @@ class DiplomaResource extends Resource
                         ->relationship('student', 'nombre')
                         ->disabled(),
 
-                    TextInput::make('teacher_display')
-                        ->label('Profesor')
-                        ->disabled()          // solo lectura
-                        ->dehydrated(false)   // NO se guarda en BD
-                        ->afterStateHydrated(function ($component, ?Diploma $record) {
-                            $teacher = $record?->batch?->teacher;
-                            $component->state(
-                                $teacher
-                                    ? trim($teacher->nombre.' '.$teacher->apellido)
-                                    : '—'
-                            );
-                        }),
+                    Select::make('teacher_ids_display')
+    ->label('Profesores')
+    ->multiple()
+    ->maxItems(3) // máximo 3 profes
+    ->options(function (?Diploma $record) {
+        if (! $record?->course_id && ! $record?->batch?->course_id) {
+            return [];
+        }
+
+        $courseId = $record->course_id ?? $record->batch->course_id;
+
+        // Ajusta según cómo esté tu relación curso-profesores
+        return Teacher::query()
+            ->whereHas('courses', fn ($q) => $q->where('courses.id', $courseId))
+            ->orderBy('nombre')
+            ->orderBy('apellido')
+            ->get()
+            ->mapWithKeys(fn ($teacher) => [
+                $teacher->id => trim($teacher->nombre . ' ' . $teacher->apellido),
+            ]);
+    })
+    // Cargar estado inicial desde el batch (teacher_ids JSON)
+    ->afterStateHydrated(function ($component, ?Diploma $record) {
+        $component->state($record?->batch?->teacher_ids ?? []);
+    })
+    ->preload()
+    ->searchable()
+    ->helperText('Selecciona hasta 3 profesores que aparecerán en el certificado.'),
 
                     TextInput::make('verification_code')
                         ->label('Código de verificación')
@@ -79,11 +96,6 @@ class DiplomaResource extends Resource
                         ->minValue(1)
                         ->maxValue(7)
                         ->nullable(),
-
-                    // TextInput::make('file_path')
-                    //     ->label('Ruta PDF')
-                    //     ->disabled()
-                    //     ->columnSpanFull(),
                 ]),
         ]);
     }

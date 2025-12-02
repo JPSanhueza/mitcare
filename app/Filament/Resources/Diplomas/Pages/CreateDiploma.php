@@ -156,7 +156,7 @@ class CreateDiploma extends CreateRecord
             $batch = DiplomaBatch::create([
                 'course_id' => $course->id,
                 'teacher_id' => $teachers->first()->id,
-                'teacher_ids' => $teacherIds,            
+                'teacher_ids' => $teacherIds,
                 'total' => $selectedStudents->count(),
                 'processed' => 0,
                 'status' => 'pending',
@@ -222,7 +222,7 @@ class CreateDiploma extends CreateRecord
             ]);
 
             foreach ($diplomaIds as $id) {
-                GenerateDiplomaPdf::dispatch($id, $teacherIds);
+                GenerateDiplomaPdf::dispatch($id);
             }
 
             DB::commit();

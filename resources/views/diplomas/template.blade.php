@@ -126,33 +126,31 @@
         /* Firmas */
         .signature-area {
             position: absolute;
-            left: 200px;
-            right: 200px;
-            bottom: 40px;
-            align-items: center;
-            justify-content: center;
+            left: 255px;
+            right: 255px;
+            bottom: 38px;
             text-align: center;
         }
 
         .logo-confidence {
             position: absolute;
-            left: 35px;
-            bottom: 55px;
-            width: 250px;
+            left: 60px;
+            bottom: 60px;
+            width: 200px;
         }
 
         .logo-inn {
             position: absolute;
-            right: 50px;
+            right: 60px;
             bottom: 60px;
-            width: 120px;
+            width: 110px;
         }
 
         /* QR arriba izquierda */
         .qr-code {
             position: absolute;
-            top: 80px;
-            left: 80px;
+            top: 60px;
+            left: 60px;
             width: 95px;
         }
     </style>
@@ -189,7 +187,7 @@
             $month = $months[(int) $date->format('n')] ?? '';
             $year = $date->format('Y');
 
-            return "{$day} de {$month} de {$year}";
+            return "{$day} de {$month}";
         };
 
         // Formatear RUT aquí para no repetir lógica en el controlador
@@ -217,6 +215,20 @@
 
         $qrSvgRaw = Storage::disk('public')->get($diploma->qr_path);
         $qrSvgBase64 = base64_encode($qrSvgRaw);
+
+        $teacherCount = $teachers->count();
+
+        // Ancho de la tabla de firmas según cantidad
+        $signTableWidth = match ($teacherCount) {
+            1 => '70%',
+            2 => '90%',
+            default => '92%', // 3 o más
+        };
+
+        // Altura de firma e intensidades de texto
+        $signImageHeight = $teacherCount >= 3 ? 105 : 130;
+        $signNameFont = $teacherCount >= 3 ? 16 : 20;
+        $signSubFont = $teacherCount >= 3 ? 13 : 17;
     @endphp
 
     <div class="page">
@@ -262,7 +274,7 @@
                 Se extiende el siguiente certificado con fecha
                 {{ $formatDateEs($course->start_at) }}
                 @if ($course->start_at && $course->end_at)
-                    al {{ $formatDateEs($course->end_at) }},
+                    al {{ $formatDateEs($course->end_at) }} {{ date('Y') }},
                 @endif
                 {{ $course->location }}.
             </p>
@@ -270,34 +282,39 @@
 
         {{-- FIRMAS DINÁMICAS --}}
         <div class="signature-area">
-            <table style="width:100%; text-align:center;">
+            <table style="width: {{ $signTableWidth }}; margin: 0 auto; text-align:center;">
                 <tr>
                     @foreach ($teachers as $t)
-                        <td style="width:33%;">
-                            @if ($t->signature)
-                                {{-- Firma grande --}}
-                                <img src="{{ public_path('storage/' . $t->signature) }}"
-                                    style="height:130px; margin-bottom:2px;">
-                            @else
-                                <div style="height:130px; margin-bottom:2px;"></div>
-                            @endif
+                        <td style="width: {{ 100 / max($teacherCount, 1) }}%; padding: 0 10px;">
+                            <div
+                                style="
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:flex-start;
+        height: 230px;
+    ">
+                                @if ($t->signature)
+                                    <img src="{{ public_path('storage/' . $t->signature) }}"
+                                        style="height: {{ $signImageHeight }}px;">
+                                @else
+                                    <div style="height: {{ $signImageHeight }}px;"></div>
+                                @endif
 
-                            {{-- Línea amarilla --}}
-                            <div style="border-top:1px solid #f6d686; width:40%; margin:5px auto 0;"></div>
+                                <div style="border-top:1px solid #f6d686; width:75%; margin:4px auto;"></div>
 
-                            {{-- Nombre --}}
-                            <div style="margin-top:4px; font-size:20px; font-weight:bold;">
-                                {{ $t->nombre }} {{ $t->apellido }}
-                            </div>
+                                <div
+                                    style="font-size: {{ $signNameFont }}px; font-weight:700; line-height:1; margin-top:4px;">
+                                    {{ $t->nombre }} {{ $t->apellido }}
+                                </div>
 
-                            {{-- Especialidad --}}
-                            <div style="font-size:17px; font-weight:300;">
-                                {{ $t->especialidad ?? 'Docente' }}
-                            </div>
+                                <div style="font-size: {{ $signSubFont }}px; font-weight:300; line-height:1;">
+                                    {{ $t->especialidad ?? 'Docente' }}
+                                </div>
 
-                            {{-- Organización --}}
-                            <div style="font-size:17px; font-weight:300;">
-                                {{ $t->organization->nombre ?? '' }}
+                                <div style="font-size: {{ $signSubFont }}px; font-weight:300; line-height:1;">
+                                    {{ $t->organization->nombre ?? '' }}
+                                </div>
                             </div>
                         </td>
                     @endforeach

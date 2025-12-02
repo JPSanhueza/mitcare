@@ -8,8 +8,8 @@ class DiplomaBatch extends Model
 {
     protected $fillable = [
         'course_id',
-        'teacher_id',   // “principal” (primero)
-        'teacher_ids',  // NUEVO: array de ids
+        'teacher_id',
+        'teacher_ids',
         'total',
         'processed',
         'status',
