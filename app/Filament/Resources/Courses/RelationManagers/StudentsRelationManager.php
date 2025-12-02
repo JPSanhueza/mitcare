@@ -18,7 +18,11 @@ class StudentsRelationManager extends RelationManager
     // Nombre de la relación en el modelo Course
     protected static string $relationship = 'students';
     protected static string $navigationLabel = 'Estudiante';
-    protected static ?string $title = 'Estudiantes';
+
+ protected static ?string $modelLabel = 'Estudiante';
+    protected static ?string $pluralModelLabel = 'Estudiantes';
+
+    protected static ?string $navigationGroup = 'Administración';    protected static ?string $title = 'Estudiantes';
 
     public function table(Table $table): Table
     {

@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use App\Filament\Resources\Students\RelationManagers\DiplomasRelationManager;
 
 class StudentResource extends Resource
 {
@@ -37,7 +38,7 @@ class StudentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            DiplomasRelationManager::class,
         ];
     }
 
