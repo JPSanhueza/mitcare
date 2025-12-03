@@ -27,7 +27,7 @@ class TeacherForm
                 ->label('Foto')
                 ->image()
                 ->disk('public')
-                ->directory('teachers')
+                ->directory('teachers/photos')
                 ->imageEditor()
                 ->rules([
                     'image',
@@ -44,7 +44,7 @@ class TeacherForm
                 ->label('Firma')
                 ->image()
                 ->disk('public')
-                ->directory('teachers')
+                ->directory('teachers/signatures')
                 ->imageEditor()
                 ->imageEditorViewportWidth('1080')
                 ->imageEditorViewportHeight('1080')

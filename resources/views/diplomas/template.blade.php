@@ -229,6 +229,23 @@
         $signImageHeight = $teacherCount >= 3 ? 105 : 130;
         $signNameFont = $teacherCount >= 3 ? 16 : 20;
         $signSubFont = $teacherCount >= 3 ? 13 : 17;
+
+        $signatureSrc = function (?string $path) {
+            if (!$path) {
+                return null;
+            }
+
+            $disk = 'public'; // el mismo disk que usa tu FileUpload de firmas
+
+            if (!Storage::disk($disk)->exists($path)) {
+                return null;
+            }
+
+            $raw = Storage::disk($disk)->get($path);
+            $mime = Storage::disk($disk)->mimeType($path) ?? 'image/png';
+
+            return 'data:' . $mime . ';base64,' . base64_encode($raw);
+        };
     @endphp
 
     <div class="page">
@@ -294,9 +311,12 @@
         justify-content:flex-start;
         height: 230px;
     ">
-                                @if ($t->signature)
-                                    <img src="{{ public_path('storage/' . $t->signature) }}"
-                                        style="height: {{ $signImageHeight }}px;">
+                                @php
+                                    $signSrc = $signatureSrc($t->signature);
+                                @endphp
+
+                                @if ($signSrc)
+                                    <img src="{{ $signSrc }}" style="height: {{ $signImageHeight }}px;">
                                 @else
                                     <div style="height: {{ $signImageHeight }}px;"></div>
                                 @endif
