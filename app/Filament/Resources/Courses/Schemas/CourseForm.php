@@ -76,7 +76,7 @@ class CourseForm
                     Select::make('modality')
                         ->label('Modalidad')
                         ->options([
-                            'online'     => 'Online',
+                            'online'     => 'Asincrónica',
                             'presencial' => 'Presencial',
                             'mixto'      => 'Mixto',
                         ])
