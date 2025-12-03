@@ -14,7 +14,11 @@ use Illuminate\Database\Eloquent\Builder;
 class TeachersRelationManager extends RelationManager
 {
     protected static string $relationship = 'teachers';
+    protected static ?string $modelLabel = 'Docente';
+    protected static ?string $pluralModelLabel = 'Docentes';
 
+    protected static ?string $navigationLabel = 'Docentes';
+    protected static ?string $navigationGroup = 'Administración';
     protected static ?string $title = 'Docentes';
 
     public function table(Table $table): Table
@@ -44,15 +48,15 @@ class TeachersRelationManager extends RelationManager
                     ->limit(40)
                     ->toggleable(),
 
-    /*                 TextColumn::make('email')
-                        ->label('Email')
-                        ->sortable()
-                        ->searchable()
-                        ->toggleable(),
+                /*                 TextColumn::make('email')
+                                    ->label('Email')
+                                    ->sortable()
+                                    ->searchable()
+                                    ->toggleable(),
 
-                    TextColumn::make('telefono')
-                        ->label('Teléfono')
-                        ->toggleable(), */
+                                TextColumn::make('telefono')
+                                    ->label('Teléfono')
+                                    ->toggleable(), */
 
                 TextColumn::make('pivot.created_at')
                     ->label('Asignado el')
