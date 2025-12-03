@@ -31,11 +31,11 @@ class TeacherForm
                 ->imageEditor()
                 ->rules([
                     'image',
-                    'mimes:jpg,jpeg,png,webp',
+                    'mimes:jpg,jpeg,png',
                 ])
                 ->validationMessages([
                     'image' => 'El archivo debe ser una imagen válida.',
-                    'mimes' => 'El formato de la imagen debe ser jpg, jpeg, png o webp.',
+                    'mimes' => 'El formato de la imagen debe ser jpg, jpeg o png.',
                     'max' => 'La imagen no puede exceder los 1024 KB (1 MB).',
                                 ])
                 ->maxSize(1024),
