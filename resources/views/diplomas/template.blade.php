@@ -235,7 +235,7 @@
                 return null;
             }
 
-            $disk = 'public'; // el mismo disk que usa tu FileUpload de firmas
+            $disk = 's3'; // el mismo disk que usa tu FileUpload de firmas
 
             if (!Storage::disk($disk)->exists($path)) {
                 return null;
