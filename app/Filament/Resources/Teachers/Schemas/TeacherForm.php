@@ -43,7 +43,7 @@ class TeacherForm
             FileUpload::make('signature')
                 ->label('Firma')
                 ->image()
-                ->disk('s3')
+                ->disk('public')
                 ->directory('teachers/signatures')
                 ->imageEditor()
                 ->imageEditorViewportWidth('1080')

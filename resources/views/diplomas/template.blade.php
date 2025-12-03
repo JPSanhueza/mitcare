@@ -230,22 +230,25 @@
         $signNameFont = $teacherCount >= 3 ? 16 : 20;
         $signSubFont = $teacherCount >= 3 ? 13 : 17;
 
-        $signatureSrc = function (?string $path) {
-            if (!$path) {
-                return null;
+        // Firmas en base64 por profesor
+        $teacherSignatures = [];
+
+        foreach ($teachers as $prof) {
+            if (!$prof->signature) {
+                continue;
             }
 
-            $disk = 's3'; // o 's3', pero el mismo que uses en FileUpload
+            $disk = 'public'; // o 's3' si tu FileUpload usa ese disco
 
-            if (!Storage::disk($disk)->exists($path)) {
-                return null;
+            if (!Storage::disk($disk)->exists($prof->signature)) {
+                continue;
             }
 
-            $raw = Storage::disk($disk)->get($path);
-            $mime = Storage::disk($disk)->mimeType($path) ?? 'image/png';
+            $raw = Storage::disk($disk)->get($prof->signature);
+            $mime = Storage::disk($disk)->mimeType($prof->signature) ?? 'image/png';
 
-            return 'data:' . $mime . ';base64,' . base64_encode($raw);
-        };
+            $teacherSignatures[$prof->id] = 'data:' . $mime . ';base64,' . base64_encode($raw);
+        }
     @endphp
 
     <div class="page">
@@ -312,7 +315,7 @@
         height: 230px;
     ">
                                 @php
-                                    $signSrc = $signatureSrc($t->signature);
+                                    $signSrc = $teacherSignatures[$t->id] ?? null;
                                 @endphp
 
                                 @if ($signSrc)
