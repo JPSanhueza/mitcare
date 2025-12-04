@@ -37,7 +37,7 @@ class TeachersRelationManager extends RelationManager
                     ->sortable()
                     ->searchable(['nombre', 'apellido']),
 
-                TextColumn::make('organization.nombre')
+                TextColumn::make('organization_name')
                     ->label('Organización')
                     ->sortable()
                     ->searchable()

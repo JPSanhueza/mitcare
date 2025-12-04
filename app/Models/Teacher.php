@@ -17,7 +17,7 @@ class Teacher extends Model
         'especialidad',
         'email',
         'telefono',
-        'organization_id',
+        'organization_name',
         'signature',
         'is_active',
         'order',
@@ -30,8 +30,4 @@ class Teacher extends Model
             ->withTimestamps();
     }
 
-    public function organization()
-    {
-        return $this->belongsTo(Organization::class);
-    }
 }

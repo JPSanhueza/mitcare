@@ -23,13 +23,9 @@ class GenerateDiplomaPdf implements ShouldQueue
 
     public int $diplomaId;
 
-    // /** @var array<int> */
-    // public array $teacherIds;
-
     public function __construct(int $diplomaId)
     {
         $this->diplomaId = $diplomaId;
-        // $this->teacherIds = $teacherIds;
     }
 
     public function handle(): void
@@ -58,15 +54,16 @@ class GenerateDiplomaPdf implements ShouldQueue
 
         if ($batch) {
             // 1) Intentar usar teacher_ids (nuevo)
-            if (! empty($batch->teacher_ids)) {
+            if (!empty($batch->teacher_ids)) {
                 $ids = is_array($batch->teacher_ids)
                     ? $batch->teacher_ids
                     : json_decode($batch->teacher_ids, true);
 
                 $ids = array_filter((array) $ids);
 
-                if (! empty($ids)) {
-                    $teachers = Teacher::with('organization')
+                if (!empty($ids)) {
+                    // Ya no hay relación organization, solo usamos organization_name
+                    $teachers = Teacher::query()
                         ->whereIn('id', $ids)
                         ->get();
                 }
@@ -74,8 +71,7 @@ class GenerateDiplomaPdf implements ShouldQueue
 
             // 2) Compatibilidad hacia atrás: si no hay teacher_ids, usar teacher_id único
             if ($teachers->isEmpty() && $batch->teacher_id) {
-                $singleTeacher = Teacher::with('organization')
-                    ->find($batch->teacher_id);
+                $singleTeacher = Teacher::find($batch->teacher_id);
 
                 if ($singleTeacher) {
                     $teachers = collect([$singleTeacher]);
@@ -85,7 +81,7 @@ class GenerateDiplomaPdf implements ShouldQueue
 
         // Fallback final: cualquier profe
         if ($teachers->isEmpty()) {
-            $fallback = Teacher::with('organization')->first();
+            $fallback = Teacher::first();
             if ($fallback) {
                 $teachers = collect([$fallback]);
             }
@@ -93,7 +89,18 @@ class GenerateDiplomaPdf implements ShouldQueue
 
         // Por compatibilidad, dejamos un "teacher" principal como el primero
         $teacher = $teachers->first();
-        $organization = $teacher?->organization;
+
+        // Si hay varios docentes, unimos sus organizaciones únicas con " / "
+        $organization = $teachers
+            ->pluck('organization_name')
+            ->filter()
+            ->unique()
+            ->implode(' / ');
+
+        // Si por alguna razón quedó vacío, al menos usa la del primero
+        if (blank($organization) && $teacher) {
+            $organization = $teacher->organization_name;
+        }
 
         /* ==========================
          *   NOTA y ASISTENCIA
@@ -142,7 +149,7 @@ class GenerateDiplomaPdf implements ShouldQueue
             'student' => $student,
             'course' => $course,
             'teachers' => $teachers,
-            'organization' => $organization,
+            'organization' => $organization, 
             'issuedAt' => $issuedAt,
             'finalGrade' => $finalGrade,
             'attendance' => $attendance,
@@ -158,8 +165,10 @@ class GenerateDiplomaPdf implements ShouldQueue
             'file_path' => $fileName,
             'final_grade' => $finalGrade,
         ]);
+
         $course->students()
             ->updateExistingPivot($student->id, ['diploma_issued' => true]);
+
         // Actualizar progreso del batch (si existe)
         if ($diploma->diploma_batch_id) {
             $batch = DiplomaBatch::find($diploma->diploma_batch_id);

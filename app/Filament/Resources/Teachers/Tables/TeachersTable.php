@@ -22,7 +22,7 @@ class TeachersTable
                 ImageColumn::make('foto')->label('Foto')->circular(),
                 TextColumn::make('nombre')->label('Nombre')->searchable()->sortable(),
                 TextColumn::make('apellido')->label('Apellido')->searchable()->sortable(),
-                TextColumn::make('organization.nombre')
+                TextColumn::make('organization_name')
                     ->label('Organización')
                     ->sortable()
                     ->searchable(),

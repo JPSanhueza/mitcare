@@ -15,14 +15,15 @@ class DiplomaViewService
         Student $student,
         Carbon $issuedAt
     ): array {
-        $organization = $teacher->organization;
+        // Ahora es un string, no un modelo
+        $organization = $teacher->organization_name;
 
         return [
-            'student'      => $student,
-            'course'       => $course,
-            'teacher'      => $teacher,
-            'organization' => $organization,
-            'issued_at'    => $issuedAt,
+            'student' => $student,
+            'course' => $course,
+            'teacher' => $teacher,
+            'organization' => $organization, // string
+            'issued_at' => $issuedAt,
         ];
     }
 

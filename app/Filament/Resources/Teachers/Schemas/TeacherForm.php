@@ -37,7 +37,7 @@ class TeacherForm
                     'image' => 'El archivo debe ser una imagen válida.',
                     'mimes' => 'El formato de la imagen debe ser jpg, jpeg o png.',
                     'max' => 'La imagen no puede exceder los 1024 KB (1 MB).',
-                                ])
+                ])
                 ->maxSize(1024),
 
             FileUpload::make('signature')
@@ -64,11 +64,9 @@ class TeacherForm
                 ->label('Especialidad/Cargo')
                 ->nullable(),
 
-            Select::make('organization_id')
+            TextInput::make('organization_name')
                 ->label('Organización')
-                ->relationship('organization', 'nombre')
-                ->searchable()
-                ->preload()
+                ->maxLength(255)
                 ->nullable(),
 
             TextInput::make('order')
