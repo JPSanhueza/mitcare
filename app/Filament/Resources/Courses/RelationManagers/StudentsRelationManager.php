@@ -19,10 +19,11 @@ class StudentsRelationManager extends RelationManager
     protected static string $relationship = 'students';
     protected static string $navigationLabel = 'Estudiante';
 
- protected static ?string $modelLabel = 'Estudiante';
+    protected static ?string $modelLabel = 'Estudiante';
     protected static ?string $pluralModelLabel = 'Estudiantes';
 
-    protected static ?string $navigationGroup = 'Administración';    protected static ?string $title = 'Estudiantes';
+    protected static ?string $navigationGroup = 'Administración';
+    protected static ?string $title = 'Estudiantes';
 
     public function table(Table $table): Table
     {
@@ -55,6 +56,7 @@ class StudentsRelationManager extends RelationManager
                     ->label('Agregar estudiante')
                     ->preloadRecordSelect()
                     // 🔹 Ordenar el listado del select
+                    ->multiple()
                     ->recordSelectOptionsQuery(
                         fn(Builder $query) => $query
                             ->orderBy('apellido')
@@ -96,12 +98,12 @@ class StudentsRelationManager extends RelationManager
                         $pivot = $course->students()
                             ->where('students.id', $record->id)
                             ->first()
-                            ?->pivot;
+                                ?->pivot;
 
                         return [
                             'final_grade' => $pivot?->final_grade,
-                            'approved'    => $pivot?->approved,
-                            'attendance'  => $pivot?->attendance,
+                            'approved' => $pivot?->approved,
+                            'attendance' => $pivot?->attendance,
                         ];
                     })
                     // Guardar cambios en la tabla pivote
@@ -111,8 +113,8 @@ class StudentsRelationManager extends RelationManager
 
                         $course->students()->updateExistingPivot($record->id, [
                             'final_grade' => $data['final_grade'],
-                            'approved'    => $data['approved'] ?? false,
-                            'attendance'  => $data['attendance'] ?? null,
+                            'approved' => $data['approved'] ?? false,
+                            'attendance' => $data['attendance'] ?? null,
                         ]);
                     }),
 
