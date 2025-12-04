@@ -336,8 +336,9 @@
                                 </div>
 
                                 <div style="font-size: {{ $signSubFont }}px; font-weight:300; line-height:1;">
-                                    {{ $t->organization->nombre ?? '' }}
+                                    {{ $t->organization_name ?? '' }}
                                 </div>
+
                             </div>
                         </td>
                     @endforeach

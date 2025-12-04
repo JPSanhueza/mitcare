@@ -76,18 +76,18 @@ class CourseForm
                     Select::make('modality')
                         ->label('Modalidad')
                         ->options([
-                            'online'     => 'Asincrónica',
+                            'online' => 'Asincrónica',
                             'presencial' => 'Presencial',
-                            'mixto'      => 'Mixto',
+                            'mixto' => 'Mixto',
                         ])
                         ->default('online')
                         ->required(),
 
-                    DatePicker::make('start_at')
+                    DateTimePicker::make('start_at')
                         ->label('Inicio')
                         ->live(),
 
-                    DatePicker::make('end_at')
+                    DateTimePicker::make('end_at')
                         ->label('Término')
                         ->rules(fn(Get $get) => $get('start_at') ? ['after_or_equal:start_at'] : [])
                         ->validationMessages([
@@ -136,11 +136,28 @@ class CourseForm
                         ->label('Publicado desde')
                         ->seconds(false)
                         ->maxDate(fn(Get $get) => $get('start_at') ?: null)
-                        ->rules(fn(Get $get) => $get('start_at') ? ['before_or_equal:start_at'] : [])
+                        ->rule(function (Get $get) {
+                            return function (string $attribute, $value, \Closure $fail) use ($get) {
+                                $startAt = $get('start_at');
+
+                                if (!$startAt || !$value) {
+                                    return;
+                                }
+
+                                $start = \Illuminate\Support\Carbon::parse($startAt);
+                                $published = \Illuminate\Support\Carbon::parse($value);
+
+                                // Si la publicación es después del inicio => error
+                                if ($published->greaterThan($start)) {
+                                    $fail('La fecha de publicación debe ser anterior a la fecha de inicio del curso.');
+                                }
+                            };
+                        })
                         ->validationMessages([
-                            'before_or_equal' => 'La fecha de publicación debe ser anterior o igual a la fecha de inicio del curso.',
+                            'before_or_equal' => 'La fecha de publicación debe ser anterior a la fecha de inicio del curso.',
                         ])
                         ->columnSpan(1),
+
 
                     Toggle::make('is_active')
                         ->label('Activo')
@@ -168,7 +185,7 @@ class CourseForm
                         ->validationMessages([
                             'image' => 'El archivo debe ser una imagen válida.',
                             'mimes' => 'El formato de la imagen debe ser jpg, jpeg, png o webp.',
-                            'max'   => 'La imagen no puede exceder los 1024 KB (1 MB).',
+                            'max' => 'La imagen no puede exceder los 1024 KB (1 MB).',
                         ])
                         ->maxSize(1024)
                         ->columnSpan(1),
