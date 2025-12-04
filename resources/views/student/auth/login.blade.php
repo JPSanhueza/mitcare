@@ -51,7 +51,7 @@
                     </div>
 
                     <p class="mt-1 text-xs text-gray-500">
-                        Recuerda: 6 primeros dígitos de tu RUT (sin puntos ni guion) + 2 primeras letras de tu nombre.
+                        Recuerda: 6 primeros dígitos de tu RUT (sin puntos ni guion) + 2 primeras letras de tu nombre en mayúscula + signo de exclamación '!'.
                     </p>
 
                     @error('password')
