@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -37,9 +38,12 @@ class Student extends Model
     {
         parent::boot();
 
+        /* -------------------------
+          CREATING
+        ------------------------- */
         static::creating(function (Student $student) {
             try {
-                // RUT opcional
+                // Normalizar RUT (si viene)
                 if (!empty($student->rut)) {
                     $student->rut = static::normalizeRut($student->rut);
 
@@ -52,12 +56,12 @@ class Student extends Model
                     $student->rut = null;
                 }
 
-                // Normalizar email
+                // Email
                 if (!empty($student->email)) {
                     $student->email = strtolower(trim($student->email));
                 }
 
-                // Si no trae password definida, ponemos una random interna
+                // Password interna si no viene
                 if (empty($student->password)) {
                     $student->password = Str::random(32);
                 }
@@ -66,60 +70,54 @@ class Student extends Model
                     $student->must_change_password = true;
                 }
 
-            } catch (ValidationException $e) {
-                throw $e;
             } catch (Throwable $e) {
                 throw ValidationException::withMessages([
-                    'error' => 'Error al crear estudiante: '.$e->getMessage(),
+                    'error' => 'Error al crear estudiante: ' . $e->getMessage(),
                 ]);
             }
         });
 
+        /* -------------------------
+          UPDATING
+        ------------------------- */
         static::updating(function (Student $student) {
             try {
+                // Si cambian el RUT
                 if ($student->isDirty('rut')) {
 
                     if (blank($student->rut)) {
-                        // Permitir dejar el rut en null/vacío
                         $student->rut = null;
-
-                        return;
-                    }
-
-                    $student->rut = static::normalizeRut($student->rut);
+                    } else {
+                        $student->rut = static::normalizeRut($student->rut);
 
                         if (!static::isValidRut($student->rut)) {
                             throw ValidationException::withMessages([
                                 'rut' => 'El RUT ingresado no es válido.',
                             ]);
                         }
-                    } else {
-                        $student->rut = null;
                     }
                 }
 
+                // Si cambian el email
                 if ($student->isDirty('email') && !empty($student->email)) {
                     $student->email = strtolower(trim($student->email));
                 }
 
-            } catch (ValidationException $e) {
-                throw $e;
             } catch (Throwable $e) {
                 throw ValidationException::withMessages([
-                    'student' => 'Error inesperado al actualizar estudiante: '.$e->getMessage(),
+                    'student' => 'Error inesperado al actualizar estudiante: ' . $e->getMessage(),
                 ]);
             }
         });
-
     }
 
-    /* ---------------------------------------
-       MUTATOR: asegurar hash
-    --------------------------------------- */
+    /* -------------------------
+      MUTATOR PASSWORD
+    ------------------------- */
     public function setPasswordAttribute($value)
     {
         try {
-            if (! empty($value)) {
+            if (!empty($value)) {
                 $this->attributes['password'] = Hash::needsRehash($value)
                     ? Hash::make($value)
                     : $value;
@@ -131,8 +129,8 @@ class Student extends Model
         }
     }
 
-    /* Relaciones */
 
+    /* Relaciones */
     public function courses()
     {
         return $this->belongsToMany(Course::class)
@@ -157,9 +155,12 @@ class Student extends Model
         return $this->hasMany(Diploma::class);
     }
 
-    /* RUT helpers */
 
-    public static function normalizeRut(??string $rut): string
+    /* -------------------------
+      RUT HELPERS
+    ------------------------- */
+
+    public static function normalizeRut(?string $rut): string
     {
         if (blank($rut)) {
             return '';
@@ -179,7 +180,7 @@ class Student extends Model
         $dv = substr($rut, -1);
         $cuerpo = substr($rut, 0, -1);
 
-        if (! ctype_digit($cuerpo)) {
+        if (!ctype_digit($cuerpo)) {
             return false;
         }
 
@@ -222,6 +223,6 @@ class Student extends Model
         $chunks = str_split($cuerpoReverso, 3);
         $cuerpoConPuntos = strrev(implode('.', $chunks));
 
-        return $cuerpoConPuntos.'-'.$dv;
+        return $cuerpoConPuntos . '-' . $dv;
     }
 }

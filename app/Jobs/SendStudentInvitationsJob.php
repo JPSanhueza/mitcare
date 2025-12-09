@@ -62,7 +62,7 @@ class SendStudentInvitationsJob implements ShouldQueue
 
                 // 💡 Pequeña pausa para no saturar Mailtrap / SMTP
                 // Ajusta si quieres más o menos agresivo
-                usleep(300000); // 0.3 segundos
+                usleep(1000000); // 0.3 segundos
 
             } catch (\Throwable $e) {
                 Log::error('Error al enviar correo de invitación (job)', [
