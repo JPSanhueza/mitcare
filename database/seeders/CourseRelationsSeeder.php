@@ -20,7 +20,7 @@ class CourseRelationsSeeder extends Seeder
         $students = Student::all();
         $teachers = Teacher::all();
 
-        if ($courses->isEmpty() ||  $teachers->isEmpty() || $students->isEmpty() ) {
+        if ($courses->isEmpty() ||  $teachers->isEmpty() || $students->isEmpty()) {
             $this->command?->warn('⚠️ Faltan cursos, estudiantes o docentes para relacionar.');
             return;
         }

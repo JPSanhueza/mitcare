@@ -9,8 +9,8 @@ use Livewire\Component;
 
 class FeaturedGrid extends Component
 {
-    /** Número de cursos a mostrar (12 por defecto). */
-    public int $limit = 12;
+    /** Número de cursos a mostrar (15 por defecto). */
+    public int $limit = 15;
 
     /** Título y subtítulo configurables. */
     public string $title = 'Cursos destacados';

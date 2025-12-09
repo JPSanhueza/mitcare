@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Services\Cart\CartService;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
+use Illuminate\Support\Str;
 
 class ShowCourse extends Component
 {
@@ -47,7 +48,7 @@ class ShowCourse extends Component
     public function render()
     {
         return view('livewire.courses.show-course')
-            ->title($this->course->nombre); // para <title>
+            ->title(Str::limit(strip_tags($this->course->nombre), 55) . ' | OTEC Mitcare');
     }
 
     private function resolveImageUrl(?string $path): string
