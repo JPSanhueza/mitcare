@@ -18,17 +18,23 @@
                 </div>
             @endif
 
+            @if ($errors->any())
+                <div class="mb-4 rounded-lg bg-red-100 text-red-800 px-4 py-2 text-sm">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
             <form method="POST" action="{{ route('student.login.submit') }}" class="space-y-4">
                 @csrf
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                        RUT
+                        Correo electrónico
                     </label>
-                    <input type="text" name="rut" value="{{ old('rut') }}" placeholder="12.345.678-5"
+                    <input type="email" name="email" value="{{ old('email') }}" placeholder="tu-correo@ejemplo.cl"
                         class="w-full h-11 px-3 rounded-lg border border-gray-300 focus:border-[#19355C] focus:ring-[#19355C] text-gray-800"
                         required>
-                    @error('rut')
+                    @error('email')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -51,14 +57,14 @@
                     </div>
 
                     <p class="mt-1 text-xs text-gray-500">
-                        Recuerda: 6 primeros dígitos de tu RUT (sin puntos ni guion) + 2 primeras letras de tu nombre en mayúscula + signo de exclamación '!'.
+                        Ingresa la contraseña que definiste en el enlace recibido por correo.
+                        Si no la recuerdas, usa la opción “¿Olvidaste tu contraseña?”.
                     </p>
 
                     @error('password')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-
 
                 <button type="submit"
                     class="w-full inline-flex justify-center rounded-xl px-4 py-2.5 bg-[#19355C] text-white font-semibold hover:bg-[#142843] transition">
@@ -67,7 +73,7 @@
             </form>
 
             <div class="mt-4 text-center">
-                <a href="{{ route('student.password.request') }}" class="text-sm text-[#19355C] hover:underline">
+                <a href="{{ route('student.password.forgot') }}" class="text-sm text-[#19355C] hover:underline">
                     ¿Olvidaste tu contraseña?
                 </a>
             </div>
