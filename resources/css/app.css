@@ -48,6 +48,23 @@
     }
 }
 
+.course-title-list {
+    @apply text-center text-base sm:text-lg font-bold text-[#19355C] leading-relaxed;
+}
+
+.course-title-list strong {
+    font-weight: 700;
+}
+
+.course-title {
+    @apply text-3xl sm:text-4xl lg:text-5xl font-bold max-w-3xl mx-auto leading-none;
+}
+
+.course-title strong {
+    font-weight: 700;
+    color: #47A8DF;
+}
+
 [data-flux-field]:not(ui-radio, ui-checkbox) {
     @apply grid gap-2;
 }

@@ -29,7 +29,14 @@ class CoursesTable
                     'success' => 'online',
                     'warning' => 'mixto',
                     'info' => 'presencial',
-                ])->sortable(),
+                ])
+                ->formatStateUsing(fn (string $state): string => match ($state) {
+                    'online' => 'Asincrónica',
+                    'presencial' => 'Presencial',
+                    'mixto' => 'Mixto',
+                    default => $state,
+                })
+                ->sortable(),
                 TextColumn::make('total_hours')->label('Horas totales'),
                 ToggleColumn::make('is_active')->label('estado'),
                 TextColumn::make('published_at')->label('Publicado')->dateTime('d-m-Y H:i')
@@ -42,7 +49,7 @@ class CoursesTable
             ->filters([
                 TernaryFilter::make('is_active')->label('Activos')->boolean(),
                 SelectFilter::make('modality')->label('Modalidad')->options([
-                    'online' => 'Online',
+                    'online' => 'Asincrónica',
                     'presencial' => 'Presencial',
                     'mixto' => 'Mixto',
                 ]),
