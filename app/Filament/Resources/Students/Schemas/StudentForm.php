@@ -4,11 +4,10 @@ namespace App\Filament\Resources\Students\Schemas;
 
 use App\Models\Student;
 use App\Rules\ValidRut;
+use Closure;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-use Closure;
-use Filament\Forms\Get;
 
 class StudentForm
 {
@@ -28,21 +27,23 @@ class StudentForm
 
                 TextInput::make('rut')
                     ->label('RUT (usuario de acceso)')
-                    ->required()
+                    ->nullable()
                     ->placeholder('12.345.678-5')
                     ->maxLength(20)
                     // ✅ Solo formato + DV (tu regla personalizada)
-                    ->rules([new ValidRut()])
+                    ->rules([new ValidRut])
                     // ✅ Unicidad (ignorando el registro actual)
                     ->rule(function (?Student $record) {
                         return function (string $attribute, $value, Closure $fail) use ($record) {
+                            if (blank($value)) {
+                                return; // si no hay RUT, no validar unicidad
+                            }
+
                             $normalized = Student::normalizeRut((string) $value);
 
-                            $query = Student::query()
-                                ->where('rut', $normalized);
+                            $query = Student::query()->where('rut', $normalized);
 
                             if ($record) {
-                                // Ignora el propio registro al editar
                                 $query->whereKeyNot($record->getKey());
                             }
 
@@ -51,6 +52,7 @@ class StudentForm
                             }
                         };
                     })
+
                     // Mostrar formateado al editar
                     ->afterStateHydrated(function (TextInput $component, $state) {
                         if ($state) {
@@ -58,13 +60,20 @@ class StudentForm
                         }
                     })
                     // Guardar siempre normalizado
-                    ->dehydrateStateUsing(fn($state) => Student::normalizeRut($state))
+                    ->dehydrateStateUsing(function ($state) {
+                        if (blank($state)) {
+                            return null; // se guarda como NULL en BD
+                        }
+
+                        return Student::normalizeRut($state);
+                    })
+
                     ->helperText('Este será el usuario con el que el estudiante iniciará sesión para descargar su diploma. Puedes escribir el RUT con puntos y guion.'),
                 TextInput::make('password')
                     ->label('Contraseña (opcional)')
                     ->password()
                     ->revealable()
-                    ->dehydrateStateUsing(fn($state) => $state ?: null)
+                    ->dehydrateStateUsing(fn ($state) => $state ?: null)
                     ->helperText('Si se deja en blanco, el sistema generará automáticamente una contraseña usando los 6 primeros dígitos del RUT y las 2 primeras letras del nombre.')
                     ->maxLength(255),
 

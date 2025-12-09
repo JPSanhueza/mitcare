@@ -4,8 +4,10 @@ namespace App\Filament\Resources\Courses\RelationManagers;
 
 use App\Models\Student;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use App\Rules\ValidRut;
+use Closure;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Actions\Action;
@@ -68,9 +70,52 @@ class StudentsRelationManager extends RelationManager
             ->recordActions([
                 // 👇 Acción para editar nota (y otros campos del pivote si quieres)
                 Action::make('editEnrollment')
-                    ->label('Editar nota')
+                    ->label('Editar')
                     ->icon('heroicon-o-pencil-square')
                     ->schema([
+
+                        TextInput::make('student.rut')
+                    ->label('RUT')
+                    ->nullable()
+                    ->placeholder('12.345.678-5')
+                    ->maxLength(20)
+                    // ✅ Solo formato + DV (tu regla personalizada)
+                    ->rules([new ValidRut])
+                    // ✅ Unicidad (ignorando el registro actual)
+                    ->rule(function (?Student $record) {
+                        return function (string $attribute, $value, Closure $fail) use ($record) {
+                            if (blank($value)) {
+                                return; // si no hay RUT, no validar unicidad
+                            }
+
+                            $normalized = Student::normalizeRut((string) $value);
+
+                            $query = Student::query()->where('rut', $normalized);
+
+                            if ($record) {
+                                $query->whereKeyNot($record->getKey());
+                            }
+
+                            if ($query->exists()) {
+                                $fail('El RUT ingresado ya está registrado.');
+                            }
+                        };
+                    })
+
+                    // Mostrar formateado al editar
+                    ->afterStateHydrated(function (TextInput $component, $state) {
+                        if ($state) {
+                            $component->state(Student::formatRut($state));
+                        }
+                    })
+                    // Guardar siempre normalizado
+                    ->dehydrateStateUsing(function ($state) {
+                        if (blank($state)) {
+                            return null; // se guarda como NULL en BD
+                        }
+
+                        return Student::normalizeRut($state);
+                    }),
 
                         Forms\Components\TextInput::make('final_grade')
                             ->label('Nota final')
@@ -79,8 +124,6 @@ class StudentsRelationManager extends RelationManager
                             ->minValue(1)      // típico 1–7, ajusta si usas otra escala
                             ->maxValue(7)
                             ->required(),
-
-
 
                         Forms\Components\TextInput::make('attendance')
                             ->label('Asistencia (%)')

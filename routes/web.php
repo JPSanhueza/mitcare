@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentAuthController;
 use App\Http\Controllers\StudentCertificateController;
 use App\Http\Controllers\DiplomaVerificationController;
+
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
@@ -40,6 +41,12 @@ Route::get('/checkout/exito/{order}', [CheckoutResultController::class, 'success
 
 Route::get('/checkout/error/{order?}', [CheckoutResultController::class, 'failed'])
     ->name('checkout.failed');
+
+/*
+|--------------------------------------------------------------------------
+| CERTIFICADOS: LOGIN / LOGOUT
+|--------------------------------------------------------------------------
+*/
 Route::get('/certificados/login', [StudentAuthController::class, 'showLoginForm'])
     ->name('student.login');
 
@@ -49,14 +56,17 @@ Route::post('/certificados/login', [StudentAuthController::class, 'login'])
 Route::post('/certificados/logout', [StudentAuthController::class, 'logout'])
     ->name('student.logout');
 
-// Rutas protegidas para estudiantes logueados
+/*
+|--------------------------------------------------------------------------
+| CERTIFICADOS: RUTAS PROTEGIDAS
+|--------------------------------------------------------------------------
+*/
 Route::middleware('student.auth')->group(function () {
     Route::get('/certificados', [StudentCertificateController::class, 'index'])
         ->name('student.certificates');
 
     Route::get('/certificados/{diploma}/descargar', [StudentCertificateController::class, 'download'])
         ->name('student.diplomas.download');
-
 
     Route::get('/certificados/cambiar-clave', [StudentAuthController::class, 'showForceChangeForm'])
         ->name('student.password.force');
@@ -65,15 +75,30 @@ Route::middleware('student.auth')->group(function () {
         ->name('student.password.force.submit');
 });
 
+/*
+|--------------------------------------------------------------------------
+| CERTIFICADOS: VERIFICACIÓN PÚBLICA
+|--------------------------------------------------------------------------
+*/
 Route::get('/certificados/verificar/{code}', [DiplomaVerificationController::class, 'show'])
     ->name('diplomas.verify');
 
-// Reset de contraseña basado en RUT
-Route::get('/certificados/recuperar', [StudentAuthController::class, 'showResetForm'])
-    ->name('student.password.request');
+/*
+|--------------------------------------------------------------------------
+| CERTIFICADOS: OLVIDÉ MI CONTRASEÑA (EMAIL + TOKEN)
+|--------------------------------------------------------------------------
+*/
+Route::get('/certificados/olvide-clave', [StudentAuthController::class, 'showForgotForm'])
+    ->name('student.password.forgot');
 
-Route::post('/certificados/recuperar', [StudentAuthController::class, 'resetPassword'])
-    ->name('student.password.reset');
+Route::post('/certificados/olvide-clave', [StudentAuthController::class, 'sendResetLink'])
+    ->name('student.password.send-link');
+
+Route::get('/certificados/definir-clave', [StudentAuthController::class, 'showSetPasswordForm'])
+    ->name('student.password.set');
+
+Route::post('/certificados/definir-clave', [StudentAuthController::class, 'setPassword'])
+    ->name('student.password.update');
 
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])
