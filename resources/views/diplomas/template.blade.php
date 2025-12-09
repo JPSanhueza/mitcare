@@ -206,7 +206,7 @@
 
             $num = number_format((int) $num, 0, ',', '.');
 
-            return $num . '-' . $dv;
+            return '- ' . $num . '-' . $dv;
         };
 
         $rutFormateado = $formatRut($student->rut ?? '');
@@ -261,7 +261,7 @@
 
             {{-- Nombre + RUT (sobre la línea amarilla) --}}
             <div class="student-name" style="margin-top: 15px;">
-                {{ $student->nombre }} {{ $student->apellido }} - {{ $rutFormateado }}
+                {{ $student->nombre }} {{ $student->apellido }} {{ $rutFormateado }}
             </div>
 
             <div class="center-separator"></div>

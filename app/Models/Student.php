@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Throwable;
-use Illuminate\Support\Str;
 
 class Student extends Model
 {
@@ -42,26 +41,14 @@ class Student extends Model
         static::creating(function (Student $student) {
             try {
                 // Normalizar
-                $student->rut = static::normalizeRut($student->rut);
+                if (! empty($student->rut)) {
+                    $student->rut = static::normalizeRut($student->rut);
 
-                // Validar formato (por seguridad extra)
-                if (!static::isValidRut($student->rut)) {
-                    throw ValidationException::withMessages([
-                        'rut' => 'El RUT ingresado no es válido.',
-                    ]);
-                }
-
-                // 🔐 Generar password automática
-                if (empty($student->password)) {
-
-                    $cuerpo = substr($student->rut, 0, -1);
-                    $primeros6 = substr($cuerpo, 0, 6);
-                    $dosLetras = strtoupper(substr($student->nombre ?? '', 0, 2));
-
-                    // Un poco más fuerte: números + letras + símbolo
-                    $passwordPlano = $primeros6 . $dosLetras . '!';
-
-                    $student->password = Hash::make($passwordPlano);
+                    if (! static::isValidRut($student->rut)) {
+                        throw ValidationException::withMessages([
+                            'rut' => 'El RUT ingresado no es válido.',
+                        ]);
+                    }
                 }
 
                 // Marcar que DEBE cambiar la contraseña al ingresar
@@ -69,10 +56,9 @@ class Student extends Model
 
             } catch (ValidationException $e) {
                 throw $e;
-
             } catch (Throwable $e) {
                 throw ValidationException::withMessages([
-                    'error' => 'Error al crear estudiante: ' . $e->getMessage(),
+                    'error' => 'Error al crear estudiante: '.$e->getMessage(),
                 ]);
             }
         });
@@ -80,9 +66,17 @@ class Student extends Model
         static::updating(function (Student $student) {
             try {
                 if ($student->isDirty('rut')) {
+
+                    if (blank($student->rut)) {
+                        // Permitir dejar el rut en null/vacío
+                        $student->rut = null;
+
+                        return;
+                    }
+
                     $student->rut = static::normalizeRut($student->rut);
 
-                    if (!static::isValidRut($student->rut)) {
+                    if (! static::isValidRut($student->rut)) {
                         throw ValidationException::withMessages([
                             'rut' => 'El RUT ingresado no es válido.',
                         ]);
@@ -92,12 +86,12 @@ class Student extends Model
                 throw $e;
             } catch (Throwable $e) {
                 throw ValidationException::withMessages([
-                    'student' => 'Error inesperado al actualizar estudiante: ' . $e->getMessage(),
+                    'student' => 'Error inesperado al actualizar estudiante: '.$e->getMessage(),
                 ]);
             }
         });
-    }
 
+    }
 
     /* ---------------------------------------
        MUTATOR: asegurar hash
@@ -105,7 +99,7 @@ class Student extends Model
     public function setPasswordAttribute($value)
     {
         try {
-            if (!empty($value)) {
+            if (! empty($value)) {
                 $this->attributes['password'] = Hash::needsRehash($value)
                     ? Hash::make($value)
                     : $value;
@@ -149,9 +143,13 @@ class Student extends Model
        RUT: Helpers
     --------------------------------------- */
 
-    public static function normalizeRut(string $rut): string
+    public static function normalizeRut(?string $rut): string
     {
-        return strtoupper(preg_replace('/[^0-9kK]/', '', $rut ?? '') ?? '');
+        if (blank($rut)) {
+            return '';
+        }
+
+        return strtoupper(preg_replace('/[^0-9kK]/', '', $rut));
     }
 
     // CAMBIA protected -> public
@@ -166,7 +164,7 @@ class Student extends Model
         $dv = substr($rut, -1);
         $cuerpo = substr($rut, 0, -1);
 
-        if (!ctype_digit($cuerpo)) {
+        if (! ctype_digit($cuerpo)) {
             return false;
         }
 
@@ -189,6 +187,7 @@ class Student extends Model
 
         return $dv === $dvEsperado;
     }
+
     public static function formatRut(?string $rut): ?string
     {
         if (empty($rut)) {
@@ -209,6 +208,6 @@ class Student extends Model
         $chunks = str_split($cuerpoReverso, 3);
         $cuerpoConPuntos = strrev(implode('.', $chunks));
 
-        return $cuerpoConPuntos . '-' . $dv;
+        return $cuerpoConPuntos.'-'.$dv;
     }
 }

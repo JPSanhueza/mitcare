@@ -91,8 +91,8 @@ class DiplomaForm
                             ->label('Curso')
                             ->required()
                             ->options(fn() => Course::query()
-                                ->orderBy('nombre')
-                                ->pluck('nombre', 'id'))
+                                ->orderBy('nombre_diploma')
+                                ->pluck('nombre_diploma', 'id'))
                             ->searchable()
                             ->live(onBlur: false)
                             ->afterStateUpdated(function (Set $set, Get $get, $state) {
