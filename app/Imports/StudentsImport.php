@@ -11,6 +11,7 @@ use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Str;
+use App\Jobs\SendStudentInvitationMailJob;
 
 class StudentsImport implements ToCollection, WithHeadingRow
 {
@@ -219,7 +220,23 @@ class StudentsImport implements ToCollection, WithHeadingRow
 
         // 🚀 Al terminar de procesar TODAS las filas, disparamos el Job
         if (!empty($this->invitations)) {
-            SendStudentInvitationsJob::dispatch($this->invitations);
+            $delaySeconds = 0;
+
+            foreach ($this->invitations as $invite) {
+                $studentId = $invite['student_id'] ?? null;
+                $token = $invite['token'] ?? null;
+
+                if (!$studentId || !$token) {
+                    continue;
+                }
+
+                // Pequeño delay escalonado para no mandar todo en el mismo segundo
+                SendStudentInvitationMailJob::dispatch($studentId, $token)
+                    ->delay(now()->addSeconds($delaySeconds));
+
+                // Por ejemplo 1 segundo entre cada mail (ajustable)
+                $delaySeconds += 1;
+            }
         }
     }
 
