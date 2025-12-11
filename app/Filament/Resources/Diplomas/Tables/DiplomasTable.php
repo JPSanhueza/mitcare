@@ -24,18 +24,38 @@ class DiplomasTable
     {
         return $table
             ->columns([
-                TextColumn::make('student.nombre')
+                TextColumn::make('student_full_name')
                     ->label('Nombre completo')
-                    ->formatStateUsing(
-                        fn ($state, Diploma $record) => $record->student
-                                ? trim(($record->student->nombre ?? '').' '.($record->student->apellido ?? ''))
-                                : '-'
+    // Mostrar nombre + apellido
+                    ->getStateUsing(function (Diploma $record) {
+                        if (! $record->student) {
+                            return '-';
+                        }
+
+                        $nombre = $record->student->nombre ?? '';
+                        $apellido = $record->student->apellido ?? '';
+
+                        return trim("{$nombre} {$apellido}");
+                    })
+    // Ordenar por nombre (y apellido) del estudiante
+                    ->sortable(
+                        query: function (Builder $query, string $direction): Builder {
+                            return $query
+                                ->join('students', 'diplomas.student_id', '=', 'students.id')
+                                ->orderBy('students.nombre', $direction)
+                                ->orderBy('students.apellido', $direction)
+                                ->select('diplomas.*');
+                        }
                     )
-                    ->sortable() // Filament va a ordenar por student.nombre
-                    ->searchable([
-                        'student.nombre',
-                        'student.apellido',
-                    ]),
+    // 🔍 Búsqueda personalizada (sin JSON raro)
+                    ->searchable(
+                        query: function (Builder $query, string $search): Builder {
+                            return $query->whereHas('student', function (Builder $q) use ($search) {
+                                $q->where('nombre', 'like', "%{$search}%")
+                                    ->orWhere('apellido', 'like', "%{$search}%");
+                            });
+                        }
+                    ),
 
                 // Curso, con límite de caracteres y tooltip
                 TextColumn::make('course.nombre_diploma')
