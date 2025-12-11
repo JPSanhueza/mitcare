@@ -26,7 +26,7 @@ class StudentForm
                     ->maxLength(100),
 
                 TextInput::make('rut')
-                    ->label('RUT (usuario de acceso)')
+                    ->label('RUT (Opcional)')
                     ->nullable()
                     ->placeholder('12.345.678-5')
                     ->maxLength(20)
@@ -66,28 +66,29 @@ class StudentForm
                         }
 
                         return Student::normalizeRut($state);
-                    })
+                    }),
 
-                    ->helperText('Este será el usuario con el que el estudiante iniciará sesión para descargar su diploma. Puedes escribir el RUT con puntos y guion.'),
                 TextInput::make('password')
                     ->label('Contraseña (opcional)')
                     ->password()
                     ->revealable()
-                    ->dehydrateStateUsing(fn ($state) => $state ?: null)
-                    ->helperText('Si se deja en blanco, el sistema generará automáticamente una contraseña usando los 6 primeros dígitos del RUT y las 2 primeras letras del nombre.')
+                    ->dehydrateStateUsing(fn($state) => $state ?: null)
+                    ->helperText('Al crear el Estudiante, se enviará una invitación por Email para cambiar su contraseña.')
                     ->maxLength(255),
 
                 TextInput::make('email')
-                    ->label('Email (opcional)')
+                    ->label('Email')
+                    ->required()
                     ->email()
-                    ->nullable()
                     ->maxLength(255)
                     ->unique(
                         table: 'students',
                         column: 'email',
                         ignoreRecord: true
                     )
-                    ->helperText('Solo si deseas tener un correo de contacto. No se utiliza para ingresar al sistema.'),
+                    ->helperText('Se utilizará el Email para iniciar sesión.')
+
+                ,
 
                 DateTimePicker::make('email_verified_at')
                     ->label('Fecha verificación de email')
