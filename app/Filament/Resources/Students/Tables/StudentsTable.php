@@ -37,16 +37,16 @@ class StudentsTable
 
                 // Email verificado: badge tipo booleano
 
-                TextColumn::make('telefono')
-                    ->label('Teléfono')
-                    ->searchable()
-                    ->toggleable(),
+                // TextColumn::make('telefono')
+                //     ->label('Teléfono')
+                //     ->searchable()
+                //     ->toggleable(),
 
-                TextColumn::make('direccion')
-                    ->label('Dirección')
-                    ->limit(40)
-                    ->searchable()
-                    ->toggleable(),
+                // TextColumn::make('direccion')
+                //     ->label('Dirección')
+                //     ->limit(40)
+                //     ->searchable()
+                //     ->toggleable(),
 
                 TextColumn::make('created_at')
                     ->label('Creado')

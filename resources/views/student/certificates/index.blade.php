@@ -32,7 +32,7 @@
                         class="rounded-xl border border-gray-200 bg-white px-4 py-4 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div>
                             <h2 class="font-semibold text-[#19355C]">
-                                {{ $diploma->course->nombre ?? 'Curso' }}
+                                {!! $diploma->course->nombre ?? 'Curso' !!}
                             </h2>
                             <p class="text-sm text-gray-600">
                                 Emitido el: {{ optional($diploma->issued_at)->format('d-m-Y') ?? 'N/D' }}

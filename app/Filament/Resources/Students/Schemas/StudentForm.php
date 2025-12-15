@@ -96,14 +96,14 @@ class StudentForm
                     ->native(false)
                     ->hidden(),
 
-                TextInput::make('telefono')
-                    ->label('Teléfono')
-                    ->tel()
-                    ->maxLength(20),
+                // TextInput::make('telefono')
+                //     ->label('Teléfono')
+                //     ->tel()
+                //     ->maxLength(20),
 
-                TextInput::make('direccion')
-                    ->label('Dirección')
-                    ->maxLength(255),
+                // TextInput::make('direccion')
+                //     ->label('Dirección')
+                //     ->maxLength(255),
             ]);
     }
 }

@@ -61,7 +61,7 @@ class DiplomasTable
                 TextColumn::make('course.nombre_diploma')
                     ->label('Curso')
                     ->limit(40)
-                    ->tooltip(fn ($record) => $record->course?->nombre)
+                    ->tooltip(fn ($record) => $record->course?->nombre_diploma)
                     ->wrap(false)
                     ->sortable()
                     ->searchable(),

@@ -9,33 +9,34 @@ use App\Models\DiplomaBatch;
 use App\Models\Student;
 use App\Models\Teacher;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Support\Facades\Storage;
-use Filament\Actions\DeleteAction;
-use Filament\Schemas\Components\Grid;
+
 class DiplomasRelationManager extends RelationManager
 {
     protected static string $relationship = 'diplomas';
 
     protected static ?string $title = 'Certificados';
-    protected static ?string $modelLabel = 'Certificado';
-    protected static ?string $pluralModelLabel = 'Certificados';
 
+    protected static ?string $modelLabel = 'Certificado';
+
+    protected static ?string $pluralModelLabel = 'Certificados';
 
     public function table(Table $table): Table
     {
         return $table
             ->poll('3s')
             ->columns([
-                TextColumn::make('course.nombre')
+                TextColumn::make('course.nombre_diploma')
                     ->label('Curso')
                     ->sortable()
                     ->searchable(),
@@ -81,9 +82,10 @@ class DiplomasRelationManager extends RelationManager
                                 /** @var Student $student */
                                 $student = $this->getOwnerRecord();
 
-                                if (!$state) {
+                                if (! $state) {
                                     $set('final_grade', null);
                                     $set('attendance', null);
+
                                     return;
                                 }
 
@@ -98,30 +100,29 @@ class DiplomasRelationManager extends RelationManager
                             })
                             ->required(),
 
-
                         // 🔹 Docentes: solo los del curso seleccionado
                         Forms\Components\Select::make('teacher_ids')
                             ->label('Docentes')
                             ->options(function (Get $get) {
                                 $courseId = $get('course_id');
 
-                                if (!$courseId) {
+                                if (! $courseId) {
                                     return [];
                                 }
 
                                 return Teacher::query()
-                                    ->whereHas('courses', fn($q) => $q->where('courses.id', $courseId))
+                                    ->whereHas('courses', fn ($q) => $q->where('courses.id', $courseId))
                                     ->orderBy('apellido')
                                     ->orderBy('nombre')
                                     ->get()
-                                    ->mapWithKeys(fn(Teacher $t) => [
-                                        $t->id => trim($t->nombre . ' ' . ($t->apellido ?? '')),
+                                    ->mapWithKeys(fn (Teacher $t) => [
+                                        $t->id => trim($t->nombre.' '.($t->apellido ?? '')),
                                     ]);
                             })
                             ->multiple()
                             ->searchable()
                             ->required()
-                            ->disabled(fn(Get $get) => !$get('course_id')),
+                            ->disabled(fn (Get $get) => ! $get('course_id')),
 
                         Forms\Components\DatePicker::make('issued_at')
                             ->label('Fecha de emisión')
@@ -155,7 +156,7 @@ class DiplomasRelationManager extends RelationManager
                         // ⬇⬇⬇
                         $course = Course::find($data['course_id'] ?? null);
 
-                        if (!$course) {
+                        if (! $course) {
                             Notification::make()
                                 ->title('Curso no encontrado')
                                 ->danger()
@@ -187,11 +188,11 @@ class DiplomasRelationManager extends RelationManager
                             return;
                         }
 
-                        $teachersWithoutSignature = $teachers->filter(fn($t) => empty($t->signature));
+                        $teachersWithoutSignature = $teachers->filter(fn ($t) => empty($t->signature));
 
                         if ($teachersWithoutSignature->isNotEmpty()) {
                             $names = $teachersWithoutSignature
-                                ->map(fn($t) => "{$t->nombre} {$t->apellido}")
+                                ->map(fn ($t) => "{$t->nombre} {$t->apellido}")
                                 ->implode(', ');
 
                             Notification::make()
@@ -258,19 +259,19 @@ class DiplomasRelationManager extends RelationManager
             ])
             ->recordActions([
                 Action::make('downloadDiploma')
-                    ->label(fn(Diploma $record) => $record->file_path ? 'Descargar' : 'PDF en proceso')
+                    ->label(fn (Diploma $record) => $record->file_path ? 'Descargar' : 'PDF en proceso')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(function (Diploma $record) {
-                        if (!$record->file_path) {
+                        if (! $record->file_path) {
                             return null;
                         }
 
                         return Storage::disk('public')->url($record->file_path);
                     })
                     ->openUrlInNewTab()
-                    ->disabled(fn(Diploma $record) => blank($record->file_path))
+                    ->disabled(fn (Diploma $record) => blank($record->file_path))
                     ->tooltip(
-                        fn(Diploma $record) => $record->file_path
+                        fn (Diploma $record) => $record->file_path
                         ? 'Descargar certificado en PDF'
                         : 'El PDF aún se está generando, recarga en unos segundos.'
                     ),
@@ -280,7 +281,4 @@ class DiplomasRelationManager extends RelationManager
                     ->icon('heroicon-o-trash'),
             ]);
     }
-
-
 }
-
