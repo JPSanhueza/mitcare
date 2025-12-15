@@ -197,13 +197,13 @@ class CourseForm
                         ->numeric()
                         ->default('0'),
 
-                    Select::make('teachers_type')
-                        ->label('Tipo de docente')
-                        ->options([
-                            'nacional' => 'Nacional',
-                            'internacional' => 'Internacional',
-                        ])
-                        ->required(),
+                    // Select::make('teachers_type')
+                    //     ->label('Tipo de docente')
+                    //     ->options([
+                    //         'nacional' => 'Nacional',
+                    //         'internacional' => 'Internacional',
+                    //     ])
+                    //     ->required(),
                 ]),
         ]);
     }

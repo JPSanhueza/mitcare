@@ -82,11 +82,7 @@ class DiplomaForm
                         }
                     })
                     ->schema([
-                        /* Toggle::make('include_issued')
-                            ->label('Incluir estudiantes con diploma emitido')
-                            ->helperText('Desmarca para evitar duplicar diplomas.')
-                            ->default(false)
-                            ->live(), */
+
                         Select::make('course_id')
                             ->label('Curso')
                             ->required()

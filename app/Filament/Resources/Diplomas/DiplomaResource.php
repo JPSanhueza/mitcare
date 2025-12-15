@@ -47,7 +47,7 @@ class DiplomaResource extends Resource
                 ->schema([
                     Select::make('course_id')
                         ->label('Curso')
-                        ->relationship('course', 'nombre')
+                        ->relationship('course', 'nombre_diploma')
                         ->disabled(),
 
                     Select::make('student_id')
