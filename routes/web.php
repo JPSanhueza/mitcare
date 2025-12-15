@@ -10,6 +10,9 @@ use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\StudentAuthController;
+use App\Http\Controllers\StudentCertificateController;
+use App\Http\Controllers\DiplomaVerificationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,7 +33,7 @@ Route::post('/carrito/clear', [CartHttpController::class, 'clear'])
 Route::get('/checkout/pagar/{order}', [WebpayController::class, 'start'])
     ->name('webpay.start');
 
-Route::match(['GET','POST'], '/checkout/webpay/retorno', [WebpayController::class, 'callback'])
+Route::match(['GET', 'POST'], '/checkout/webpay/retorno', [WebpayController::class, 'callback'])
     ->name('webpay.callback');
 
 Route::get('/checkout/exito/{order}', [CheckoutResultController::class, 'success'])
@@ -38,6 +41,64 @@ Route::get('/checkout/exito/{order}', [CheckoutResultController::class, 'success
 
 Route::get('/checkout/error/{order?}', [CheckoutResultController::class, 'failed'])
     ->name('checkout.failed');
+
+/*
+|--------------------------------------------------------------------------
+| CERTIFICADOS: LOGIN / LOGOUT
+|--------------------------------------------------------------------------
+*/
+Route::get('/certificados/login', [StudentAuthController::class, 'showLoginForm'])
+    ->name('student.login');
+
+Route::post('/certificados/login', [StudentAuthController::class, 'login'])
+    ->name('student.login.submit');
+
+Route::post('/certificados/logout', [StudentAuthController::class, 'logout'])
+    ->name('student.logout');
+
+/*
+|--------------------------------------------------------------------------
+| CERTIFICADOS: RUTAS PROTEGIDAS
+|--------------------------------------------------------------------------
+*/
+Route::middleware('student.auth')->group(function () {
+    Route::get('/certificados', [StudentCertificateController::class, 'index'])
+        ->name('student.certificates');
+
+    Route::get('/certificados/{diploma}/descargar', [StudentCertificateController::class, 'download'])
+        ->name('student.diplomas.download');
+
+    Route::get('/certificados/cambiar-clave', [StudentAuthController::class, 'showForceChangeForm'])
+        ->name('student.password.force');
+
+    Route::post('/certificados/cambiar-clave', [StudentAuthController::class, 'forceChangePassword'])
+        ->name('student.password.force.submit');
+});
+
+/*
+|--------------------------------------------------------------------------
+| CERTIFICADOS: VERIFICACIÓN PÚBLICA
+|--------------------------------------------------------------------------
+*/
+Route::get('/certificados/verificar/{code}', [DiplomaVerificationController::class, 'show'])
+    ->name('diplomas.verify');
+
+/*
+|--------------------------------------------------------------------------
+| CERTIFICADOS: OLVIDÉ MI CONTRASEÑA (EMAIL + TOKEN)
+|--------------------------------------------------------------------------
+*/
+Route::get('/certificados/olvide-clave', [StudentAuthController::class, 'showForgotForm'])
+    ->name('student.password.forgot');
+
+Route::post('/certificados/olvide-clave', [StudentAuthController::class, 'sendResetLink'])
+    ->name('student.password.send-link');
+
+Route::get('/certificados/definir-clave', [StudentAuthController::class, 'showSetPasswordForm'])
+    ->name('student.password.set');
+
+Route::post('/certificados/definir-clave', [StudentAuthController::class, 'setPassword'])
+    ->name('student.password.update');
 
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])

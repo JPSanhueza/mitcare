@@ -1,4 +1,4 @@
-<nav x-data="{ open:false }" class="sticky top-0 z-50 bg-[#19355C] text-white">
+<nav x-data="{ open: false }" class="sticky top-0 z-50 bg-[#19355C] text-white">
     <div class="max-w-7xl mx-auto px-2 sm:px-4">
         <div class="h-22 flex items-center justify-between gap-2">
             <!-- Logo -->
@@ -7,7 +7,7 @@
             </a>
 
             <!-- Links (desktop) -->
-            <ul class="hidden lg:flex items-center gap-12 text-lg md:text-xl">
+            <ul class="hidden xl:flex items-center gap-10 text-lg md:text-xl">
                 <li>
                     <a href="{{ route('home') }}" class="hover:opacity-75">
                         Inicio
@@ -36,28 +36,37 @@
             </ul>
 
             <!-- Botón Contacto (desktop) -->
-            <div class="hidden lg:block">
-                <a href="/#contacto" class="inline-flex items-center rounded-2xl px-4 py-2 text-lg
+            <div class="hidden xl:block">
+                <a href="/#contacto"
+                    class="inline-flex items-center rounded-2xl px-4 py-2 text-lg
                 font-semibold bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md">
                     Contacto
                 </a>
             </div>
+            <div class="hidden xl:block">
+                <a href="{{ route('student.login') }}"
+                    class="inline-flex items-center rounded-2xl
+        px-3 py-2 text-lg font-semibold bg-[#10B981] hover:bg-[#059669] transition shadow-md">
+                    Certificados
+                </a>
+            </div>
 
-            <div class="hidden lg:block">
-                <a href="https://aulavirtual.otecmitcare.cl/" target="_blank" class="inline-flex items-center rounded-2xl
+            <div class="hidden xl:block">
+                <a href="https://aulavirtual.otecmitcare.cl/" target="_blank"
+                    class="inline-flex items-center rounded-2xl
                 px-3 py-2 text-lg font-semibold bg-[#47A8DF] hover:bg-[#269ade] transition shadow-md">
                     Aula Virtual
                 </a>
             </div>
 
             <!-- Hamburguesa (móvil) -->
-            <button @click="open = !open" class="lg:hidden inline-flex items-center justify-center h-10 w-10">
-                <svg x-show="!open" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
+            <button @click="open = !open" class="xl:hidden inline-flex items-center justify-center h-10 w-10">
+                <svg x-show="!open" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
-                <svg x-show="open" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
+                <svg x-show="open" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
@@ -65,7 +74,7 @@
     </div>
 
     <!-- Panel móvil -->
-    <div x-show="open" x-transition.origin.top class="lg:hidden border-t border-white/10">
+    <div x-show="open" x-transition.origin.top class="xl:hidden border-t border-white/10">
         <div class="px-4 py-3 space-y-2 text-base">
             <a href="{{ route('home') }}" class="block py-2 hover:opacity-80">Inicio</a>
             <a href="/#quienes-somos" class="block py-2 hover:opacity-80">Quienes somos</a>
@@ -73,11 +82,18 @@
             <a href="/#docentes" class="block py-2 hover:opacity-80">Docentes</a>
             <a href="/#certificaciones" class="block py-2 hover:opacity-80">Certificaciones</a>
 
-            <a href="/#contacto" class="mt-2 inline-flex w-full justify-center
+            <a href="/#contacto"
+                class="mt-2 inline-flex w-full justify-center
             rounded-full px-5 py-2.5 font-semibold bg-[#E71F6C] hover:bg-[#c41659] transition shadow-md">
                 Contacto
             </a>
-            <a href="https://aulavirtual.otecmitcare.cl/" class="mt-2 inline-flex w-full justify-center
+            <a href="{{ route('student.login') }}"
+                class="mt-2 inline-flex w-full justify-center
+    rounded-full px-5 py-2.5 font-semibold bg-[#10B981] hover:bg-[#059669] transition shadow-md">
+                Certificados
+            </a>
+            <a href="https://aulavirtual.otecmitcare.cl/"
+                class="mt-2 inline-flex w-full justify-center
             rounded-full px-5 py-2.5 font-semibold bg-[#47A8DF] hover:bg-[#269ade] transition shadow-md">
                 Aula Virtual
             </a>

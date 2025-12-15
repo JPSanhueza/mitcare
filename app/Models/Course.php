@@ -11,9 +11,10 @@ class Course extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nombre', 'slug', 'descripcion', 'subtitulo',
-        'price', 'is_active', 'order', 'published_at',
-        'capacity', 'modality', 'start_at', 'end_at',
+        'nombre', 'nombre_diploma', 'slug', 'descripcion', 'subtitulo',
+        'price', 'total_hours', 'hours_description',
+        'is_active', 'order', 'published_at',
+        'capacity', 'modality', 'start_at', 'end_at', 'teachers_type',
         'location', 'image', 'external_url', 'moodle_course_id',
     ];
 
@@ -30,18 +31,38 @@ class Course extends Model
     {
         parent::boot();
 
+        // Crear slug al crear el registro
         static::creating(function ($course) {
             if (empty($course->slug)) {
-                $course->slug = Str::slug($course->nombre);
-
-                // Evitar duplicados simples
-                $original = $course->slug;
-                $counter = 1;
-                while (static::where('slug', $course->slug)->exists()) {
-                    $course->slug = $original.'-'.$counter++;
-                }
+                $course->slug = static::generateUniqueSlug($course->nombre);
             }
         });
+
+        // Actualizar slug si cambia el nombre
+        static::updating(function ($course) {
+            // Solo regenerar si el nombre cambió y el usuario NO editó el slug manualmente
+            if ($course->isDirty('nombre') && $course->isDirty('slug') === false) {
+                $course->slug = static::generateUniqueSlug($course->nombre, $course->id);
+            }
+        });
+    }
+
+    // Función auxiliar para generar slugs únicos
+    public static function generateUniqueSlug($name, $ignoreId = null)
+    {
+        $slug = Str::slug($name);
+        $original = $slug;
+        $counter = 1;
+
+        while (
+            static::where('slug', $slug)
+                ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+                ->exists()
+        ) {
+            $slug = $original.'-'.$counter++;
+        }
+
+        return $slug;
     }
 
     /** Scopes útiles */
@@ -63,5 +84,27 @@ class Course extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function students()
+    {
+        return $this->belongsToMany(Student::class)
+            ->using(CourseStudent::class)
+            ->withPivot([
+                'enrolled_at',
+                'final_grade',
+                'approved',
+                'attendance',
+                'diploma_issued',
+            ])
+            ->withTimestamps();
+    }
+
+    public function teachers()
+    {
+        return $this->belongsToMany(Teacher::class)
+            ->using(CourseTeacher::class)
+            ->withPivot(['role'])
+            ->withTimestamps();
     }
 }

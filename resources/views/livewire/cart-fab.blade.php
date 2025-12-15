@@ -1,7 +1,7 @@
 <div class="fixed z-[70]
      right-2 sm:right-3 md:right-4
      bottom-[calc(1rem+env(safe-area-inset-bottom))]
-     lg:bottom-auto lg:top-[145px] 2xl:top-[68px]">
+     xl:bottom-auto xl:top-[145px] 2xl:top-[68px]">
 
     {{-- Botón FAB --}}
     <button wire:click="toggle" class="relative flex items-center justify-center w-14 h-14 rounded-full shadow-lg

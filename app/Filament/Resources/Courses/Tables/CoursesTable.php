@@ -12,6 +12,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class CoursesTable
@@ -20,15 +21,24 @@ class CoursesTable
     {
         return $table
             ->columns([
+                TextColumn::make('id')->label('ID')->sortable()->toggleable(isToggledHiddenByDefault: true),
                 ImageColumn::make('image')->label('Portada'),
-                TextColumn::make('nombre')->label('Nombre')->searchable()->sortable()->wrap(),
+                TextColumn::make('nombre_diploma')->label('Nombre')->searchable()->sortable()->wrap(),
                 TextColumn::make('price')->label('Precio')->money('CLP')->sortable(),
                 TextColumn::make('modality')->label('Modalidad')->badge()->colors([
                     'success' => 'online',
                     'warning' => 'mixto',
                     'info' => 'presencial',
-                ])->sortable(),
-                IconColumn::make('is_active')->label('Activo')->boolean()->sortable(),
+                ])
+                ->formatStateUsing(fn (string $state): string => match ($state) {
+                    'online' => 'Asincrónica',
+                    'presencial' => 'Presencial',
+                    'mixto' => 'Mixto',
+                    default => $state,
+                })
+                ->sortable(),
+                TextColumn::make('total_hours')->label('Horas totales'),
+                ToggleColumn::make('is_active')->label('estado'),
                 TextColumn::make('published_at')->label('Publicado')->dateTime('d-m-Y H:i')
                     ->sortable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('order')
@@ -39,11 +49,14 @@ class CoursesTable
             ->filters([
                 TernaryFilter::make('is_active')->label('Activos')->boolean(),
                 SelectFilter::make('modality')->label('Modalidad')->options([
-                    'online' => 'Online',
+                    'online' => 'Asincrónica',
                     'presencial' => 'Presencial',
                     'mixto' => 'Mixto',
                 ]),
             ])
+            ->reorderable('order')
+            ->defaultSort('order')
+            ->searchable()
             ->recordActions([
                 EditAction::make(),
 
@@ -52,6 +65,25 @@ class CoursesTable
                     ->icon('heroicon-m-arrow-top-right-on-square')
                     ->url(fn (Course $r) => url("/cursos/{$r->slug}"))
                     ->openUrlInNewTab(),
+
+                    Action::make('students')
+                    ->label('Estudiantes')
+                    ->icon('heroicon-o-users')
+                    ->color('info')
+                    ->modalHeading(fn (Course $record) => "Estudiantes de: {$record->nombre}")
+                    ->modalWidth('5xl')
+                    ->modalSubmitAction(false) // solo lectura
+                    ->modalCancelActionLabel('Cerrar')
+                    ->modalContent(fn (Course $record) => view(
+                        'filament.resources.courses.partials.students-list',
+                        [
+                            'course'    => $record,
+                            'students'  => $record->students()
+                                ->orderBy('apellido')
+                                ->orderBy('nombre')
+                                ->get(),
+                        ]
+                    )),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
