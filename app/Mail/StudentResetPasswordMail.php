@@ -28,7 +28,7 @@ class StudentResetPasswordMail extends Mailable
         ]);
 
         return $this->subject('Restablece tu contraseña de acceso a certificados')
-            ->view('emails.students.reset-password', [
+            ->view('mail.student.reset-password', [
                 'student' => $this->student,
                 'url' => $url,
             ]);
