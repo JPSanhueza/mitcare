@@ -47,7 +47,7 @@ class StudentCertificateController extends Controller
             abort(404, 'El archivo del diploma no se encuentra disponible.');
         }
 
-        $courseName = $diploma->course->nombre ?? 'curso';
+        $courseName = $diploma->course->nombre_diploma ?? 'curso';
         $date = optional($diploma->issued_at)->format('Ymd') ?? 'sin-fecha';
 
         $filename = 'diploma-' . str_replace(' ', '-', strtolower($courseName)) . '-' . $date . '.pdf';
