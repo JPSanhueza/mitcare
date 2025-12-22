@@ -13,7 +13,7 @@ class Course extends Model
     protected $fillable = [
         'nombre', 'nombre_diploma', 'slug', 'descripcion', 'subtitulo',
         'price', 'total_hours', 'hours_description',
-        'is_active', 'order', 'published_at',
+        'is_active', 'order', 'published_at', 'ficha',
         'capacity', 'modality', 'start_at', 'end_at', 'teachers_type',
         'location', 'image', 'external_url', 'moodle_course_id',
     ];

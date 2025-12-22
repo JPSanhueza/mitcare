@@ -150,7 +150,7 @@ $supportEmail = config('mail.from.address');
                                 @foreach($order->items as $it)
                                 <tr>
                                     <td class="px-4 py-3">
-                                        <div class="font-medium text-gray-900 break-words">{{ $it->course_name }}</div>
+                                        <div class="font-medium text-gray-900 break-words">{!! $it->course_name !!}</div>
                                     </td>
                                     <td class="px-4 py-3 text-center">x{{ $it->qty }}</td>
                                     <td class="px-4 py-3 text-right font-semibold">

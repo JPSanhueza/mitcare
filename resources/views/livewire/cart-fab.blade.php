@@ -54,7 +54,7 @@
                 @endif
 
                 <div class="flex-1">
-                    <div class="text-sm font-medium line-clamp-1">{{ $item['name'] }}</div>
+                    <div class="text-sm font-medium line-clamp-1">{!! $item['name'] !!}</div>
                     <div class="text-xs text-gray-500">x{{ $item['qty'] }}</div>
                     <div class="text-sm font-semibold mt-1">${{ number_format($item['subtotal'],0,',','.') }}</div>
                 </div>

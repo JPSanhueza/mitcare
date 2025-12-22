@@ -113,7 +113,7 @@
                 {{-- Encabezado del curso --}}
                 <div class="flex items-start gap-4">
                     @if(!empty($item['image']))
-                    <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}"
+                    <img src="{{ $item['image'] }}" alt="{!! $item['name'] !!}"
                         class="w-14 h-14 rounded object-cover border">
                     @else
                     <div
@@ -121,7 +121,7 @@
                         IMG</div>
                     @endif
                     <div class="flex-1">
-                        <div class="font-semibold">{{ $item['name'] }}</div>
+                        <div class="font-semibold">{!! $item['name'] !!}</div>
                         <div class="text-sm text-gray-500">
                             Cantidad comprada: <span class="font-medium">x{{ $item['qty'] }}</span>
                         </div>
@@ -244,7 +244,7 @@
                 @foreach ($items ?? [] as $item)
                 <div class="flex justify-between py-3 text-sm">
                     <div class="pr-2">
-                        <div class="font-medium line-clamp-2">{{ $item['name'] }}</div>
+                        <div class="font-medium line-clamp-2">{!! $item['name'] !!}</div>
                         <div class="text-gray-500">x{{ $item['qty'] }}</div>
                     </div>
                     <div class="text-right font-semibold">
