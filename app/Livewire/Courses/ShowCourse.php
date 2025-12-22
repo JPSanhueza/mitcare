@@ -62,7 +62,7 @@ class ShowCourse extends Component
             abort(404);
         }
 
-        $filename = 'ficha-'.Str::slug($this->course->nombre ?? 'curso').'.pdf';
+        $filename = 'ficha-'.Str::slug(strip_tags($this->course->nombre) ?? 'curso').'.pdf';
 
         return Storage::disk($disk)->download($path, $filename);
     }
@@ -70,7 +70,7 @@ class ShowCourse extends Component
     public function render()
     {
         return view('livewire.courses.show-course')
-            ->title(Str::limit(strip_tags($this->course->nombre_diploma), 55).' | OTEC Mitcare');
+            ->title(Str::limit(strip_tags($this->course->nombre), 55).' | OTEC Mitcare');
     }
 
     private function resolveImageUrl(?string $path): string
