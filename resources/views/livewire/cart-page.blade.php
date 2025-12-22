@@ -39,7 +39,7 @@
                                         IMG</div>
                                     @endif
                                     <div>
-                                        <div class="font-medium line-clamp-1">{{ $item['name'] }}</div>
+                                        <div class="font-medium line-clamp-1">{!! $item['name'] !!}</div>
                                     </div>
                                 </div>
                             </td>

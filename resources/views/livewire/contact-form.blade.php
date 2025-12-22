@@ -89,7 +89,7 @@
                 <select id="curso" wire:model="curso_id" class="{{ $input }}">
                     <option value="">Selecciona un curso (opcional)</option>
                     @foreach($courses as $c)
-                    <option value="{{ $c['id'] }}">{{ $c['nombre'] }}</option>
+                    <option value="{{ $c['id'] }}">{!! $c['nombre'] !!}</option>
                     @endforeach
                 </select>
                 @error('curso_id') <p class="{{ $error }}">{{ $message }}</p> @enderror
