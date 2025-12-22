@@ -76,7 +76,7 @@
                                 @foreach ($order->items as $item)
                                 <tr>
                                     <td class="px-4 py-3">
-                                        <div class="font-medium text-gray-900 break-words">{{ $item->course_name }}</div>
+                                        <div class="font-medium text-gray-900 break-words">{!! $item->course_name !!}</div>
                                     </td>
                                     <td class="px-4 py-3 text-right">${{ number_format($item->unit_price, 0, ',', '.')
                                         }}</td>
@@ -110,7 +110,7 @@
                         <div class="p-4">
                             <div class="flex items-start justify-between">
                                 <div>
-                                    <div class="font-medium">{{ $item->course_name }}</div>
+                                    <div class="font-medium">{!! $item->course_name !!}</div>
                                     <div class="text-xs text-gray-500 mt-0.5">Cupos asignados: x{{ $item->qty }}</div>
                                 </div>
                             </div>

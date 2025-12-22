@@ -134,6 +134,27 @@ class CourseForm
                         ->minValue(1)
                         ->helperText('Déjalo vacío si no hay límite')
                         ->nullable(),
+
+                    FileUpload::make('ficha')
+                        ->label('Ficha (PDF)')
+                        ->disk('public')
+                        ->directory('courses/fichas')
+                        ->acceptedFileTypes(['application/pdf'])
+                        ->maxSize(20480) // 20 MB
+                        ->preserveFilenames()
+                        ->downloadable()
+                        ->openable()
+                        ->columnSpanFull()
+                        ->validationMessages([
+                            'required' => 'Debes subir un archivo PDF.',
+                            'file' => 'El archivo subido no es válido.',
+                            'uploaded' => 'El archivo no pudo subirse. Revisa el tamaño, tipo o permisos del servidor.',
+                            'mimes' => 'El archivo debe ser un PDF.',
+                            'mimetypes' => 'El archivo debe ser un PDF válido (application/pdf).',
+                            'max' => 'El archivo supera el tamaño máximo permitido (20 MB).',
+                            'min' => 'El archivo es demasiado pequeño o está corrupto.',
+                        ]),
+
                     DateTimePicker::make('published_at')
                         ->label('Publicado desde')
                         ->seconds(false)
@@ -177,7 +198,7 @@ class CourseForm
                         ->label('Imagen (portada)')
                         ->image()
                         ->disk('public')
-                        ->directory('courses')
+                        ->directory('courses/front')
                         ->imageEditor()
                         ->rules([
                             'image',
@@ -197,13 +218,13 @@ class CourseForm
                         ->numeric()
                         ->default('0'),
 
-                    // Select::make('teachers_type')
-                    //     ->label('Tipo de docente')
-                    //     ->options([
-                    //         'nacional' => 'Nacional',
-                    //         'internacional' => 'Internacional',
-                    //     ])
-                    //     ->required(),
+                    Select::make('teachers_type')
+                        ->label('Tipo de docente')
+                        ->options([
+                            'nacional' => 'Nacional',
+                            'internacional' => 'Internacional',
+                        ])
+                        ->required(),
                 ]),
         ]);
     }

@@ -13,7 +13,7 @@ class Course extends Model
     protected $fillable = [
         'nombre', 'nombre_diploma', 'slug', 'descripcion', 'subtitulo',
         'price', 'total_hours', 'hours_description',
-        'is_active', 'order', 'published_at',
+        'is_active', 'order', 'published_at', 'ficha',
         'capacity', 'modality', 'start_at', 'end_at', 'teachers_type',
         'location', 'image', 'external_url', 'moodle_course_id',
     ];
@@ -34,7 +34,7 @@ class Course extends Model
         // Crear slug al crear el registro
         static::creating(function ($course) {
             if (empty($course->slug)) {
-                $course->slug = static::generateUniqueSlug($course->nombre);
+                $course->slug = static::generateUniqueSlug(strip_tags($course->nombre));
             }
         });
 
@@ -42,7 +42,7 @@ class Course extends Model
         static::updating(function ($course) {
             // Solo regenerar si el nombre cambió y el usuario NO editó el slug manualmente
             if ($course->isDirty('nombre') && $course->isDirty('slug') === false) {
-                $course->slug = static::generateUniqueSlug($course->nombre, $course->id);
+                $course->slug = static::generateUniqueSlug(strip_tags($course->nombre), $course->id);
             }
         });
     }
