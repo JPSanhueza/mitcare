@@ -121,6 +121,11 @@ class CourseForm
             Section::make('Venta y publicación')
                 ->columns(2)
                 ->schema([
+                    Toggle::make('pre_sale')
+                        ->label('Preventa')
+                        ->helperText('Activa o desactiva un cartel que avisa si es preventa o no en la pagina principal')
+                        ->default(false),
+
                     TextInput::make('price')
                         ->label('Precio')
                         ->required()

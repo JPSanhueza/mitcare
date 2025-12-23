@@ -12,7 +12,7 @@ class Course extends Model
 
     protected $fillable = [
         'nombre', 'nombre_diploma', 'slug', 'descripcion', 'subtitulo',
-        'price', 'total_hours', 'hours_description',
+        'price', 'pre_sale', 'total_hours', 'hours_description',
         'is_active', 'order', 'published_at', 'ficha',
         'capacity', 'modality', 'start_at', 'end_at', 'teachers_type',
         'location', 'image', 'external_url', 'moodle_course_id',
@@ -21,6 +21,7 @@ class Course extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'is_active' => 'boolean',
+        'pre_sale' => 'boolean',
         'published_at' => 'datetime',
         'start_at' => 'date',
         'end_at' => 'date',

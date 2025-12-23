@@ -15,6 +15,20 @@
                     {!! $course->nombre !!}
                 </h1>
 
+                @if ($course->pre_sale)
+                    <div
+                        class="inline-flex items-center gap-2 rounded-full px-4 py-2
+                bg-white/10 border border-white/25 backdrop-blur
+                text-white font-semibold tracking-wide shadow-sm">
+                        <span class="h-2.5 w-2.5 rounded-full bg-[#F4A834] animate-pulse"></span>
+                        <span class="uppercase text-xs sm:text-sm">Preventa</span>
+                        <span class="hidden sm:inline text-white/80 font-normal normal-case">
+                            Cupos disponibles con acceso al lanzamiento
+                        </span>
+                    </div>
+                @endif
+
+
                 @if ($course->descripcion)
                     <div class="max-w-4xl mx-auto text-2xl font-normal text-white leading-none">
                         {!! $course->descripcion !!}
@@ -22,28 +36,36 @@
                 @endif
 
                 <div class="mt-6 flex flex-wrap justify-center gap-4">
-                    <button type="button" wire:click="addToCart"
-                        class="px-12 py-3 rounded-full bg-[#E71F6C] text-white font-bold text-sm sm:text-xl
-                                   shadow-md hover:brightness-110 transition cursor-pointer">
+
+                    {{-- RESERVA TU CUPO --}}
+                    <button type="button" wire:click="{{ $course->pre_sale ? 'addToCart' : '' }}"
+                        @disabled(!$course->pre_sale)
+                        class="px-12 py-3 rounded-full font-bold text-sm sm:text-xl shadow-md transition
+            {{ $course->pre_sale
+                ? 'bg-[#E71F6C] text-white hover:brightness-110 cursor-pointer'
+                : 'bg-gray-400 text-white/70  opacity-60' }}">
                         Reserva tu cupo
                     </button>
 
-                    <button type="button" wire:click="addToCart"
-                        class="px-12 py-3 rounded-full bg-[#2D9CDB] text-white font-bold text-sm sm:text-xl
-                                   shadow-md hover:brightness-110 transition cursor-pointer">
+                    {{-- COMPRA AQUÍ --}}
+                    <button type="button" wire:click="{{ !$course->pre_sale ? 'addToCart' : '' }}"
+                        @disabled($course->pre_sale)
+                        class="px-12 py-3 rounded-full font-bold text-sm sm:text-xl shadow-md transition
+            {{ !$course->pre_sale
+                ? 'bg-[#2D9CDB] text-white hover:brightness-110 cursor-pointer'
+                : 'bg-gray-400 text-white/70  opacity-60' }}">
                         Compra aquí
                     </button>
 
+                    {{-- DESCARGA FICHA (sin cambios de lógica) --}}
                     <button type="button" wire:click="downloadFicha" wire:loading.attr="disabled"
                         wire:target="downloadFicha" @disabled(blank($course->ficha))
                         class="relative px-12 py-3 rounded-full text-white font-bold text-sm sm:text-xl shadow-md transition cursor-pointer
-        {{ blank($course->ficha) ? 'bg-gray-400 cursor-not-allowed opacity-60' : 'bg-[#F4A834] hover:brightness-110' }}">
-                        <!-- Texto normal -->
+        {{ blank($course->ficha) ? 'bg-gray-400  opacity-60' : 'bg-[#F4A834] hover:brightness-110' }}">
                         <span wire:loading.remove wire:target="downloadFicha">
                             Descarga ficha
                         </span>
 
-                        <!-- Estado cargando -->
                         <span wire:loading wire:target="downloadFicha" class="flex items-center gap-2">
                             <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
                                 fill="none" viewBox="0 0 24 24">
@@ -54,6 +76,7 @@
                             </svg>
                         </span>
                     </button>
+
                 </div>
 
                 @php
