@@ -63,7 +63,10 @@
                         default => $course->teachers_type ? $course->teachers_type : 'nacionales',
                     };
 
-                    $modalityLabel = $course->modality ? ucfirst($course->modality) : 'Por definir';
+                    $modalityLabel = match (strtolower((string) $course->modality)) {
+                        'online' => 'Asincrónica',
+                        default => $course->modality ? ucfirst($course->modality) : 'Por definir',
+                    };
                 @endphp
 
                 <div class="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 justify-center gap-3 lg:gap-6">
