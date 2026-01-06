@@ -1,4 +1,135 @@
 <section class="bg-[#19355C]">
+    {{-- MODAL OBLIGATORIO PARA DESCARGAR FICHA --}}
+    {{-- MODAL OBLIGATORIO PARA DESCARGAR FICHA --}}
+    @if ($showFichaModal)
+        <div class="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0">
+            <div class="absolute inset-0 bg-black/60" wire:click="$set('showFichaModal', false)"></div>
+
+            <div
+                class="relative w-full max-w-lg rounded-3xl bg-[#19355C] text-white shadow-2xl border border-white/15
+                   max-h-[85dvh] overflow-hidden">
+
+                <div
+                    class="p-6 sm:p-8 text-left overflow-y-auto overscroll-contain max-h-[85dvh] [-webkit-overflow-scrolling:touch]">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <h3 class="text-xl sm:text-2xl font-extrabold tracking-tight">
+                                Antes de descargar la ficha
+                            </h3>
+                            <p class="mt-2 text-white/85">
+                                Completa estos datos para continuar con la descarga.
+                            </p>
+                        </div>
+
+                        <button type="button"
+                            class="rounded-full px-3 py-2 bg-white/10 hover:bg-white/15 transition shrink-0"
+                            wire:click="$set('showFichaModal', false)">
+                            ✕
+                        </button>
+                    </div>
+
+                    <div class="mt-6 space-y-4">
+                        {{-- Nombre --}}
+                        <div>
+                            <label class="text-sm font-semibold text-white/90">Nombre completo</label>
+                            <input type="text" wire:model.defer="ficha_full_name"
+                                class="mt-2 w-full rounded-2xl bg-white/10 border border-white/20 px-4 py-1.5
+                                   outline-none focus:ring-2 focus:ring-[#2D9CDB] focus:border-[#2D9CDB]"
+                                placeholder="Macarena Torres">
+                            @error('ficha_full_name')
+                                <p class="mt-2 text-sm text-[#F4A834] font-semibold">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Correo --}}
+                        <div>
+                            <label class="text-sm font-semibold text-white/90">Correo</label>
+                            <input type="email" wire:model.defer="ficha_email"
+                                class="mt-2 w-full rounded-2xl bg-white/10 border border-white/20 px-4 py-1.5
+                                   outline-none focus:ring-2 focus:ring-[#2D9CDB] focus:border-[#2D9CDB]"
+                                placeholder="correo@ejemplo.cl">
+                            @error('ficha_email')
+                                <p class="mt-2 text-sm text-[#F4A834] font-semibold">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Teléfono --}}
+                        <div>
+                            <label class="text-sm font-semibold text-white/90">Teléfono</label>
+
+                            <div class="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="sm:col-span-1">
+                                    <input type="text" inputmode="numeric" autocomplete="tel-country-code"
+                                        wire:model.defer="ficha_phone_country"
+                                        x-on:input="
+        let v = $event.target.value;
+        v = v.replace(/[^\d+]/g, '');   // solo + y dígitos
+        v = v.replace(/(?!^)\+/g, '');  // solo un + y solo al inicio
+        $event.target.value = v;
+    "
+                                        class="w-full rounded-2xl bg-white/10 border border-white/20 px-4 py-1.5
+           outline-none focus:ring-2 focus:ring-[#E71F6C] focus:border-[#E71F6C]"
+                                        placeholder="+56" />
+
+                                    @error('ficha_phone_country')
+                                        <p class="mt-2 text-sm text-[#F4A834] font-semibold">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="sm:col-span-2">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*"
+                                        autocomplete="tel-national" wire:model.defer="ficha_phone_number"
+                                        x-on:input="$event.target.value = $event.target.value.replace(/\D/g, '')"
+                                        class="w-full rounded-2xl bg-white/10 border border-white/20 px-4 py-1.5
+           outline-none focus:ring-2 focus:ring-[#E71F6C] focus:border-[#E71F6C]"
+                                        placeholder="912345678" />
+
+
+                                    @error('ficha_phone_number')
+                                        <p class="mt-2 text-sm text-[#F4A834] font-semibold">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <p class="mt-1 text-xs text-white/70">Ej: +56 912345678</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-7 flex flex-col sm:flex-row gap-3 sm:justify-end">
+                        <button type="button"
+                            class="px-6 py-1.5 rounded-full font-bold bg-white/10 hover:bg-white/15 transition"
+                            wire:click="$set('showFichaModal', false)">
+                            Cancelar
+                        </button>
+
+                        <button type="button" wire:click="submitFichaAndDownload" wire:loading.attr="disabled"
+                            wire:target="submitFichaAndDownload"
+                            class="px-8 py-1.5 rounded-full font-bold shadow-md transition
+                               bg-[#F4A834] text-white hover:brightness-110 disabled:opacity-60">
+                            <span wire:loading.remove wire:target="submitFichaAndDownload">
+                                Descargar ficha
+                            </span>
+
+                            <span wire:loading wire:target="submitFichaAndDownload"
+                                class="flex items-center justify-center gap-2">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
+
+                    <div class="h-2"></div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
     <div class="mx-auto">
         <div class="relative overflow-hidden">
 
@@ -69,8 +200,8 @@
                         <span wire:loading wire:target="downloadFicha" class="flex items-center gap-2">
                             <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
                                 fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
+                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                    stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z">
                                 </path>
                             </svg>
