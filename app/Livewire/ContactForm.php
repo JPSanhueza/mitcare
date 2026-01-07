@@ -117,7 +117,7 @@ class ContactForm extends Component
         }
 
         try {
-            $cursoNombre = $this->curso_id ? Course::whereKey($this->curso_id)->value('nombre') : null;
+            $cursoNombre = $this->curso_id ? Course::whereKey($this->curso_id)->value('nombre_diploma') : null;
 
             $payload = [
                 'nombre' => $this->nombre,

@@ -1,8 +1,7 @@
 <section class="bg-[#19355C]">
     {{-- MODAL OBLIGATORIO PARA DESCARGAR FICHA --}}
-    {{-- MODAL OBLIGATORIO PARA DESCARGAR FICHA --}}
     @if ($showFichaModal)
-        <div class="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0">
+        <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0">
             <div class="absolute inset-0 bg-black/60" wire:click="$set('showFichaModal', false)"></div>
 
             <div
