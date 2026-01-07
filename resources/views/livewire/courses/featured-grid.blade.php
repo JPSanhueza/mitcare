@@ -50,10 +50,13 @@
                                 MAS DETALLES
                             </a>
 
-                            <button type="button"
+                            <button type="button" wire:click="addToCart({{ $course->id }})"
+                                @disabled($course->pre_sale)
                                 class="flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-full
-                           bg-[#47A8DF] text-white text-xs sm:text-sm font-bold tracking-wide
-                           hover:bg-[#1b7fb7] transition">
+           text-xs sm:text-sm font-bold tracking-wide transition
+           {{ !$course->pre_sale
+               ? 'bg-[#47A8DF] text-white hover:bg-[#1b7fb7]'
+               : 'bg-gray-400 text-white/70 opacity-60 cursor-not-allowed' }}">
                                 COMPRA AQUÍ
                             </button>
                         </div>
