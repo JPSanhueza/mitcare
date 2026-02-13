@@ -95,6 +95,12 @@ class CourseForm
                             'mixto' => 'Mixto',
                         ])
                         ->default('online')
+                        ->live()
+                        ->afterStateUpdated(function (Set $set, ?string $state) {
+                            if ($state === 'online') {
+                                $set('location', null);
+                            }
+                        })
                         ->required(),
 
                     TextInput::make('total_hours')
@@ -111,7 +117,11 @@ class CourseForm
                     TextInput::make('location')
                         ->label('Ubicación')
                         ->maxLength(255)
-                        ->visible(fn (callable $get) => in_array($get('modality'), ['presencial', 'mixto']))
+                        ->placeholder(fn (Get $get) => $get('modality') === 'mixto'
+                            ? 'Ej: Sede Santiago + online'
+                            : 'Ej: Sede Santiago')
+                        ->visible(fn (Get $get) => in_array($get('modality'), ['presencial', 'mixto'], true))
+                        ->required(fn (Get $get) => in_array($get('modality'), ['presencial', 'mixto'], true))
                         ->columnSpanFull(),
                 ]),
 
