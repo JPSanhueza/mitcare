@@ -293,10 +293,9 @@
             <p class="section" style="margin-top: 18px;">
                 Se extiende el siguiente certificado con fecha
                 {{ $formatDateEs($course->start_at) }}
-                @if ($course->start_at && $course->end_at)
-                    al {{ $formatDateEs($course->end_at) }} {{ date('Y') }},
-                @endif
-                {{ $course->location }}.
+                @if ($course->start_at && $course->end_at) al {{ $formatDateEs($course->end_at) }} {{ date('Y')}} @endif
+                @if ($course->location), {{ $course->location }}@endif.
+
             </p>
         </div>
 

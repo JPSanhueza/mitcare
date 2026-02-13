@@ -45,10 +45,22 @@
                         </div>
 
                         <div class="flex flex-wrap gap-2">
-                            <a href="{{ route('student.diplomas.download', $diploma) }}"
-                                class="inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold bg-[#19355C] text-white hover:bg-[#142843] transition">
-                                Descargar diploma
-                            </a>
+                            @php
+                                $diplomaReady = !empty($diploma->file_path) &&
+                                    \Illuminate\Support\Facades\Storage::disk('public')->exists($diploma->file_path);
+                            @endphp
+
+                            @if ($diplomaReady)
+                                <a href="{{ route('student.diplomas.download', $diploma) }}"
+                                    class="inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold bg-[#19355C] text-white hover:bg-[#142843] transition">
+                                    Descargar diploma
+                                </a>
+                            @else
+                                <button type="button" disabled
+                                    class="inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold bg-gray-300 text-gray-600 cursor-not-allowed">
+                                    Diploma en preparación
+                                </button>
+                            @endif
                         </div>
                     </div>
                 @endforeach
