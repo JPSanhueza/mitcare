@@ -23,6 +23,7 @@ class DiplomasTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->poll('3s')
             ->columns([
                 TextColumn::make('student_full_name')
                     ->label('Nombre completo')
@@ -179,14 +180,19 @@ class DiplomasTable
                 EditAction::make(),
 
                 Action::make('download')
-                    ->label('Descargar')
+                    ->label(fn (Diploma $record) => filled($record->file_path) ? 'Descargar' : 'PDF en proceso')
                     ->icon('heroicon-m-arrow-down-tray')
-                    ->url(fn ($record) => $record->file_path
+                    ->url(fn (Diploma $record) => $record->file_path
                         ? Storage::disk('public')->url($record->file_path)
                         : null
                     )
                     ->openUrlInNewTab()
-                    ->visible(fn ($record) => filled($record->file_path)),
+                    ->disabled(fn (Diploma $record) => blank($record->file_path))
+                    ->tooltip(
+                        fn (Diploma $record) => $record->file_path
+                        ? 'Descargar certificado en PDF'
+                        : 'El PDF se esta generando. Se habilitara al finalizar.'
+                    ),
             ])
 
             ->toolbarActions([

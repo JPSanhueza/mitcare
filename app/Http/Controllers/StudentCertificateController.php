@@ -42,6 +42,10 @@ class StudentCertificateController extends Controller
             abort(403, 'No tienes permiso para descargar este diploma.');
         }
 
+        if (blank($diploma->file_path)) {
+            abort(409, 'El diploma se está generando. Intenta nuevamente en unos segundos.');
+        }
+
         // Asumimos que file_path es la ruta en el disco 'public'
         if (! Storage::disk('public')->exists($diploma->file_path)) {
             abort(404, 'El archivo del diploma no se encuentra disponible.');
