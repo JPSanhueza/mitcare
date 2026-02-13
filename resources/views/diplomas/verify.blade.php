@@ -53,7 +53,7 @@
                 </h2>
 
                 <p class="text-sm text-gray-700">
-                    {{ $diploma->course->nombre ?? 'Curso' }}
+                    {{ $diploma->course->nombre_diploma ?? 'Curso' }}
                 </p>
 
                 @if (!empty($diploma->course->hours))
@@ -82,7 +82,7 @@
             </div>
 
             {{-- Opcional: botón para descargar, solo si quieres permitirlo también aquí --}}
-            {{-- 
+            {{--
             <div class="border-t border-gray-100 pt-4 flex justify-end">
                 <a href="{{ route('student.diplomas.download', $diploma) }}"
                     class="inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold bg-[#19355C] text-white hover:bg-[#142843] transition">

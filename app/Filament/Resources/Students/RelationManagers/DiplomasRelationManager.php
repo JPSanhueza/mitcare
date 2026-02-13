@@ -73,8 +73,8 @@ class DiplomasRelationManager extends RelationManager
                                         $q->where('course_student.diploma_issued', false)
                                             ->orWhereNull('course_student.diploma_issued');
                                     })
-                                    ->orderBy('nombre')
-                                    ->pluck('nombre', 'courses.id');
+                                    ->orderBy('nombre_diploma')
+                                    ->pluck('nombre_diploma', 'courses.id');
                             })
                             ->searchable()
                             ->reactive()

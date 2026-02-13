@@ -3,11 +3,11 @@
 namespace App\Filament\Resources\Diplomas\Pages;
 
 use App\Filament\Resources\Diplomas\DiplomaResource;
+use App\Jobs\GenerateDiplomaPdf;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Storage;
-use App\Jobs\GenerateDiplomaPdf;
 
 class EditDiploma extends EditRecord
 {
@@ -17,59 +17,68 @@ class EditDiploma extends EditRecord
     {
         return [
             Action::make('downloadPdf')
-                ->label('Descargar PDF')
+                ->label(fn () => blank($this->record->file_path) ? 'PDF en proceso' : 'Descargar PDF')
                 ->icon('heroicon-m-arrow-down-tray')
-                ->color('success')
+                ->color(fn () => blank($this->record->file_path) ? 'gray' : 'success')
+                ->extraAttributes([
+                    'wire:poll.3s' => 'refreshDownloadState',
+                ])
                 ->url(function () {
-                    // Si no hay archivo, devolvemos null
                     if (blank($this->record->file_path)) {
                         return null;
                     }
 
-                    // Asumiendo que usas disk('public')
                     return Storage::disk('public')->url($this->record->file_path);
                 })
                 ->openUrlInNewTab()
-                // Ocultamos el botón si aún no hay PDF generado
-                ->hidden(fn() => blank($this->record->file_path)),
+                ->disabled(fn () => blank($this->record->file_path))
+                ->tooltip(fn () => blank($this->record->file_path)
+                    ? 'El PDF se esta generando. Se habilitara al finalizar.'
+                    : 'Descargar certificado en PDF'),
 
-                Action::make('regeneratePdf')
+            Action::make('regeneratePdf')
                 ->label('Re-generar PDF')
                 ->icon('heroicon-m-arrow-path')
                 ->color('info')
                 ->requiresConfirmation()
                 ->modalHeading('Re-generar PDF del certificado')
-                ->modalDescription('Se volverá a generar el archivo PDF de este certificado con la información actual.')
+                ->modalDescription('Se volvera a generar el archivo PDF de este certificado con la informacion actual.')
                 ->action(function () {
-                    // $this->record es el diploma que estás editando
+                    // Deja el diploma sin archivo mientras corre la regeneracion.
+                    $this->record->update([
+                        'file_path' => null,
+                    ]);
+
+                    $this->record->refresh();
+
                     GenerateDiplomaPdf::dispatch($this->record->id);
                 })
-                ->successNotificationTitle('El PDF del certificado se está regenerando.'),
+                ->successNotificationTitle('El PDF del certificado se esta regenerando.'),
 
             DeleteAction::make(),
         ];
     }
 
-     protected function mutateFormDataBeforeSave(array $data): array
+    protected function mutateFormDataBeforeSave(array $data): array
     {
-        // Si viene el campo del select múltiple...
         if (isset($data['teacher_ids_display'])) {
             $teacherIds = $data['teacher_ids_display'] ?? [];
-
-            // Forzamos máximo 3 por seguridad extra
             $teacherIds = array_slice($teacherIds, 0, 3);
 
-            // Actualizamos el batch asociado al diploma
             if ($this->record->batch) {
                 $this->record->batch->update([
                     'teacher_ids' => $teacherIds,
                 ]);
             }
 
-            // IMPORTANTÍSIMO: que Filament NO intente guardar esto en la tabla diplomas
             unset($data['teacher_ids_display']);
         }
 
         return $data;
+    }
+
+    public function refreshDownloadState(): void
+    {
+        $this->record->refresh();
     }
 }
