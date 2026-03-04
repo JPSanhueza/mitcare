@@ -1,18 +1,18 @@
 @component('mail::message')
 {{-- PREHEADER (oculto en la mayoría de clientes) --}}
 <span style="display:none!important;opacity:0;color:transparent;visibility:hidden;max-height:0;max-width:0;overflow:hidden;">
-    {{ $previewText ?? ('Tu inscripción a '. strip_tags($item->course_name) .' fue confirmada.') }}
+    {{ $previewText ?? ('Tu inscripción a '. strip_tags_for_order_name($item->course_name) .' fue confirmada.') }}
 </span>
 
 # ¡Hola {{ $attendee->name }}! 👋
 
-¡Gracias por inscribirte! Tu matrícula al curso **{{ strip_tags($item->course_name) }}** ha sido **confirmada**.
+¡Gracias por inscribirte! Tu matrícula al curso **{{ strip_tags_for_order_name($item->course_name) }}** ha sido **confirmada**.
 A continuación te dejamos un resumen y los próximos pasos.
 
 @component('mail::panel')
 **Resumen de tu inscripción**
 
-- **Curso:** {{ strip_tags($item->course_name) }}
+- **Curso:** {{ strip_tags_for_order_name($item->course_name) }}
 - **Orden:** {{ $order->code ?? ('#'.$order->id) }}
 - **Participante:** {{ $attendee->name }} ({{ $attendee->email }})
 
