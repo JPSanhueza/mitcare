@@ -32,7 +32,7 @@ class AdminEnrollmentNotificationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Nueva Inscripción: {$this->attendee->name} en {$this->item->course_name}",
+            subject: "Nueva Inscripción: {$this->attendee->name} en ". strip_tags($this->item->course_name),
         );
     }
 

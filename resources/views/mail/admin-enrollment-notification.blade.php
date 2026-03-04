@@ -1,7 +1,7 @@
 @component('mail::message')
 {{-- PREHEADER (oculto en la mayoría de clientes) --}}
 <span style="display:none!important;opacity:0;color:transparent;visibility:hidden;max-height:0;max-width:0;overflow:hidden;">
-    Nueva inscripción de {{ $attendee->name }} en {{ $item->course_name }}
+    Nueva inscripción de {{ $attendee->name }} en {{ strip_tags($item->course_name) }}
 </span>
 
 # 📋 Nueva Inscripción Registrada
@@ -25,7 +25,7 @@ Te informamos que se ha registrado una nueva inscripción en el sistema.
 @component('mail::panel')
 **Detalles del Curso**
 
-- **Curso:** {{ $item->course_name }}
+- **Curso:** {{ strip_tags($item->course_name) }}
 @isset($item->modality)
 - **Modalidad:** {{ ucfirst($item->modality) }}
 @endisset

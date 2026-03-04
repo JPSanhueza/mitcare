@@ -25,11 +25,11 @@ class CourseEnrollmentMail extends Mailable
         // $dashboardUrl= route('dashboard');
 
         return $this
-            ->subject('Inscripción confirmada: '.$this->item->course_name)
+            ->subject('Inscripción confirmada: '. strip_tags($this->item->course_name))
             // Útil si quieres que respondan a soporte:
             // ->replyTo(config('mail.from.address'), config('mail.from.name'))
             ->markdown('mail.course-enrollment', [
-                'previewText'  => '¡Listo! Confirmamos tu cupo en '.$this->item->course_name.'. Aquí te contamos los próximos pasos.',
+                'previewText'  => '¡Listo! Confirmamos tu cupo en '. strip_tags($this->item->course_name) .'. Aquí te contamos los próximos pasos.',
                 // 'courseUrl'    => $courseUrl,
                 // 'dashboardUrl' => $dashboardUrl,
             ]);
