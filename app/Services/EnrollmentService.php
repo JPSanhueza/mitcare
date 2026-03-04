@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Mail\AdminEnrollmentNotificationMail;
 use App\Mail\CourseEnrollmentMail;
 use App\Models\Order;
 use App\Services\Cart\CartService;
@@ -26,13 +27,26 @@ class EnrollmentService
 
                 $att->update(['status' => 'enrolled']);
 
+                // Enviar correo al participante
                 try {
                     Mail::to($att->email)->queue(new CourseEnrollmentMail($order, $item, $att));
-                    Log::info('Correo de inscripción ENVIADO (sync)', ['attendee_id' => $att->id, 'email' => $att->email]);
+                    Log::info('Correo de inscripción ENVIADO al participante', ['attendee_id' => $att->id, 'email' => $att->email]);
                 } catch (\Throwable $e) {
-                    Log::error('No se pudo enviar correo de inscripción', [
+                    Log::error('No se pudo enviar correo de inscripción al participante', [
                         'attendee_id' => $att->id,
                         'email' => $att->email,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+
+                // Enviar correo de notificación a administradores
+                try {
+                    $adminEmail = config('mail.admin_email', config('mail.from.address'));
+                    Mail::to($adminEmail)->queue(new AdminEnrollmentNotificationMail($order, $item, $att));
+                    Log::info('Correo de notificación ENVIADO a admin', ['attendee_id' => $att->id, 'admin_email' => $adminEmail]);
+                } catch (\Throwable $e) {
+                    Log::error('No se pudo enviar correo de notificación a admin', [
+                        'attendee_id' => $att->id,
                         'error' => $e->getMessage(),
                     ]);
                 }

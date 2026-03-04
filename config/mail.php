@@ -42,7 +42,7 @@ return [
             'scheme' => env('MAIL_SCHEME'),
             'url' => env('MAIL_URL'),
             'host' => env('MAIL_HOST', '127.0.0.1'),
-            'port' => env('MAIL_PORT', 2525),
+            'port' => env('MAIL_PORT', 1025),
             'username' => env('MAIL_USERNAME'),
             'encryption' => env('MAIL_ENCRYPTION', 'tls'),
             'password' => env('MAIL_PASSWORD'),
@@ -113,5 +113,17 @@ return [
         'address' => env('MAIL_FROM_ADDRESS', 'info@otecmitcare.cl'),
         'name' => env('MAIL_FROM_NAME', 'OTEC Mitcare'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Notification Email
+    |--------------------------------------------------------------------------
+    |
+    | Email address where administrative notifications will be sent.
+    | This includes enrollment notifications, contact form submissions, etc.
+    |
+    */
+
+    'admin_email' => env('MAIL_ADMIN_ADDRESS', env('MAIL_FROM_ADDRESS', 'otecmitcare@gmail.com')),
 
 ];
