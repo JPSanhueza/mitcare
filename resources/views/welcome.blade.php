@@ -24,6 +24,28 @@
             :showButton="false" />
     </section>
 
+    <section class="bg-[#19355C]">
+        <div class="max-w-7xl mx-auto px-4 pt-10 pb-2">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl sm:text-4xl font-bold text-white">Así se viven nuestros cursos en OTECMITCARE</h2>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="aspect-video rounded-2xl overflow-hidden shadow-lg ring-2 ring-white/20">
+                    <iframe
+                        class="w-full h-full"
+                        src="https://www.youtube.com/embed/4-7yC3yxUyM"
+                        title="Así se viven nuestros cursos en OTECMITCARE"
+                        loading="lazy"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <livewire:courses.featured-grid :limit="3" />
     <livewire:teachers.team-grid :limit="9" :show-names="false" />
 
