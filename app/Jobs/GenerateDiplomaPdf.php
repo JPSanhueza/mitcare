@@ -158,7 +158,13 @@ class GenerateDiplomaPdf implements ShouldQueue
         ])->setPaper('a4', 'landscape')
             ->setWarnings(false);
 
-        $fileName = "diplomas/pdfs/certificado-curso-{$diploma->course->id}-{$diploma->student->nombre}-{$diploma->student->apellido}.pdf";
+        $studentSlug = Str::slug(trim("{$student->nombre} {$student->apellido}"));
+
+        if (blank($studentSlug)) {
+            $studentSlug = "estudiante-{$student->id}";
+        }
+
+        $fileName = "diplomas/pdfs/certificado-{$diploma->id}-curso-{$course->id}-{$studentSlug}.pdf";
         Storage::disk('public')->put($fileName, $pdf->output());
 
         $diploma->update([
