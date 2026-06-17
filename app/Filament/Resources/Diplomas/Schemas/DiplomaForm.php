@@ -154,10 +154,12 @@ class DiplomaForm
                             ->label('Docentes')
                             ->required()        // al menos 1 docente
                             ->multiple()        // 👈 clave: selección múltiple
-                            ->rules(['required', 'array', 'min:1'])
+                            ->maxItems(4)
+                            ->rules(['required', 'array', 'min:1', 'max:4'])
                             ->validationMessages([
                                 'required' => 'Debes seleccionar al menos un docente.',
                                 'min'      => 'Debes seleccionar al menos un docente.',
+                                'max'      => 'Puedes seleccionar como máximo 4 docentes.',
                             ])
                             ->options(function (Get $get) {
                                 $courseId = $get('course_id');
@@ -182,7 +184,7 @@ class DiplomaForm
                             })
                             ->searchable()
                             ->hidden(fn(Get $get) => blank($get('course_id')))
-                            ->helperText('Solo se muestran docentes activos asociados a este curso. Asegúrate de que tengan su firma cargada.'),
+                            ->helperText('Solo se muestran docentes activos asociados a este curso. Puedes seleccionar hasta 4 y deben tener firma cargada.'),
 
 
                     ]),

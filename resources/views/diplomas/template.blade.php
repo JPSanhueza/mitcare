@@ -216,24 +216,46 @@
         $qrSvgRaw = Storage::disk('public')->get($diploma->qr_path);
         $qrSvgBase64 = base64_encode($qrSvgRaw);
 
-        $teacherCount = $teachers->count();
+        $displayTeachers = $teachers->take(4)->values();
+        $teacherCount = $displayTeachers->count();
 
         // Ancho de la tabla de firmas según cantidad
         $signTableWidth = match ($teacherCount) {
             1 => '70%',
             2 => '90%',
-            default => '92%', // 3 o más
+            3 => '92%',
+            default => '100%',
         };
 
         // Altura de firma e intensidades de texto
-        $signImageHeight = $teacherCount >= 3 ? 105 : 130;
-        $signNameFont = $teacherCount >= 3 ? 16 : 20;
-        $signSubFont = $teacherCount >= 3 ? 13 : 17;
+        $signImageHeight = match (true) {
+            $teacherCount >= 4 => 74,
+            $teacherCount === 3 => 105,
+            default => 130,
+        };
+
+        $signNameFont = match (true) {
+            $teacherCount >= 4 => 11,
+            $teacherCount === 3 => 16,
+            default => 20,
+        };
+
+        $signSubFont = match (true) {
+            $teacherCount >= 4 => 9,
+            $teacherCount === 3 => 13,
+            default => 17,
+        };
+
+        $signatureAreaInset = $teacherCount >= 4 ? '270px' : '255px';
+        $signatureAreaBottom = $teacherCount >= 4 ? '58px' : '38px';
+        $signatureBlockHeight = $teacherCount >= 4 ? 160 : 230;
+        $signCellPadding = $teacherCount >= 4 ? '0 2px' : '0 10px';
+        $signLineWidth = $teacherCount >= 4 ? '90%' : '75%';
 
         // Firmas en base64 por profesor
         $teacherSignatures = [];
 
-        foreach ($teachers as $prof) {
+        foreach ($displayTeachers as $prof) {
             if (!$prof->signature) {
                 continue;
             }
@@ -300,41 +322,41 @@
         </div>
 
         {{-- FIRMAS DINÁMICAS --}}
-        <div class="signature-area">
+        <div class="signature-area" style="left: {{ $signatureAreaInset }}; right: {{ $signatureAreaInset }}; bottom: {{ $signatureAreaBottom }};">
             <table style="width: {{ $signTableWidth }}; margin: 0 auto; text-align:center;">
                 <tr>
-                    @foreach ($teachers as $t)
-                        <td style="width: {{ 100 / max($teacherCount, 1) }}%; padding: 0 10px;">
+                    @foreach ($displayTeachers as $t)
+                        <td style="width: {{ 100 / max($teacherCount, 1) }}%; padding: {{ $signCellPadding }};">
                             <div
                                 style="
         display:flex;
         flex-direction:column;
         align-items:center;
         justify-content:flex-start;
-        height: 230px;
+        height: {{ $signatureBlockHeight }}px;
     ">
                                 @php
                                     $signSrc = $teacherSignatures[$t->id] ?? null;
                                 @endphp
 
                                 @if ($signSrc)
-                                    <img src="{{ $signSrc }}" style="height: {{ $signImageHeight }}px;">
+                                    <img src="{{ $signSrc }}" style="height: {{ $signImageHeight }}px; max-width: 100%;">
                                 @else
                                     <div style="height: {{ $signImageHeight }}px;"></div>
                                 @endif
 
-                                <div style="border-top:1px solid #f6d686; width:75%; margin:4px auto;"></div>
+                                <div style="border-top:1px solid #f6d686; width:{{ $signLineWidth }}; margin:4px auto;"></div>
 
                                 <div
-                                    style="font-size: {{ $signNameFont }}px; font-weight:700; line-height:1; margin-top:4px;">
+                                    style="font-size: {{ $signNameFont }}px; font-weight:700; line-height:1; margin-top:4px; word-wrap: break-word;">
                                     {{ $t->nombre }} {{ $t->apellido }}
                                 </div>
 
-                                <div style="font-size: {{ $signSubFont }}px; font-weight:300; line-height:1;">
+                                <div style="font-size: {{ $signSubFont }}px; font-weight:300; line-height:1; word-wrap: break-word;">
                                     {{ $t->especialidad ?? 'Docente' }}
                                 </div>
 
-                                <div style="font-size: {{ $signSubFont }}px; font-weight:300; line-height:1;">
+                                <div style="font-size: {{ $signSubFont }}px; font-weight:300; line-height:1; word-wrap: break-word;">
                                     {{ $t->organization_name ?? '' }}
                                 </div>
 

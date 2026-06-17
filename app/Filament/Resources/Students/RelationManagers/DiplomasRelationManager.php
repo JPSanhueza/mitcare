@@ -120,6 +120,11 @@ class DiplomasRelationManager extends RelationManager
                                     ]);
                             })
                             ->multiple()
+                            ->maxItems(4)
+                            ->rules(['array', 'max:4'])
+                            ->validationMessages([
+                                'max' => 'Puedes seleccionar como máximo 4 docentes.',
+                            ])
                             ->searchable()
                             ->required()
                             ->disabled(fn (Get $get) => ! $get('course_id')),

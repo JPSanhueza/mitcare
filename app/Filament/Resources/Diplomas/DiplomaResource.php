@@ -59,7 +59,7 @@ class DiplomaResource extends Resource
                     Select::make('teacher_ids_display')
     ->label('Profesores')
     ->multiple()
-    ->maxItems(3) // máximo 3 profes
+    ->maxItems(4) // máximo 4 profes
     ->options(function (?Diploma $record) {
         if (! $record?->course_id && ! $record?->batch?->course_id) {
             return [];
@@ -83,7 +83,7 @@ class DiplomaResource extends Resource
     })
     ->preload()
     ->searchable()
-    ->helperText('Selecciona hasta 3 profesores que aparecerán en el certificado.'),
+    ->helperText('Selecciona hasta 4 profesores que aparecerán en el certificado.'),
 
                     TextInput::make('verification_code')
                         ->label('Código de verificación')
